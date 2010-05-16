@@ -25,6 +25,62 @@ Functions acting upon
 <script>explorer.outline.incSymbolLevel();</script>
 <dl>
 <script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">V[K] 
+<span class="currsymbol">dup</span>
+<script>explorer.outline.addDecl('dup');</script>
+
+(K, V)(V[K] <span class="funcparam">aa</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Simple helper function to duplicate an associative array.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">struct 
+<span class="currsymbol">AsRange</span>
+<script>explorer.outline.addDecl('AsRange');</script>
+
+(K,V);
+<br>AsRange!(K,V) 
+<span class="currsymbol">asRange</span>
+<script>explorer.outline.addDecl('asRange');</script>
+
+(K, V)(V[K] <span class="funcparam">aa</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>There may be a need for an 'asRange' function that takes a container
+and returns a range iterating over the entire content. In this particular case, asRange takes
+an associative array of type V[K] and returns (K,V) tuples.
+It's a random-access range, with a length. opIndexAssign is defined and will
+change the original associative array.
+<br><br>
+<b>Note:</b><br>
+I'm a bit ambivalent on this one. front/back returns tuples, because that's the
+entire content and because if you only want keys or values, you can use the homonym
+properties. But for opIndex (indexed on keys) you already know the key, so it returns
+only a value. The same for opIndexApply. I'm wondering if that's OK or not.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>auto</font> aa = [<font color=red>"Hello"</font>:5, <font color=red>"World!"</font>:6, <font color=red>"a"</font>:99, <font color=red>""</font>:0, <font color=red>"Howdy"</font>:6];
+<font color=blue>auto</font> aa_range = aa.asRange;
+<font color=blue>assert</font>(equal(aa_range, [tuple(<font color=red>"a"</font>,99), tuple(<font color=red>""</font>,0), tuple(<font color=red>"Hello"</font>,5), tuple(<font color=red>"World!"</font>,6), tuple(<font color=red>"Howdy"</font>,6)][]));
+<font color=blue>assert</font>(aa_range.length == 5); <font color=green>// has a length
+</font><font color=blue>assert</font>(aa_range[<font color=red>"Hello"</font>] == 5); <font color=green>// opIndex. Returns a value.
+</font>aa_range[<font color=red>"Hello"</font>] = 100; <font color=green>// opIndexAssign.
+</font><font color=blue>assert</font>(aa[<font color=red>"Hello"</font>] == 100); <font color=green>// changes the original AA.
+</font>aa[<font color=red>"Howdy"</font>] = 66; <font color=green>// If we change the original AA after .asRange was called
+</font><font color=blue>assert</font>(aa_range[<font color=red>"Howdy"</font>] == 66); <font color=green>// The range presents the udpated view.
+</font></pre>
+<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">Unqual!(ElementType!(VR))[ElementType!(KR)] 
 <span class="currsymbol">toAssoc</span>
 <script>explorer.outline.addDecl('toAssoc');</script>
@@ -176,7 +232,7 @@ Functions acting upon
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Sat May 15 22:50:10 2010
+			on Sun May 16 15:31:07 2010
 
 		</td></tr>
 	</table>

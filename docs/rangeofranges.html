@@ -22,6 +22,120 @@ a linear range into a range of ranges, zipping them, creating them by tensorial 
 <script>explorer.outline.incSymbolLevel();</script>
 <dl>
 <script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">struct 
+<span class="currsymbol">Transpose</span>
+<script>explorer.outline.addDecl('Transpose');</script>
+
+(R) if (isRangeOfRanges!(R) &amp;&amp; hasLength2!(R) &amp;&amp; hasLength2!(ElementType!(R)));
+<br>UnWrap!("Transpose",R) 
+<span class="currsymbol">transpose</span>
+<script>explorer.outline.addDecl('transpose');</script>
+
+(R)(R <span class="funcparam">ror</span>);
+<br>Transpose!(R) 
+<span class="currsymbol">transpose</span>
+<script>explorer.outline.addDecl('transpose');</script>
+
+(R)(R <span class="funcparam">ror</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Takes a range of ranges and transposes it. If it's applied a second time, transpose detects this
+and gives back the original range. It's a thin wrapper around R: it acts by ref on the subjacent
+range.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>int</font>[][] mat = [[0,1,2,3], [4,5,6,7], [8,9,10,11]];
+<font color=green>// transpose(mat) is [[0, 4, 8] [1, 5, 9] [2, 6, 10] [3, 7, 11]]
+</font><font color=blue>assert</font>(asString(transpose(transpose(mat))) == asString(mat));
+<font color=blue>auto</font> t = transpose(mat);
+t[2] = [0,0,0][]; <font color=green>// opIndexAssign
+</font><font color=green>// t is [[0, 4, 8] [1, 5, 9] [0, 0, 0] [3, 7, 11]]
+</font><font color=blue>auto</font> t2 = transpose(t);
+<font color=blue>assert</font>(asString(t2, <font color=red>" "</font>) == <font color=red>"[0, 1, 0, 3] [4, 5, 0, 7] [8, 9, 0, 11]"</font>);
+</pre>
+<br><br>
+<b>TODO:</b><br>
+Compare to std.range.transverse, look at std.range.transposed.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Cycle!(Cycle!(ElementType!(R))[]) 
+<span class="currsymbol">torus</span>
+<script>explorer.outline.addDecl('torus');</script>
+
+(R)(R <span class="funcparam">rangeofranges</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Takes a range of ranges and wraps it around itself to make it a 
+<span class="currsymbol">torus</span>
+<script>explorer.outline.addDecl('torus');</script>
+
+:
+each subrange becomes a cycle and the global range is also a cycle. It's an infinite
+range whose elements are also all infinite.
+If the initial range offers random access, individual elements of a 
+<span class="currsymbol">torus</span>
+<script>explorer.outline.addDecl('torus');</script>
+
+ can be reached
+by two applications of opIndex (see in the example below).
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>int</font>[][] r1 = [[0,1,2],[3,4,5]];
+<font color=blue>auto</font> toroid = <u>torus</u>(r1);
+
+    <font color=green>// toroid is (more or less) :
+</font>    <font color=green>//          ......
+</font>    <font color=green>// ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+</font>    <font color=green>// ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+</font>    <font color=green>// ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+</font>    <font color=green>// ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+</font>    <font color=green>// ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+</font>    <font color=green>// ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+</font>    <font color=green>//          ......
+</font>
+<font color=blue>assert</font>(isInfinite!(<font color=blue>typeof</font>(toroid))); <font color=green>// a torus is an infinite range (necklace-like in this direction)
+</font>
+<font color=blue>foreach</font>(line; take(10, toroid)) <font color=blue>assert</font>(isInfinite!(<font color=blue>typeof</font>(line))); <font color=green>// each element is infinite (a cycle)
+</font><font color=blue>assert</font>(equal(take(10, toroid.front), [0,1,2,0,1,2,0,1,2,0][]));
+toroid.popFront; <font color=green>// pops the first line
+</font><font color=blue>assert</font>(equal(take(10, toroid.front), [3,4,5,3,4,5,3,4,5,3][]));
+<font color=blue>assert</font>(equal(take(10, map!<font color=red>"a.front"</font>(toroid)), [3,0,3,0,3,0,3,0,3,0][])); <font color=green>// the front of each element is a cycle
+</font><font color=blue>assert</font>(equal(take(10, map!<font color=red>"a[1]"</font>(toroid)), [4,1,4,1,4,1,4,1,4,1][])); <font color=green>// second 'column'
+</font><font color=blue>assert</font>(toroid[1][2] == 2); <font color=green>// Elements are accessible with a twofold application of opIndex. second 'line', third 'column' -&gt; '2'
+</font><font color=blue>assert</font>(toroid[1][2] == toroid[1 + 2][2 +3]); <font color=green>// Periodic with a period of 2 in a direction, 3 in the other.
+</font></pre>
+<br><br>
+<b>TODO:</b><br>
+maybe add an opIndex(i,j) operation, to get 
+<span class="currsymbol">torus</span>
+<script>explorer.outline.addDecl('torus');</script>
+
+[1,2] instead of 
+<span class="currsymbol">torus</span>
+<script>explorer.outline.addDecl('torus');</script>
+
+[1][2].
+<br><br>
+<b>TODO:</b><br>
+some kind of slicing, to extract a rectangular section from the 
+<span class="currsymbol">torus</span>
+<script>explorer.outline.addDecl('torus');</script>
+
+. Maybe with a syntax like 
+<span class="currsymbol">torus</span>
+<script>explorer.outline.addDecl('torus');</script>
+
+[[1,2],[3,4]]<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">typeof(unaryFun!(fun)(E.init)) 
 <span class="currsymbol">depthMap</span>
 <script>explorer.outline.addDecl('depthMap');</script>
@@ -297,7 +411,7 @@ the 0-based coordinates. It's a n-dim generalization of indexed.<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Sat May 15 22:50:10 2010
+			on Sun May 16 15:31:08 2010
 
 		</td></tr>
 	</table>
