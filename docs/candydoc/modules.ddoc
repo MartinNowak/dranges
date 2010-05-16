@@ -1,0 +1,24 @@
+MODULES = 
+	$(MODULE dranges.all)
+	$(MODULE dranges.algorithm2)
+	$(MODULE dranges.associative)
+	$(MODULE dranges.eager)
+	$(MODULE dranges.experiments)
+	$(MODULE dranges.functional2)
+	$(MODULE dranges.morphism)
+	$(MODULE dranges.patternmatch)
+	$(MODULE dranges.phobos_extension)
+	$(MODULE dranges.predicate)
+	$(MODULE dranges.range2)
+	$(MODULE dranges.rangeofranges)
+	$(MODULE dranges.recursive)
+	$(MODULE dranges.reftuple)
+	$(MODULE dranges.templates)
+	$(MODULE dranges.traits2)
+	$(MODULE dranges.treerange)
+	$(MODULE dranges.tuple2)
+	$(MODULE dranges.typetuple2)
+	$(MODULE dranges.variadic)
+	
+
+	
