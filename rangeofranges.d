@@ -20,6 +20,191 @@ import dranges.tuple2;
 import dranges.range2;
 import dranges.algorithm2;
 
+
+/**
+Takes a range of ranges and transposes it. If it's applied a second time, transpose detects this
+and gives back the original range. It's a thin wrapper around R: it acts by ref on the subjacent
+range.
+Example:
+----
+int[][] mat = [[0,1,2,3], [4,5,6,7], [8,9,10,11]];
+// transpose(mat) is [[0, 4, 8] [1, 5, 9] [2, 6, 10] [3, 7, 11]]
+assert(asString(transpose(transpose(mat))) == asString(mat));
+auto t = transpose(mat);
+t[2] = [0,0,0][]; // opIndexAssign
+// t is [[0, 4, 8] [1, 5, 9] [0, 0, 0] [3, 7, 11]]
+auto t2 = transpose(t);
+assert(asString(t2, " ") == "[0, 1, 0, 3] [4, 5, 0, 7] [8, 9, 0, 11]");
+----
+TODO:
+Compare to std.range.transverse, look at std.range.transposed.
+*/
+struct Transpose(R)
+if (isRangeOfRanges!R && hasLength2!R && hasLength2!(ElementType!R))
+{
+    alias ElementType!R RowType;
+    alias ElementType!RowType CellType;
+    size_t _nrows, _ncols;
+    R _ror;
+
+
+    this(R ror) {
+        _ror = ror;
+        _nrows = _ror.length;
+        if (!_ror.empty) _ncols = _ror.front.length;
+    }
+
+    bool empty() { return _ror.empty || _ror.front.empty;}
+
+    CellType[] front() {
+        CellType[] result;
+        foreach(row; _ror) { result ~= row.front;}
+        return result;
+    }
+
+    void popFront() {
+        foreach(ref row; _ror) row.popFront;
+    }
+
+    static if (isBidirectionalRange!RowType) {
+        CellType[] back() {
+            CellType[] result;
+            foreach(row; _ror) { result ~= row.back;}
+            return result;
+        }
+
+        void popBack() {
+            foreach(ref row; _ror) row.popBack;
+        }
+    }
+
+    static if (isRandomAccessRange!RowType) {
+        CellType[] opIndex(size_t index) {
+            CellType[] result;
+            foreach(row; _ror) { result ~= row[index];}
+            return result;
+        }
+
+        static if(hasAssignableElements!RowType) {
+            void opIndexAssign(CellType[] col, size_t index) {
+                foreach(i, row; _ror) { _ror[i][index] = col[i];}
+            }
+        }
+    }
+
+    size_t length() { return _ncols;}
+}
+
+/// ditto
+UnWrap!("Transpose", R) transpose(R)(R ror)
+if (isTransposed!R && isRangeOfRanges!R && hasLength2!R && hasLength2!(ElementType!R))
+{
+    return ror._ror;
+}
+
+/// ditto
+Transpose!R transpose(R)(R ror)
+if (!isTransposed!(R) && isRangeOfRanges!R && hasLength2!R && hasLength2!(ElementType!R))
+{
+    return Transpose!R(ror);
+}
+
+template isTransposed(R) {
+    static if (is(R R1 == Transpose!R2, R2))
+        enum bool isTransposed = true;
+    else
+        enum bool isTransposed = false;
+}
+
+unittest
+{
+    int[][] mat = [[0,1,2,3], [4,5,6,7], [8,9,10,11]];
+    assert(mat.length == 3);
+    assert(equal(transpose(mat),
+                 [[0, 4, 8], [1, 5, 9], [2, 6, 10], [3, 7, 11]][]));
+//    writeln(asString(transpose(mat.dup), " "));
+//    writeln("[0, 4, 8] [1, 5, 9] [2, 6, 10] [3, 7, 11]");
+//    assert(asString(transpose(transpose(mat))) == asString(mat));
+//    auto t = transpose(mat);
+//    t[2] = [0,0,0][]; // opIndexAssign
+//    // t is [[0, 4, 8] [1, 5, 9] [0, 0, 0] [3, 7, 11]]
+//    auto t2 = transpose(t);
+//    assert(asString(t2, " ") == "[0, 1, 0, 3] [4, 5, 0, 7] [8, 9, 0, 11]");
+}
+
+
+/**
+Takes a range of ranges and wraps it around itself to make it a torus:
+each subrange becomes a cycle and the global range is also a cycle. It's an infinite
+range whose elements are also all infinite.
+If the initial range offers random access, individual elements of a torus can be reached
+by two applications of opIndex (see in the example below).
+Example:
+----
+int[][] r1 = [[0,1,2],[3,4,5]];
+auto toroid = torus(r1);
+
+    // toroid is (more or less) :
+    //          ......
+    // ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+    // ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+    // ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+    // ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+    // ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+    // ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+    //          ......
+
+assert(isInfinite!(typeof(toroid))); // a torus is an infinite range (necklace-like in this direction)
+
+foreach(line; take(10, toroid)) assert(isInfinite!(typeof(line))); // each element is infinite (a cycle)
+assert(equal(take(10, toroid.front), [0,1,2,0,1,2,0,1,2,0][]));
+toroid.popFront; // pops the first line
+assert(equal(take(10, toroid.front), [3,4,5,3,4,5,3,4,5,3][]));
+assert(equal(take(10, map!"a.front"(toroid)), [3,0,3,0,3,0,3,0,3,0][])); // the front of each element is a cycle
+assert(equal(take(10, map!"a[1]"(toroid)), [4,1,4,1,4,1,4,1,4,1][])); // second 'column'
+assert(toroid[1][2] == 2); // Elements are accessible with a twofold application of opIndex. second 'line', third 'column' -> '2'
+assert(toroid[1][2] == toroid[1 + 2][2 +3]); // Periodic with a period of 2 in a direction, 3 in the other.
+----
+TODO: maybe add an opIndex(i,j) operation, to get torus[1,2] instead of torus[1][2].
+TODO: some kind of slicing, to extract a rectangular section from the torus. Maybe with a syntax like torus[[1,2],[3,4]]
+*/
+Cycle!(Cycle!(ElementType!R)[]) torus(R)(R rangeofranges)
+if (isRangeOfRanges!R)
+{
+    alias Cycle!(ElementType!R) Circle;
+
+    Circle[] circles;
+    foreach(elem; rangeofranges) circles ~= cycle(elem);
+    return cycle(circles);
+}
+
+unittest
+{
+    int[][] r1 = [[0,1,2],[3,4,5]];
+    auto toroid = torus(r1);
+
+        // toroid is (more or less) :
+        //          ......
+        // ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+        // ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+        // ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+        // ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+        // ... 0 1 2 0 1 2 0 1 2 0 1 2 ...
+        // ... 3 4 5 3 4 5 3 4 5 3 4 5 ...
+        //          ......
+
+    assert(isInfinite!(typeof(toroid))); // a torus is an infinite range (necklace-like in this direction)
+
+    foreach(line; take(toroid, 10)) assert(isInfinite!(typeof(line))); // each element is infinite (a cycle)
+    assert(equal(take(toroid.front, 10), [0,1,2,0,1,2,0,1,2,0][]));
+    toroid.popFront; // pops the first line
+    assert(equal(take(toroid.front, 10), [3,4,5,3,4,5,3,4,5,3][]));
+    assert(equal(take(map!"a.front"(toroid), 10), [3,0,3,0,3,0,3,0,3,0][])); // the front of each element is a cycle
+    assert(equal(take(map!"a[1]"(toroid), 10), [4,1,4,1,4,1,4,1,4,1][])); // second 'column'
+    assert(toroid[1][2] == 2); // Elements are accessible with a twofold application of opIndex. second 'line', third 'column' -> '2'
+    assert(toroid[1][2] == toroid[1 + 2][2 +3]); // Elements are accessible with a twofold application of opIndex. second 'line', third 'column' -> '2'
+}
+
 /**
 Maps fun at depth downToRank inside a range of ranges.
 */
