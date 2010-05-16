@@ -9,7 +9,7 @@ module dranges.eager;
 import std.array, std.algorithm, std.range;
 
 /// An eager version of map.
-template map(alias fun)
+template eagerMap(alias fun)
 {
     typeof(unaryFun!fun(ElementType!R.init))[] map(R)(R r) if (isInputRange!R)
     {
@@ -31,7 +31,7 @@ template map(alias fun)
 }
 
 /// An eager version of filter.
-template filter(alias pred)
+template eagerFilter(alias pred)
 {
     typeof(unaryFun!pred(ElementType!R.init))[] filter(R)(R r) if (isInputRange!R)
     {
