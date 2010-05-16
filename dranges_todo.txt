@@ -1,0 +1,203 @@
+Dranges todo / braindump file.
+
+** Project **
+Update docs
+Update unittests to follow the changes on strings (no length!)
+write some pure doc file, to develop some ideas
+  - ranges of functions
+  - combining ranges
+  - tuples as trees
+put policies for Segments and some others: ret-type: tuple, array, static array, lazy range.
+review which args really need to be template params -> curry and flip when possible (see flipn)
+
+** Ranges **
+dropUntil
+takeUntil
+rotateWhile
+rotateUntil
+inner joint
+outer joint
+self-join
+chain: opSlice with infinite ranges
+subrange(range, start, end)
+associative range (KeyType, hasKey, opIndex(KeyType key))
+removeEach ([0,1,2,3] -> [[1,2,3], [0,2,3], [0,1,3], [0,1,2]]). Maybe return a (a,a[]) instead of just a a[]
+chop(separator) : segment the range at each occurence of separator, getting rid of separator
+segmentAfter(sep) / segmentBefore : conserve the separator
+splitEverywhere
+padRight(elem, n, range) = take(n, chain(range, repeat(elem)));
+padLeft(elem, n, range) = take(n, chain(replicate(elem, n-range.length), range)); // range.length
+                        = retro(padRight(elem, n, retro(range))); // retro(range)
+partitionBy
+group (a->b) -> [a] -> [[a]] : groups the as by same value of b, see also Clojure API
+disjoint(r1,r2)
+overlap (fin = debut)
+haveCommontElements (intersection.empty?)
+isPermutationOf
+isIncludedIn / isSubrange (disjoint, ordered/unordered)
+takeWhileMulti(preds) : takeWhile!predN( ... (takeWhile!pred1( takeWhile!pred0(range))))
+randomElement
+See which algo can become better with array-like ranges (RA, know is length)
+IsCompleteRange (isRA && hasLength && hasSlicing)
+opDollar
+infinite slices for all infinite ranges
+splitOn x axbxbc -> abc
+splitWhen (<0) [1,2,-3,4,-5,6,-7] -> [[1,2], [4], [6], []]
+mapIndexed!(fun)(range) = tmap!fun(indexed(range))   fun(E)(size_t index, E elem)
+reduceWhile!(fun,pred)(range)
+reduceIndexed!(fun)(range) = treduce!fun(indexed(range))
+shuuffle
+isSubrangeOf
+isSuperrangeOf
+successively!"abc"
+hasNElements = (walkLength(r, n) == n)
+longest prefix/common prefix (takeWhile on knit, with a predicate testing if the tuples are (a,a,a,a))
+eager map, filter, take, takeW, modify (like map but T->T)
+example for map: labelling data as we iterate (T -> (T, string))
+describe range
+alternate!pred(r) -> takeWhile!pred, takeUntil!pred, takeWhile!pred,...
+selectAmong (range of ranges and a function of indices to know which element
+to present)
+shuffle (function of indices and choose on one range)
+isHeap
+isPartition
+partitionPoint
+take with two ranges? ttake, ntake? (STL adjacent_find)
+commonSuffix, commonParts
+applicative stream tmap!"a(b)"(functionsRange, valuesRange)
+range of void?
+Dirac range, Heaviside range
+
+** Ranges of Ranges **
+removeNth(r, index)  tfilter!(!equals(index))(r,numbers)
+recursive filter
+isSquare, isJagged
+recursive equal
+hyperplane (n-1 slice in a n-dim range) along which dim, at which index
+nSlices: output the successive hyperplanes along a dimension. Is that a n-dim transpose?
+diagonal(ror)
+diagonalSlices
+trace (of a matrix)
+diagonal :: [[a]] -> [a]
+diagonal = concat . stripe
+    where
+    stripe [] = []
+    stripe ([]:xss) = stripe xss
+    stripe ((x:xs):xss) = [x] : zipCons xs (stripe xss)
+
+    zipCons [] ys = ys
+    zipCons xs [] = map (:[]) xs
+    zipCons (x:xs) (y:ys) = (x:y) : zipCons xs ys
+shear (on a range of ranges) : takes successive diagonal 'slices' of the 2D range
+
+
+** Tuples **
+enclosing computations in tuples (args, fun, some other fun, more args, etc)
+flattenTuple!(depth)(tup)
+tuple parallel map (on n tuples, creates another tuple)
+tuple filter on types, unique on types
+tuple atType!T -> first occurence of a T
+complementary of ShredTuple
+partitionBy for tuples: putting first the elements satisfying a predicate (see std.algo.partition)
+
+** Templates **
+TransformParam is a functor, a function on types. A -> B  A!int is an element of A, etc.
+
+** TypeTuples **
+StaticRemove
+type set (http://www.boost.org/doc/libs/1_42_0/libs/fusion/doc/html/fusion/container/set.html)
+  -> see also std.typetuple.unique or somesuch
+StaticSeparate
+StaticFilter (on alias)
+StaticMap (on alias)
+StaticReduce (on alias)
+
+** Math / Numerical **
+mean, median stddev (wkpd), variance
+cumulative moving average
+weighted moving average / exponential moving average
+standard score / Z-score
+fixedPoint (iterate with pred) (pred != "a==b")
+lazy primes, remember next multiple
+window functions
+fft, haenkel transform, other transforms
+Runge-Kutta : rk!f = iterate! (RK!f)(t0,y0) -> outputs a tuple range, (tn,yn)
+Lentz algorithm for the partial sums of continued fractions.
+newmark method (Mx'' = f(x,x',t))
+correlation / autocorrelation
+convolution
+average
+magnitude, norm2, norm1, norm0, normInf, norm p (p double, inf)
+toBase!n, fromBase!n (unfold, reduce)
+differenceList
+decimal expansion, decimalPart
+convergence acceleration (Shanks, Aitken)
+partialSum, product
+extrapolate (linear, bicubic)
+Principal Components Analysis
+
+** Functions **
+selectFun!(pred1, f1, pred2, f2, default-fun)
+combinators:
+	dovekie: appro  f g h x y = f (g x) (h y) 
+	bigphi:  bigphi f g h x   = f (g x) (h x)
+	on:      on     f g   x y = f (g x) (g y)
+	subst:   subst  f g   x   = f  x    (g x)
+	apply:   apply  x f = f x
+	dup:     dup    f x = f x x
+	const:   const  x y = x
+	flip:    flip   f x y = f y x
+	tupler? f (a,b,c, ...) -> (f a, f b, f c, ...) (en parall�le avec mapper)
+adaptors:
+	pre-process f g x = f (g x) (preprocess x with g, then give it to f)
+	postprocess f g x = g (f x) (call f with x, post-process result with f
+	prepost     f g h x =  h (f (g x)) (pre-process with g, call f, post-process with h
+on f g x y = g (f x) (f y). Example: on toString ==
+real const fun, lazy on its second argument
+adding a new case to a match/eitherFun: match!(newFun, oldMatch) or match!(oldMatch, newFun)
+multimethod: (dispatchfunction, mapping[value returned by dispatch : function to call])
+              dispatch can be a match!()
+			  make multi a struct with an addCase(value, fun) method ?
+cartesian product -> call it tuplify
+unleft: x -> (x, f(x))
+correlation?
+convolution?
+nth iterate
+addDoc (struct which stores a string doc. @property docstring.  the rest: opDispatch on wrapped type.
+memoize (cycle n most recently used)
+transform an AA into a function. -> gives a partial(non-total) function.
+predicateOr, predicateAnd, predicateXor, predicateNot, 
+predicate: is f pred x = pred f x   :  is!(length, "<3")
+
+** AA **
+isOneOf with AA
+AA: map on keys (+merge), on values
+AA: filter on keys, on values
+asSet with a alias fun?
+'fun' inAA (a struct with an AA and opCall)
+
+** Experiments **
+Stamp (can popFront one range independently of the others)
+Revolve/Cylinder on a RoR (method rotate/revolve to present a new subrange for iteration)
+	(popFront advance every subrange)
+
+** Graph/Tree **
+addLoops
+removeLoops
+dependency list
+stratification list?
+self-recursive sets?
+Floyd-Warshall
+parsing XML?
+cartesian product of graphs and trees (and recursive ranges?)
+general fold: whatNext, lateralAggregation, backAggregation
+max independant node set
+maximum clique
+minimum spanning tree (already done?)
+node eccentricity (max distance)
+center: nodes with min eccentricity
+periphery: nodes with max eccentricity
+graph voronoi diagram (inward/outward)
+
+** The rest **
+_(): managing variants (try to cast) -> convertsTo(T)
