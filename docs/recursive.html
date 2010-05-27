@@ -19,44 +19,44 @@ as I'm not quite sure of the semantics yet (empty/hasValue..., should filter con
 <b><big>Ranges:</big></b>
 <br><br>
 
-A range defines <i><font color=blue>empty</font></i>/<i><font color=blue>front</font></i>/<i><font color=blue>popFront</font></i> as the standard way to iterate, possibly
+A range defines <i><font color=blue><code>empty</code></font></i>/<i><font color=blue><code>front</code></font></i>/<i><font color=blue><code>popFront</code></font></i> as the standard way to iterate, possibly
 completed by some other functions. Given an element as front, there no ambiguity as to where to
 go next: there is only one next element, giving rise to a linear range of values (hence the name).
-You could instead use other methods, like <i><font color=blue>hasNext</font></i>/<i><font color=blue>next</font></i> (<i><font color=blue>next</font></i> popping the front and returning
-the successor). You can complete it with <i><font color=blue>front</font></i>, if you want to cache the current element to access
-it many times (calling <i><font color=blue>next</font></i> many times would advance the range).
+You could instead use other methods, like <i><font color=blue><code>hasNext</code></font></i>/<i><font color=blue><code>next</code></font></i> (<i><font color=blue><code>next</code></font></i> popping the front and returning
+the successor). You can complete it with <i><font color=blue><code>front</code></font></i>, if you want to cache the current element to access
+it many times (calling <i><font color=blue><code>next</code></font></i> many times would advance the range).
 <br><br>
 
 <b><big>Recursive (or Branching) Ranges:</big></b>
 <br><br>
 
 A recursive range is somewhat similar, but based on a tree: given an recursive range,
-the presence of a valid node is given by <i><font color=blue>hasValue</font></i>. If OK, the current node's value
-is returned by a method named <i><font color=blue>value</font></i>. The <i><font color=blue>successors</font></i> method
+the presence of a valid node is given by <i><font color=blue><code>hasValue</code></font></i>. If OK, the current node's value
+is returned by a method named <i><font color=blue><code>value</code></font></i>. The <i><font color=blue><code>successors</code></font></i> method
 then returns a range of children, each of these children being itself a recursive range of the same type.
 This range of children is traditionally an array, but it could be lazy and even infinite.
-If <i><font color=blue>successors</font></i> returns an empty range, then the current node is a sink in the graph, or leaf in tree parlance. Note
+If <i><font color=blue><code>successors</code></font></i> returns an empty range, then the current node is a sink in the graph, or leaf in tree parlance. Note
 that the classical end condition for algorithms crawling trees or graphs is to test for leaves, not for empty.
-Indeed, <i><font color=blue>empty</font></i> is useful only at the very beginning to test for the validity of a recursive range or
+Indeed, <i><font color=blue><code>empty</code></font></i> is useful only at the very beginning to test for the validity of a recursive range or
 after filtering a 
 <span class="currsymbol">recursive</span>
 <script>explorer.outline.addDecl('recursive');</script>
 
- range (see <i><font color=blue>rfilter</font></i>).
+ range (see <i><font color=blue><code>rfilter</code></font></i>).
 <br><br>
 
-There is no <i><font color=blue>popFront</font></i> equivalent: there is no natural next element, though depth-first (pre- or post-order)
+There is no <i><font color=blue><code>popFront</code></font></i> equivalent: there is no natural next element, though depth-first (pre- or post-order)
 and breadth-first iterations are standard.
-You will find here traversal functions called <i><font color=blue>depthFirst</font></i> and <i><font color=blue>breadthFirst</font></i>, that constructs a linear range
+You will find here traversal functions called <i><font color=blue><code>depthFirst</code></font></i> and <i><font color=blue><code>breadthFirst</code></font></i>, that constructs a linear range
 from a recursive range. That way, you can use all the standard linear algorithms on a recursive range.
 <br><br>
 
-These methods <i><font color=blue>hasValue</font></i>/<i><font color=blue>value</font></i>/<i><font color=blue>successors</font></i> are what defines an input recursive range.
-There is a corresponding template, <i><font color=blue>isInputRecursiveRange</font></i>. From now on, I'll use
+These methods <i><font color=blue><code>hasValue</code></font></i>/<i><font color=blue><code>value</code></font></i>/<i><font color=blue><code>successors</code></font></i> are what defines an input recursive range.
+There is a corresponding template, <i><font color=blue><code>isInputRecursiveRange</code></font></i>. From now on, I'll use
 r-range as a shorter term for 'recursive range'.
 <br><br>
 
-Given a non-empty r-range, a method <i><font color=blue>isSink</font></i> is trivial:
+Given a non-empty r-range, a method <i><font color=blue><code>isSink</code></font></i> is trivial:
 <pre class="d_code"><font color=blue>bool</font> isSink() { <font color=blue>return</font> successors.empty;}.
 </pre>
 It's good practice to expose it in a r-range, as it's the terminating condition for many algorithms and is linked to infinite depth (see below).
@@ -67,45 +67,45 @@ Maybe it should be part of an r-range definition?
 <br><br>
 
 If you can copy the r-range into a variable, to store its state and restore it later, you have the equivalent
-of a forward range, here named a forward recursive range, with its companion template <i><font color=blue>isForwardRecursiveRange</font></i>.
+of a forward range, here named a forward recursive range, with its companion template <i><font color=blue><code>isForwardRecursiveRange</code></font></i>.
 <br><br>
 
 <b><big>Infinity:</big></b>
 <br><br>
 
 These simple functions give rise to two kinds of infinity: infinite breadth if successors returns an infinite range,
-infinite height if there is no leaf in the range: the range returned by <i><font color=blue>successors</font></i> always have at least one element.
+infinite height if there is no leaf in the range: the range returned by <i><font color=blue><code>successors</code></font></i> always have at least one element.
 As some part of the range may be finite,
 while other parts are infinite (a situation not possible for an infinite linear range), this is somewhat complicated. As such,
-the template <i><font color=blue>hasInfiniteBreadth</font></i> is global: it alias itself to <b>true</b> iff <i><font color=blue>successors</font></i> returns an infinite range. This
-is local at first view, but since the return type of <i><font color=blue>successors</font></i> is defined in the node type, the infinity of this range
-is deinfed at creation, and so is the same for all nodes inside the r-range. Use <i><font color=blue>hasInfiniteBreadth</font></i> before iterating on the children of a node.
+the template <i><font color=blue><code>hasInfiniteBreadth</code></font></i> is global: it alias itself to <b>true</b> iff <i><font color=blue><code>successors</code></font></i> returns an infinite range. This
+is local at first view, but since the return type of <i><font color=blue><code>successors</code></font></i> is defined in the node type, the infinity of this range
+is deinfed at creation, and so is the same for all nodes inside the r-range. Use <i><font color=blue><code>hasInfiniteBreadth</code></font></i> before iterating on the children of a node.
 <br><br>
 
-As for <i><font color=blue>hasInfiniteHeight</font></i>, it tests if <i><font color=blue>isSink</font></i> is statically <b>false</b>.
+As for <i><font color=blue><code>hasInfiniteHeight</code></font></i>, it tests if <i><font color=blue><code>isSink</code></font></i> is statically <b>false</b>.
 <br><br>
 
 <b><big>Length, depth:</big></b>
 <br><br>
 
-There is no simple, generic <i><font color=blue>length</font></i> equivalent, though some recursive ranges could know the total number of their nodes accessible
-from the current node, with a method called <i><font color=blue>size</font></i>.
-As with linear ranges, a template <i><font color=blue>hasSize</font></i> tests for its presence, and a walkLength equivalent can be done. A r-range that's infinite
-in any direction (downward, upward, or sideways) cannot have a <i><font color=blue>size</font></i> method.
+There is no simple, generic <i><font color=blue><code>length</code></font></i> equivalent, though some recursive ranges could know the total number of their nodes accessible
+from the current node, with a method called <i><font color=blue><code>size</code></font></i>.
+As with linear ranges, a template <i><font color=blue><code>hasSize</code></font></i> tests for its presence, and a walkLength equivalent can be done. A r-range that's infinite
+in any direction (downward, upward, or sideways) cannot have a <i><font color=blue><code>size</code></font></i> method.
 <br><br>
 
-In parallel, a <i><font color=blue>height</font></i> method can give the max number of successors levels downstream. Its companion template is <i><font color=blue>hasHeight</font></i>. An infinite
-depth range cannot have a <i><font color=blue>height</font></i> method, in the same way than an infinite range has no valid <i><font color=blue>length</font></i> member.
+In parallel, a <i><font color=blue><code>height</code></font></i> method can give the max number of successors levels downstream. Its companion template is <i><font color=blue><code>hasHeight</code></font></i>. An infinite
+depth range cannot have a <i><font color=blue><code>height</code></font></i> method, in the same way than an infinite range has no valid <i><font color=blue><code>length</code></font></i> member.
 <br><br>
 
-A <i><font color=blue>breadth</font></i> method is not required, as it's the length of the successors range, if it has one. So <i><font color=blue>hasBreadth</font></i> just test for <i><font color=blue>length</font></i>
-member in <i><font color=blue>successors</font></i>' return type. Obviously, a r-range with infinite breadth has no valid <i><font color=blue>breadth</font></i> member.
+A <i><font color=blue><code>breadth</code></font></i> method is not required, as it's the length of the successors range, if it has one. So <i><font color=blue><code>hasBreadth</code></font></i> just test for <i><font color=blue><code>length</code></font></i>
+member in <i><font color=blue><code>successors</code></font></i>' return type. Obviously, a r-range with infinite breadth has no valid <i><font color=blue><code>breadth</code></font></i> member.
 <br><br>
 
 <b><big>Cycles:</big></b>
 <br><br>
 
-Note that <i><font color=blue>successors</font></i> returns a range of nodes, so the current node can be in the list directly or somewhere downstream,
+Note that <i><font color=blue><code>successors</code></font></i> returns a range of nodes, so the current node can be in the list directly or somewhere downstream,
 thus creating a cycle. Graphs can contain cycles, but trees must not.
 I see no way to statically test for a r-range having cycles or not, and thus testing if a r-range is a graph or a tree
 (there is another condition to be a tree: its predecessors range must have a length of at most 1). This kind of condition
@@ -115,25 +115,25 @@ must be enforced by factory functions.
 <b><big>Going Up, With Bidirectional Recursive Ranges:</big></b>
 <br><br>
 
-Up to now, there has been no way to go upstream, to the root of the current node. A r-range can define a <i><font color=blue>predecessors</font></i> method returning
+Up to now, there has been no way to go upstream, to the root of the current node. A r-range can define a <i><font color=blue><code>predecessors</code></font></i> method returning
 a range of predecessors (nodes with the current node in their successors ranges). A node with no predecessor is a source (or
-root for a tree), tested with <i><font color=blue>isSource</font></i>/<i><font color=blue>isRoot</font></i>. The (untestable at compile-time) contract is that
+root for a tree), tested with <i><font color=blue><code>isSource</code></font></i>/<i><font color=blue><code>isRoot</code></font></i>. The (untestable at compile-time) contract is that
 if a node n0 is in the ancestors range of a node n1, then n1 is in the successors range of n0.
 <br><br>
 
-A r-range defining <i><font color=blue>predecessors</font></i> is a bidirectional recursive range, its associated template being <i><font color=blue>isBidirectionalRecursiveRange</font></i>.
-There is no equivalent to <i><font color=blue>back</font></i> for a r-range, as there are many (potentially an infinity) of 'extremity values'.
-On the other hand, it's possible to code a generic <i><font color=blue>leaves</font></i>/<i><font color=blue>sinks</font></i> function that returns a range of all leaves accessible from a beginning node.
-The same for a <i><font color=blue>roots</font></i>/<i><font color=blue>sources</font></i> function going upstream: it's simply a filtering on the nodes.
+A r-range defining <i><font color=blue><code>predecessors</code></font></i> is a bidirectional recursive range, its associated template being <i><font color=blue><code>isBidirectionalRecursiveRange</code></font></i>.
+There is no equivalent to <i><font color=blue><code>back</code></font></i> for a r-range, as there are many (potentially an infinity) of 'extremity values'.
+On the other hand, it's possible to code a generic <i><font color=blue><code>leaves</code></font></i>/<i><font color=blue><code>sinks</code></font></i> function that returns a range of all leaves accessible from a beginning node.
+The same for a <i><font color=blue><code>roots</code></font></i>/<i><font color=blue><code>sources</code></font></i> function going upstream: it's simply a filtering on the nodes.
 <br><br>
 
-In complement of <i><font color=blue>height</font></i> with the successors of a node, one can define <i><font color=blue>depth</font></i> as being the highest number of levels upstream before reaching a source.
+In complement of <i><font color=blue><code>height</code></font></i> with the successors of a node, one can define <i><font color=blue><code>depth</code></font></i> as being the highest number of levels upstream before reaching a source.
 Also, we can imagine infinite height r-ranges, albeit this situation seems quite uncommon
-(there is nevertheless a <i><font color=blue>hasInfiniteHeight</font></i> template).
+(there is nevertheless a <i><font color=blue><code>hasInfiniteHeight</code></font></i> template).
 <br><br>
 
-Bidirectional ranges can be given to <i><font color=blue>retro</font></i> which reverses the sense of iteration. What could be the name for a r-range?
-Maybe <i><font color=blue>reverse</font></i> or <i><font color=blue>upsideDown</font></i>?
+Bidirectional ranges can be given to <i><font color=blue><code>retro</code></font></i> which reverses the sense of iteration. What could be the name for a r-range?
+Maybe <i><font color=blue><code>reverse</code></font></i> or <i><font color=blue><code>upsideDown</code></font></i>?
 <br><br>
 
 <b><big>Output Recursive Ranges:</big></b>
@@ -143,36 +143,36 @@ Given a subjacent
 <span class="currsymbol">recursive</span>
 <script>explorer.outline.addDecl('recursive');</script>
 
- container, a r-range can be used to update the values in the container, with a <i><font color=blue>put</font></i> method.
-For output ranges, <i><font color=blue>put</font></i> puts the value at the front and advances the range, preparing it for the next value.
-You cannot do exactly that with a r-range: <i><font color=blue>put</font></i> puts the value in the current node (in a range-dependant manner) and returns
-<i><font color=blue>successors</font></i>. A r-range defining <i><font color=blue>put</font></i> is an output recursive range, with <i><font color=blue>isOutputRecursiveRange</font></i> as a testing template.
+ container, a r-range can be used to update the values in the container, with a <i><font color=blue><code>put</code></font></i> method.
+For output ranges, <i><font color=blue><code>put</code></font></i> puts the value at the front and advances the range, preparing it for the next value.
+You cannot do exactly that with a r-range: <i><font color=blue><code>put</code></font></i> puts the value in the current node (in a range-dependant manner) and returns
+<i><font color=blue><code>successors</code></font></i>. A r-range defining <i><font color=blue><code>put</code></font></i> is an output recursive range, with <i><font color=blue><code>isOutputRecursiveRange</code></font></i> as a testing template.
 <br><br>
 
 <b><big>What's Impossible:</big></b>
 <br><br>
 
-A linear range gives rise to a natural indexing: number the elements, starting from 0 and adding 1 for each call to <i><font color=blue>popFront</font></i>.
-It's nicely parallel to the indexing of arrays and some ranges expose indexing capabilities and slicing, tested by the <i><font color=blue>isRandomAccessRange</font></i>
-and <i><font color=blue>hasSlicing</font></i> templates. No such natural indexing can be defined for 
+A linear range gives rise to a natural indexing: number the elements, starting from 0 and adding 1 for each call to <i><font color=blue><code>popFront</code></font></i>.
+It's nicely parallel to the indexing of arrays and some ranges expose indexing capabilities and slicing, tested by the <i><font color=blue><code>isRandomAccessRange</code></font></i>
+and <i><font color=blue><code>hasSlicing</code></font></i> templates. No such natural indexing can be defined for 
 <span class="currsymbol">recursive</span>
 <script>explorer.outline.addDecl('recursive');</script>
 
  ranges, so we have no random-access recursive range nor
-slices on r-ranges. Maybe defining <i><font color=blue>opIndex()</font></i> could be interesting, as it's becoming a standard way to return a clone of a range.
+slices on r-ranges. Maybe defining <i><font color=blue><code>opIndex()</code></font></i> could be interesting, as it's becoming a standard way to return a clone of a range.
 <br><br>
 
-And, as range do not (standardly) define an <i><font color=blue>opIndex[key]</font></i> like associative arrays do, there is no associative recursive range, though the idea
+And, as range do not (standardly) define an <i><font color=blue><code>opIndex[key]</code></font></i> like associative arrays do, there is no associative recursive range, though the idea
 could be tried, as associative containers are often implemented as trees. So, maybe there is something possibly interesting.
 <br><br>
 
 <b><big>Topology:</big></b>
 <br><br>
 
-All this machinery is for iterating on the r-range, accessing its <i>topology</i>, which is the shape encoded with <i><font color=blue>successors</font></i>/<i><font color=blue>predecessors</font></i>.
-The values accessible through the r-range are another matter: <i><font color=blue>current</font></i> returns a node, not a value. Typically a node will have a <i><font color=blue>value</font></i> member.
-In parallel with <i><font color=blue>ElementType</font></i> for ranges, we can then distinguish the templates <i><font color=blue>NodeType</font></i> and <i><font color=blue>ValueType</font></i>:
-<i><font color=blue>NodeType</font></i> alias itself to the node type of the r-range (well, duh) and <i><font color=blue>ValueType</font></i> is typeof(NodeType.value).
+All this machinery is for iterating on the r-range, accessing its <i>topology</i>, which is the shape encoded with <i><font color=blue><code>successors</code></font></i>/<i><font color=blue><code>predecessors</code></font></i>.
+The values accessible through the r-range are another matter: <i><font color=blue><code>current</code></font></i> returns a node, not a value. Typically a node will have a <i><font color=blue><code>value</code></font></i> member.
+In parallel with <i><font color=blue><code>ElementType</code></font></i> for ranges, we can then distinguish the templates <i><font color=blue><code>NodeType</code></font></i> and <i><font color=blue><code>ValueType</code></font></i>:
+<i><font color=blue><code>NodeType</code></font></i> alias itself to the node type of the r-range (well, duh) and <i><font color=blue><code>ValueType</code></font></i> is typeof(NodeType.value).
 <br><br>
 
 The situation is then, once again, different than for ranges. In a range the topology is implicit, only the values are exposed.
@@ -489,7 +489,7 @@ The following table compares the functions for ranges and r-ranges.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Sat May 15 22:50:10 2010
+			on Sun May 23 22:57:53 2010
 
 		</td></tr>
 	</table>

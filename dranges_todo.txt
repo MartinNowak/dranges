@@ -118,10 +118,11 @@ cumulative moving average
 weighted moving average / exponential moving average
 standard score / Z-score
 fixedPoint (iterate with pred) (pred != "a==b")
+	aka converge!(norm = "abs(b-a)")(range, epsilon): stops when norm(a,b) < epsilon.
 lazy primes, remember next multiple
 window functions
 fft, haenkel transform, other transforms
-Runge-Kutta : rk!f = iterate! (RK!f)(t0,y0) -> outputs a tuple range, (tn,yn)
+Runge-Kutta-Fehlberg : rk!f = iterate! (RK!f)(t0,y0) -> outputs a tuple range, (tn,yn)
 Lentz algorithm for the partial sums of continued fractions.
 newmark method (Mx'' = f(x,x',t))
 correlation / autocorrelation
@@ -137,6 +138,10 @@ extrapolate (linear, bicubic)
 Principal Components Analysis
 
 ** Functions **
+struct Thunk(alias computation, Args...)
+	method / free function execute.
+see Clojure macros -> and ->>. Maybe useful for functions lists in D?
+	threadFirst, threadLast!(fun1, fun2, ...)(a)
 selectFun!(pred1, f1, pred2, f2, default-fun)
 combinators:
 	dovekie: appro  f g h x y = f (g x) (h y) 
@@ -168,6 +173,8 @@ memoize (cycle n most recently used)
 transform an AA into a function. -> gives a partial(non-total) function.
 predicateOr, predicateAnd, predicateXor, predicateNot, 
 predicate: is f pred x = pred f x   :  is!(length, "<3")
+kernel of a function A->B = ((a,a') in AxA that verify f(a)==f(a'))
+image of a function A->B = (f(a), a in A)
 
 ** AA **
 isOneOf with AA
@@ -182,6 +189,9 @@ Revolve/Cylinder on a RoR (method rotate/revolve to present a new subrange for i
 	(popFront advance every subrange)
 
 ** Graph/Tree **
+subtrees: replace each node with the current subtree
+paths: the same, but upward
+toRoot: a thin tree from the node up to the global root.
 weigthed graph or property map? (see Boost.Graph)
 leaf trees (values only at leaves). Is there any reason to code that?
 addLoops
@@ -200,6 +210,7 @@ node eccentricity (max distance)
 center: nodes with min eccentricity
 periphery: nodes with max eccentricity
 graph voronoi diagram (inward/outward)
+range tree, interval tree (see Wikipedia)
 
 ** The rest **
 _(): managing variants (try to cast) -> convertsTo(T)

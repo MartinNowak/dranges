@@ -2067,6 +2067,8 @@ Note:
 Another version could be possible, with one of the ranges as a template arg: contains!"bar"(r).
 That way, it could be used a predicate by filtering function like dropWhile, takeWhile and filter.
 TODO: maybe a predicate.d, containing predicates and predicate-constructing functions?
+TODO: it can be more efficient for slice-able ranges.
+TODO: maybe just use std.algo.find?
 
 Examples:
 ----
@@ -3119,70 +3121,111 @@ unittest
 }
 
 /**
-A generic consumer of ranges. Will gobble as many elements as needed from the input range
+A generic consumer of ranges. It will gobble as many elements as needed from the input range
 to produce its next value, the number of input elements consumed can vary from
 one call to popFront to the next. Taken from the Haskell code in
 <a href = "http://www.comlab.ox.ac.uk/jeremy.gibbons/publications/spigot.pdf">this article</a>.
 
-It takes as input a (possibly infinite) range with element type I and an initial internal state for the consumer, of type S.
-Let's call O the type consumer output. The idea is that, you incrementaly build a valid internal state with successive calls to consumeRange.
-When the state is complete, nextElement can produce the output element and nextState 'discharges' the state,
-making it OK for rebuilding by consumeRange.
-
-This seemingly complicated process allows quite nifty things, like (to be documented).
+It takes as input a (possibly infinite) range with element type In and an initial internal state (of type St).
+Let's call Out the type consumer outputs. The idea is that you incrementaly build a valid internal state while consuming the range.
+When the state is complete, nextElement can produce the output element and renewState 'discharges' the state,
+making it OK for rebuilding by buildState.
 
 Params:
-    nextElement = a callable taking the current state and returning an O. Produces the possible next element.
-    isSafe = takes the current state and the element produced by nextElement. Tells wether or not the couple (state,element) is OK.
-    nextState = if isSafe is true, then nextState takes (state, element) and return the next state.
-    buildState = if isSafe is false, buildState takes (state, range.front) and return the new state. range.popFront is called.
+    nextElement = a callable taking a St (current state) and returning an Out. Produces the possible next element (of type Out).
+    isSafe = takes the current state and the element produced by nextElement. Tells wether or not it's OK to output the element.
+    renewState = if isSafe is true, then renewState takes (state, element) and returns the state resotred to a 'pristine' state (ready to grow again).
+    buildState = if isSafe is false, buildState takes (state, range.front) and returns the new state. range.popFront is called.
+    flush = is an optional callable that is used when the input range is exhausted (so, only for finite ranges). flush is called on the current state to produce the last few elements as an array of Out.
 
 Example:
 ----
 // to be documented.
 ----
 */
-struct Consumer(alias nextElement, alias isSafe, alias nextState, alias buildState, R, S, E)
+struct Consumer(alias nextElement, alias isSafe, alias renewState, alias buildState, alias flusher, R, St, Out)
 {
     R _range;
-    E currentElem;
-    S state;
+    Out currentElem;
+    St state;
+    Out[] flush;
+    bool flushed;
 
-    this(R range, S initialState) { _range = range; state = initialState; popFront;}
-    enum bool empty = false;
-    E front() { return currentElem;}
+    this(R range, St initialState) { _range = range; state = initialState; popFront;}
+    static if (isInfinite!R)
+        enum bool empty = false;
+    else
+        bool empty()
+        {
+            return _range.empty && flushed && flush.empty;
+        }
+
+    Out front() { return currentElem;}
     void popFront()
     {
-        auto e = unaryFun!nextElement(state);
-        while (!binaryFun!isSafe(state, e))
+        static if (isInfinite!R)
         {
-            state = binaryFun!buildState(state, _range.front);
-            _range.popFront;
-            e = naryFun!nextElement(state);
+            auto e = unaryFun!nextElement(state);
+            while (!binaryFun!isSafe(state, e))
+            {
+                state = binaryFun!buildState(state, _range.front);
+                _range.popFront;
+                e = naryFun!nextElement(state);
+            }
+            currentElem = e;
+            state = binaryFun!renewState(state, e);
         }
-        currentElem = e;
-        state = binaryFun!nextState(state, e);
+        else
+        {
+
+            if (!_range.empty)
+            {
+                auto e = unaryFun!nextElement(state);
+                while (!binaryFun!isSafe(state, e))
+                {
+                    state = binaryFun!buildState(state, _range.front);
+                    _range.popFront;
+                    e = naryFun!nextElement(state);
+                }
+                currentElem = e;
+                state = binaryFun!renewState(state, e);
+            }
+            else // flushing the state. Changing iteration mode to consume flush.
+            {
+                if (!flushed)
+                {
+                    flush = naryFun!flusher(state);
+                    flushed = true;
+                }
+                if (!flush.empty)
+                {
+                    currentElem = flush.front;
+                    flush.popFront;
+                }
+            }
+        }
     }
 }
 
+T id(T)(T t) { return t;}
+
 /// ditto
-Consumer!(nextElement, isSafe, nextState, buildState, R, S, typeof(unaryFun!nextElement(S.init)))
-consumer(alias nextElement, alias isSafe, alias nextState, alias buildState, R, S)(R range, S initialState) if (isInputRange!R && isInfinite!R)
+Consumer!(nextElement, isSafe, renewState, buildState, flusher, R, St, typeof(unaryFun!nextElement(St.init)))
+consumer(alias nextElement, alias isSafe, alias renewState, alias buildState, alias flusher = id, R, St)(R range, St initialState) if (isInputRange!R && isInfinite!R)
 {
-    alias typeof(unaryFun!nextElement(initialState)) E; // what the range will produce
-    return Consumer!(nextElement, isSafe, nextState, buildState, R, S, E)(range, initialState);
+    alias typeof(unaryFun!nextElement(initialState)) Out; // what the range will produce
+    return Consumer!(nextElement, isSafe, renewState, buildState, flusher, R, St, Out)(range, initialState);
 }
 
 /// ditto
-Consumer!(nextElement, isSafe, nextState, buildState, Chain!(R,Repeat!(ElementType!R)), S, typeof(unaryFun!nextElement(S.init)))
-consumer(alias nextElement, alias isSafe, alias nextState, alias buildState, R, S)(R range, S initialState) if (isInputRange!R && !isInfinite!R)
+Consumer!(nextElement, isSafe, renewState, buildState, flusher, R, St, typeof(unaryFun!nextElement(St.init)))
+consumer(alias nextElement, alias isSafe, alias renewState, alias buildState, alias flusher, R, St)(R range, St initialState) if (isInputRange!R && !isInfinite!R)
 {
-    alias typeof(unaryFun!nextElement(initialState)) E; // what the range will produce
-    return Consumer!(nextElement, isSafe, nextState, buildState, Chain!(R,Repeat!(ElementType!R)), S, E)
-                    (chain(range, repeat(ElementType!R.init)), initialState);
+    alias typeof(unaryFun!nextElement(initialState)) Out; // what the range will produce
+    return Consumer!(nextElement, isSafe, renewState, buildState, flusher, R, St, Out)(range, initialState);
 }
 
-/+ does not work
+/+ does not work for finite range. Try it now with a flusher.
 /**
 Takes a range in base m, representing a number < 1. Converts it to base n.
 */
@@ -3191,9 +3234,9 @@ auto convert(R)(R range, int m, int n)
     alias Tuple!(real,real, int, int) S;
     int nextElement(S s) { return to!int(floor(first(s)*second(s)*s.field[3]));}
     bool isSafe(S s, int y) { return y == floor((first(s)+1)*second(s)*s.field[3]);}
-    S nextState(S s, int y) { return tuple(first(s)-y/(second(s)*s.field[3]), second(s)*s.field[3],s.field[2], s.field[3]);}
+    S renewState(S s, int y) { return tuple(first(s)-y/(second(s)*s.field[3]), second(s)*s.field[3],s.field[2], s.field[3]);}
     S buildState(S s, int x) { return tuple(x+first(s)*third(s), second(s)/third(s),s.field[2], s.field[3]);}
-    return consumer!(nextElement, isSafe, nextState, buildState)(range, Tuple!(real,real, int,int)(0.0,1.0,m,n));
+    return consumer!(nextElement, isSafe, renewState, buildState)(range, Tuple!(real,real, int,int)(0.0,1.0,m,n));
 }
 +/
 

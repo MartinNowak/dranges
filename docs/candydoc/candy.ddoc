@@ -50,7 +50,7 @@ ADD_MODULES =<script>$(MODULES)</script>
 MODULE =explorer.packageExplorer.addModule("$0");
 
 T = <b><big>$0</big></b>
-M = <i><font color=blue>$0</font></i>
+M = <b><code>$0</code></b>
 D = <b><font color=blue>$0</font></b>
 TABLE = <table border="1" cellpadding = "5" bgcolor = "Ivory">$0</table>
 TR = <tr>$0</tr>

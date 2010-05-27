@@ -21,7 +21,7 @@ This range of children is traditionally an array, but it could be lazy and even 
 If $(M successors) returns an empty range, then the current node is a sink in the graph, or leaf in tree parlance. Note
 that the classical end condition for algorithms crawling trees or graphs is to test for leaves, not for empty.
 Indeed, $(M empty) is useful only at the very beginning to test for the validity of a _recursive range or
-after filtering a recursive range (see $(M rfilter)).
+after filtering a _recursive range (see $(M rfilter)).
 
 There is no $(M popFront) equivalent: there is no natural next element, though depth-first (pre- or post-order)
 and breadth-first iterations are standard.
@@ -37,7 +37,7 @@ Given a non-empty r-range, a method $(M isSink) is trivial:
 bool isSink() { return successors.empty;}.
 ----
 It's good practice to expose it in a r-range, as it's the terminating condition for many algorithms and is linked to infinite depth (see below).
-Maybe it should be part of an r-range definition?
+Maybe it should be part of a r-range definition?
 
 $(T Forward Recursive Ranges:)
 
@@ -98,7 +98,7 @@ Maybe $(M reverse) or $(M upsideDown)?
 
 $(T Output Recursive Ranges:)
 
-Given a subjacent recursive container, a r-range can be used to update the values in the container, with a $(M put) method.
+Given a subjacent _recursive container, a r-range can be used to update the values in the container, with a $(M put) method.
 For output ranges, $(M put) puts the value at the front and advances the range, preparing it for the next value.
 You cannot do exactly that with a r-range: $(M put) puts the value in the current node (in a range-dependant manner) and returns
 $(M successors). A r-range defining $(M put) is an output _recursive range, with $(M isOutputRecursiveRange) as a testing template.
@@ -107,7 +107,7 @@ $(T What's Impossible:)
 
 A linear range gives rise to a natural indexing: number the elements, starting from 0 and adding 1 for each call to $(M popFront).
 It's nicely parallel to the indexing of arrays and some ranges expose indexing capabilities and slicing, tested by the $(M isRandomAccessRange)
-and $(M hasSlicing) templates. No such natural indexing can be defined for recursive ranges, so we have no random-access _recursive range nor
+and $(M hasSlicing) templates. No such natural indexing can be defined for _recursive ranges, so we have no random-access _recursive range nor
 slices on r-ranges. Maybe defining $(M opIndex()) could be interesting, as it's becoming a standard way to return a clone of a range.
 
 And, as range do not (standardly) define an $(M opIndex[key]) like associative arrays do, there is no associative _recursive range, though the idea
@@ -140,7 +140,7 @@ them. Arrays of $(D Node)s inside a $(D Node) struct are possible, or pointers t
 
 $(T Range of ranges:)
 
-Let's compare the situation with range of ranges: they also encode topology (albeit a simpler one), but are not recursive.
+Let's compare the situation with range of ranges: they also encode topology (albeit a simpler one), but are not _recursive.
 At each level of a r-range, the node type is the same and the successors also: it's quite homogeneous.
 For ranges of ranges, each level has a different type. Nevertheless, similar actions can be done: you can zip
 together ranges of ranges with the same shape, you can project them onto a linear range, etc. (* OK, what else can be said? *).
