@@ -136,14 +136,23 @@ V[K] prepend(K,V)(V[K] aa, K key, V value)
 }
 
 /// Filtering on keys
-V[K] filter(alias pred,K,V)(V[K] aa)
+V[K] filterOnKeys(alias pred,K,V)(V[K] aa)
 {
     V[K] result;
     foreach(k,v; aa) if (unaryFun!pred(k)) { result[k] = v;}
     return result;
 }
 
-///
+/**
+A constraint template to detect associative arrays of a certain type. It's a curried (nested) template:
+isKV!(int,string) is itself a template.
+Example:
+----
+alias isKV(int,string) IntString;
+assert(IntString!(string[int]));
+assert(!IntString!(double[int]));
+----
+*/
 template isKV(K,V)
 {
     template isKV(T) {

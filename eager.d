@@ -6,21 +6,18 @@ seen elsewhere, and eager algorithm, acting only on finite ranges.
 */
 module dranges.eager;
 
-import std.array, std.algorithm, std.range;
+import std.array, std.algorithm, std.range, std.functional;
 
 /// An eager version of map.
 template eagerMap(alias fun)
 {
-    typeof(unaryFun!fun(ElementType!R.init))[] map(R)(R r) if (isInputRange!R)
+    typeof(unaryFun!fun(ElementType!R.init))[] eagerMap(R)(R r) if (isInputRange!R && !isInfinite!R)
     {
         typeof(unaryFun!fun(ElementType!R.init))[] mapped;
         static if (hasLength!R)
         {
             mapped.length = r.length;
-            foreach(i, ref elem; mapped) {
-                mapped[i] = unaryFun!fun(r.front);
-                r.popFront;
-            }
+            foreach(i, elem; r) mapped[i] = unaryFun!fun(elem);
         }
         else
         {

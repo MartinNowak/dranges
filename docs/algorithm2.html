@@ -401,8 +401,8 @@ opIndex is defined, but may take some time (if you ask for a high index).
 <br><br>
 <b>Example:</b><br>
 <pre class="d_code"><font color=green>// Generating the natural numbers
-</font><font color=blue>auto</font> natural = iterate!<font color=red>"a+1"</font>(1);    <font color=green>// 1,2,3,4,5, (as ints)
-</font><font color=blue>assert</font>(equal(take(5, natural), [1,2,3,4,5][]));
+</font><font color=blue>auto</font> natural = iterate!<font color=red>"a+1"</font>(0);    <font color=green>// 0,1,2,3,4,5, (as ints)
+</font><font color=blue>assert</font>(equal(take(5, natural), [0,1,2,3,4][]));
 
 <font color=green>// Generating powers of two
 </font><font color=blue>auto</font> powersOf(size_t n)() { <font color=blue>return</font> iterate!(to!string(n) ~ <font color=red>"*a"</font>)(1L); <font color=green>// 1, n, n*n, n*n*n, n*n*n*n (as longs)
@@ -454,16 +454,6 @@ opIndex is defined, but may take some time (if you ask for a high index).
 <script>explorer.outline.addDecl('scan');</script>
 
 (alias fun, R)(R <span class="funcparam">range</span>);
-<br>Scan2!(fun,S,R) 
-<span class="currsymbol">scan2</span>
-<script>explorer.outline.addDecl('scan2');</script>
-
-(alias fun, S, R)(S <span class="funcparam">seed</span>, R <span class="funcparam">range</span>);
-<br>Scan2!(fun,ElementType!(R),R) 
-<span class="currsymbol">scan2</span>
-<script>explorer.outline.addDecl('scan2');</script>
-
-(alias fun, R)(R <span class="funcparam">range</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
@@ -496,6 +486,45 @@ though not difficult to code...
 <font color=blue>assert</font>(equal(r, [0,0,-1,-4,-4,-4,-4][]));
 r = scan!min(r2);
 <font color=blue>assert</font>(equal(r, [1,-1,-4,-4,-4,-4][]));
+</pre>
+<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">struct 
+<span class="currsymbol">Scan2</span>
+<script>explorer.outline.addDecl('Scan2');</script>
+
+(alias fun,S,R) if (isForwardRange!(R));
+<br>Scan2!(fun,S,R) 
+<span class="currsymbol">scan2</span>
+<script>explorer.outline.addDecl('scan2');</script>
+
+(alias fun, S, R)(S <span class="funcparam">seed</span>, R <span class="funcparam">range</span>);
+<br>Scan2!(fun,ElementType!(R),R) 
+<span class="currsymbol">scan2</span>
+<script>explorer.outline.addDecl('scan2');</script>
+
+(alias fun, R)(R <span class="funcparam">range</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>A variation on scan: this range returns the same values than scan, but paired
+with the rest of the range.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>auto</font> arr = [1,2,3,4];
+<font color=green>// running sum
+</font><font color=blue>assert</font>(equal(scan!<font color=red>"a+b"</font>(0,arr),  [0,1,3,6,10]));
+<font color=green>// sum with rest of range
+</font><font color=blue>assert</font>(equal(scan2!<font color=red>"a+b"</font>(0,arr), [tuple(0, [1,2,3,4][]),
+                                  tuple(1, [2,3,4][]),
+                                  tuple(3, [3,4][]),
+                                  tuple(6, [4][]),
+                                  tuple(10,(<font color=blue>int</font>[]).init)]));
+
 </pre>
 <br><br>
 
@@ -1275,6 +1304,12 @@ That way, it could be used a predicate by filtering function like dropWhile, tak
 <br><br>
 <b>TODO:</b><br>
 maybe a predicate.d, containing predicates and predicate-constructing functions?
+<br><br>
+<b>TODO:</b><br>
+it can be more efficient for slice-able ranges.
+<br><br>
+<b>TODO:</b><br>
+maybe just use std.algo.find?
 
 <br><br>
 <b>Examples:</b><br>
@@ -1307,6 +1342,40 @@ R must be a forward range and have a length. If R is infinite, it just drops the
 <br><br>
 
 If n is negative, it rotates it to the right.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Chain!(R,TakeWhile!(pred,R)) 
+<span class="currsymbol">rotateWhile</span>
+<script>explorer.outline.addDecl('rotateWhile');</script>
+
+(alias pred, R)(R <span class="funcparam">range</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Rotates a range while the predicate holds. It works for infinite ranges also.
+<br><br>
+If the predicate is <b>true</b> for all elements, it will not cycle forever, but deliver a range equal
+to the orginal range.
+<br><br>
+
+Note that the predicate can be unary, but also binary or whatever. 
+<span class="currsymbol">rotateWhile</span>
+<script>explorer.outline.addDecl('rotateWhile');</script>
+
+!"a&lt;b"(r) is possible.
+See takeWhile.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>auto</font> arr = [0,1,2,3,4,3,2,1,0];
+wr(<u>rotateWhile</u>!<font color=red>"true"</font>(arr));    <font color=green>// 0,1,2,3,4,3,2,1,0
+</font>wr(<u>rotateWhile</u>!<font color=red>"a&lt;2"</font>(arr));     <font color=green>// 2,3,4,3,2,1,0,0,1
+</font>wr(<u>rotateWhile</u>!<font color=red>"a&lt;b"</font>(arr));     <font color=green>// 4,3,2,1,0,0,1,2,3
+</font>wr(<u>rotateWhile</u>!<font color=red>"a+b+c&lt;10"</font>(arr));<font color=green>// 3,4,3,2,1,0,0,1,2
+</font></pre>
+<br><br>
 
 </dd>
 
@@ -1757,33 +1826,30 @@ You can do the same with repetition, but in this case, you need to filter out th
 <span class="currsymbol">Consumer</span>
 <script>explorer.outline.addDecl('Consumer');</script>
 
-(alias nextElement,alias isSafe,alias nextState,alias buildState,R,S,E);
-<br>Consumer!(nextElement,isSafe,nextState,buildState,R,S,typeof(unaryFun!(nextElement)(S.init))) 
+(alias nextElement,alias isSafe,alias renewState,alias buildState,alias flusher,R,St,Out);
+<br>Consumer!(nextElement,isSafe,renewState,buildState,flusher,R,St,typeof(unaryFun!(nextElement)(St.init))) 
 <span class="currsymbol">consumer</span>
 <script>explorer.outline.addDecl('consumer');</script>
 
-(alias nextElement, alias isSafe, alias nextState, alias buildState, R, S)(R <span class="funcparam">range</span>, S <span class="funcparam">initialState</span>);
-<br>Consumer!(nextElement,isSafe,nextState,buildState,Chain!(R,Repeat!(ElementType!(R))),S,typeof(unaryFun!(nextElement)(S.init))) 
+(alias nextElement, alias isSafe, alias renewState, alias buildState, alias flusher = id, R, St)(R <span class="funcparam">range</span>, St <span class="funcparam">initialState</span>);
+<br>Consumer!(nextElement,isSafe,renewState,buildState,flusher,R,St,typeof(unaryFun!(nextElement)(St.init))) 
 <span class="currsymbol">consumer</span>
 <script>explorer.outline.addDecl('consumer');</script>
 
-(alias nextElement, alias isSafe, alias nextState, alias buildState, R, S)(R <span class="funcparam">range</span>, S <span class="funcparam">initialState</span>);
+(alias nextElement, alias isSafe, alias renewState, alias buildState, alias flusher, R, St)(R <span class="funcparam">range</span>, St <span class="funcparam">initialState</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>A generic consumer of ranges. Will gobble as many elements as needed from the input range
+<dd>A generic consumer of ranges. It will gobble as many elements as needed from the input range
 to produce its next value, the number of input elements consumed can vary from
 one call to popFront to the next. Taken from the Haskell code in
 <a href = "http://www.comlab.ox.ac.uk/jeremy.gibbons/publications/spigot.pdf">this article</a>.
 <br><br>
-It takes as input a (possibly infinite) range with element type I and an initial internal state for the consumer, of type S.
-Let's call O the type consumer output. The idea is that, you incrementaly build a valid internal state with successive calls to consumeRange.
-When the state is complete, nextElement can produce the output element and nextState 'discharges' the state,
-making it OK for rebuilding by consumeRange.
-<br><br>
-
-This seemingly complicated process allows quite nifty things, like (to be documented).
+It takes as input a (possibly infinite) range with element type In and an initial internal state (of type St).
+Let's call Out the type consumer outputs. The idea is that you incrementaly build a valid internal state while consuming the range.
+When the state is complete, nextElement can produce the output element and renewState 'discharges' the state,
+making it OK for rebuilding by buildState.
 
 <br><br>
 <b>Params:</b><br>
@@ -1791,22 +1857,27 @@ This seemingly complicated process allows quite nifty things, like (to be docume
 <td nowrap valign="top" style="padding-right: 8px">nextElement</td>
 
                
-<td>a callable taking the current state and returning an O. Produces the possible next element.</td></tr>
+<td>a callable taking a St (current state) and returning an Out. Produces the possible next element (of type Out).</td></tr>
 <tr>
 <td nowrap valign="top" style="padding-right: 8px">isSafe</td>
 
                
-<td>takes the current state and the element produced by nextElement. Tells wether or not the couple (state,element) is OK.</td></tr>
+<td>takes the current state and the element produced by nextElement. Tells wether or not it's OK to output the element.</td></tr>
 <tr>
-<td nowrap valign="top" style="padding-right: 8px">nextState</td>
+<td nowrap valign="top" style="padding-right: 8px">renewState</td>
 
                
-<td>if isSafe is <b>true</b>, then nextState takes (state, element) and return the next state.</td></tr>
+<td>if isSafe is <b>true</b>, then renewState takes (state, element) and returns the state resotred to a 'pristine' state (ready to grow again).</td></tr>
 <tr>
 <td nowrap valign="top" style="padding-right: 8px">buildState</td>
 
                
-<td>if isSafe is <b>false</b>, buildState takes (state, range.front) and return the new state. range.popFront is called.</td></tr>
+<td>if isSafe is <b>false</b>, buildState takes (state, range.front) and returns the new state. range.popFront is called.</td></tr>
+<tr>
+<td nowrap valign="top" style="padding-right: 8px">flush</td>
+
+               
+<td>is an optional callable that is used when the input range is exhausted (so, only for finite ranges). flush is called on the current state to produce the last few elements as an array of Out.</td></tr>
 </table><br>
 <b>Example:</b><br>
 <pre class="d_code"><font color=green>// to be documented.
@@ -1899,7 +1970,7 @@ Reducing n ranges in parallel (in the same vein than tmap, tfilter).<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Sun May 16 15:31:07 2010
+			on Sun May 30 22:49:48 2010
 
 		</td></tr>
 	</table>

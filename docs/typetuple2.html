@@ -119,8 +119,8 @@ To Be Documented: curried version: alias
 
 <script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">template 
-<span class="currsymbol">FlipType</span>
-<script>explorer.outline.addDecl('FlipType');</script>
+<span class="currsymbol">ReverseTypes</span>
+<script>explorer.outline.addDecl('ReverseTypes');</script>
 
 (T...)</span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
@@ -130,14 +130,14 @@ To Be Documented: curried version: alias
 <br><br>
 <b>Example:</b><br>
 <pre class="d_code"><font color=blue>alias</font> TypeTuple!(<font color=blue>int</font>,<font color=blue>double</font>,string) TT;
-<font color=blue>alias</font> <u>FlipType</u>!TT R;
+<font color=blue>alias</font> <u>ReverseTypes</u>!TT R;
 <font color=blue>assert</font>(<font color=blue>is</font>(R == TypeTuple!(string,<font color=blue>double</font>,<font color=blue>int</font>)));
 
 <font color=blue>alias</font> TypeTuple!(<font color=blue>double</font>) TT2;
-<font color=blue>assert</font>(<font color=blue>is</font>(<u>FlipType</u>!TT2 == TT2)); <font color=green>// one type: unchanged by inversion.
+<font color=blue>assert</font>(<font color=blue>is</font>(<u>ReverseTypes</u>!TT2 == TT2)); <font color=green>// one type: unchanged by inversion.
 </font>
 <font color=blue>alias</font> StaticFilter!(isIntegral, TT2) F; <font color=green>// double is not an integral type -&gt; F is empty
-</font><font color=blue>assert</font>(<font color=blue>is</font>(<u>FlipType</u>!F == F)); <font color=green>// no type: unchanged by inversion.
+</font><font color=blue>assert</font>(<font color=blue>is</font>(<u>ReverseTypes</u>!F == F)); <font color=green>// no type: unchanged by inversion.
 </font></pre>
 <br><br>
 
@@ -316,6 +316,18 @@ does on ranges.
 </font></pre>
 <br><br>
 
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">TypeOf</span>
+<script>explorer.outline.addDecl('TypeOf');</script>
+
+(alias a)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd><br><br>
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -600,7 +612,7 @@ while composing templates.<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Sat May 15 22:50:10 2010
+			on Sun May 30 22:49:50 2010
 
 		</td></tr>
 	</table>

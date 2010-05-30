@@ -78,13 +78,13 @@ unittest {
     assert(arity!foov == 1);
 }
 
-///
-template ReturnTypes(alias fun, Rest...)
+/// Given a bunch of functions names, gives the typetuple of their return types.
+template ReturnTypes(Funs...)
 {
-    alias MapOnAlias!(ReturnType, fun, Rest) ReturnTypes;
+    alias MapOnAlias!(ReturnType, Funs) ReturnTypes;
 }
 
-///
+/// Given a bunch of functions names, gives the (flattened) typetuple of their return values.
 template ParameterTypeTuples(alias fun, Rest...)
 {
     alias MapOnAlias!(ParameterTypeTuple, fun, Rest) ParameterTypeTuples;
@@ -100,40 +100,80 @@ template SumOfArities(F...)
     alias StaticScan!(SumOfArity, 0, F) SumOfArities;
 }
 
-struct FlipnR(alias fun)
+template SumOfReturn(size_t zero, alias fun)
 {
-    size_t n;
-    typeof(fun(R.init, 0)) opCall(R)(R r) if (isForwardRange!R) { return fun(r,n);}
+    static if (is(ReturnType!fun == void))
+        enum size_t SumOfReturn = zero;
+    else
+        enum size_t SumOfReturn = zero + 1;
 }
 
-/// Flip and curry range functions, like take, drop, etc.
-FlipnR!fun flipn(alias fun)(size_t n)
+template SumOfReturns(Funs...)
 {
-    FlipnR!(fun) tnr;
-    tnr.n = n;
-    return tnr;
+    alias StaticScan!(SumOfReturn, 0, Funs) SumOfReturns;
 }
+
 
 /**
-To Be Documented.
+Takes n functions and create a new one, taking as arguments the concatenation of all input functions
+arguments and returning a tuple of their results. It will deal correctly with nullary (0-arg) functions
+by inserting their return value at the right place and with void-returning functions.
+Do not use variadic functions, though.
 
-Takes n functions and create a new one, taking as arguments the concatenatio of all input functions
-arguments and returning a tuple of their results.
+This template is very useful when dealing with tuple-returning ranges.
+
+Example:
+----
+int foo(int i) { return i*i;}       // int -> int
+int bar() { return 0;}              // ()  -> int
+void baz(string s) {}               // string -> ()
+double[] quux(double d, double[] f) // (double,double[]) -> double[]
+    { return f ~ d;}
+
+alias juxtapose!(foo,bar,baz,quux) jux; // jux takes (int,string, double, double[]), returns Tuple!(int,int,double[]);
+
+auto ir = [0,1,2,3,4,5];
+auto sr = ["abc", "def","ghijk"];
+auto dr = [3.14,2.78,1.00,-1.414];
+auto fr = [[0.1,0.2], [0.0,-1.0,-2.0]];
+
+auto m = tmap!jux(ir,sr,dr,fr);
+----
 */
-template juxtapose(F...)
+template juxtapose(Funs...)
 {
-    Tuple!(ReturnTypes!F) juxtapose(ParameterTypeTuples!F params) {
+    Tuple!(StaticFilter!(isNotVoid, ReturnTypes!Funs)) juxtapose(ParameterTypeTuples!Funs params) {
         typeof(return) result;
-        alias SumOfArities!F arities;
-        foreach(i, Unused; F) {
+        alias SumOfArities!Funs arities;
+        alias SumOfReturns!Funs returns;
+        foreach(i, Fun; Funs) {
             enum firstParam = arities[i];
-            enum lastParam = firstParam + arity!(F[i]);
-            result.field[i] = F[i](params[firstParam..lastParam]);
+            enum lastParam = firstParam + arity!(Fun);
+            static if (returns[i] != returns[i+1])
+                result.field[returns[i]] = Fun(params[firstParam..lastParam]);
         }
         return result;
     }
 }
 
+unittest
+{
+    int foo(int i) { return i*i;}       // int -> int
+    int bar() { return 0;}              // ()  -> int
+    void baz(string s) {}               // string -> ()
+    double[] quux(double d, double[] f) // (double,double[]) -> double[]
+        { return f ~ d;}
+
+    alias juxtapose!(foo,bar,baz,quux) jux; // jux takes (int,string, double, double[]), returns Tuple!(int,int,double[]);
+
+    auto ir = [0,1,2,3,4,5];
+    auto sr = ["abc", "def","ghijk"];
+    auto dr = [3.14,2.78,1.00,-1.414];
+    auto fr = [[0.1,0.2], [0.0,-1.0,-2.0]];
+
+    auto m = tmap!jux(ir,sr,dr,fr);
+}
+/+
 template juxtapose2(F...)
 {
     Tuple!(ReturnTypes!F) juxtapose2(Tuple!(ParameterTypeTuples!F) params) {
@@ -147,44 +187,163 @@ template juxtapose2(F...)
         return result;
     }
 }
++/
 
-/**
-To Be Documented.
-*/
-template maybeFun(alias fun)
+template isNotVoid(T)
 {
-    ReturnType!fun[] maybeFun(T...)(T t)
-    {
-        ReturnType!fun[] result;
-        static if (is(typeof(fun(t))))
-            return [fun(t)];
-        else
-            return result;
-    }
+    enum bool isNotVoid = !is(T == void);
+}
+
+struct FlipnR(alias fun)
+{
+    size_t n;
+    typeof(fun(R.init, 0)) opCall(R)(R r) if (isForwardRange!R) { return fun(r,n);}
 }
 
 /**
-To Be Documented.
+Flip and curry range functions, like take, drop, etc. These take a range and a size_t arguments, like take(r,3), etc.
+But sometimes, you just want to create a curried function that will act on any range.
 
-Flips (reverses) the arguments of a function.
+Example:
+----
+alias flipn!take takeN; // takeN is a generic function, waiting for a number of elements to take.
+auto take3 = takeN(3);  // take3 is a generic function, taking 3 elements on any range (returns take(range,3))
+
+auto threes = map!take3([[0,1,2,3,4,5],[6,7,8,9], [10]]); // get the first three elements of each range
+auto witness =          [[0,1,2],      [6,7,8],   [10]];
+foreach(i, elem; witness)  {assert(equal(elem, threes.front)); threes.popFront;}
+----
+*/
+FlipnR!fun flipn(alias fun)(size_t n)
+{
+    FlipnR!(fun) tnr;
+    tnr.n = n;
+    return tnr;
+}
+
+unittest
+{
+    auto rr = [[0,1,2,3,4,5],[6,7,8,9], [10]];
+
+    alias flipn!take takeN; // takeN is a higher-order function, waiting for a number of elements to take.
+    auto take3 = takeN(3);  // take3 is a generic function, taking 3 elements on any range (returns take(range,3))
+
+    auto threes = map!take3(rr); // get the first three elements of each range
+    auto witness = [[0,1,2],[6,7,8],[10]];
+    foreach(elem; witness)
+    {
+        assert(equal(elem, threes.front));
+        threes.popFront;
+    }
+
+    auto take0 = takeN(0);
+    auto zeroes = map!take0(rr);
+    foreach(elem; zeroes) assert(elem.empty);
+
+    auto take100 = takeN(100);
+    auto all = map!take100(rr);
+    foreach(elem; rr) {assert(equal(elem, all.front)); all.popFront;}
+}
+
+/**
+Flips (reverses) the arguments of a function. It also works for template functions, even
+variadic ones. Do not use it on standard variadic functions, though.
+
+Example:
+----
+int sub(int i, int j) { return i-j;}
+int one(int i) { return i;}
+double three(double a, int b, string c) { return a;}
+
+alias flip!sub fsub;
+alias flip!one fone;
+alias flip!three fthree;
+
+assert(fsub(1,2) == sub(2,1));
+assert(fone(1) == one(1));
+assert(fthree("abc", 0, 3.14) == three(3.14, 0, "abc"));
+
+string conj(A,B)(A a, B b)
+{
+    return to!string(a)~to!string(b);
+}
+
+string conjAll(A...)(A a) // variadic template function
+{
+    string result;
+    foreach(i,elem;a) result ~= to!string(elem);
+    return result;
+}
+
+alias flip!conj fconj;
+alias flip!conjAll fconjAll;
+
+assert(fconj(1,2) == "21");
+assert(fconjAll(1,2,3,4) == "4321");
+----
 */
 template flip(alias fun)
 {
     static if (isFunctionType!(typeof(fun)))
-        ReturnType!fun flip(ReverseType!(ParameterTypeTuple!fun) rargs)
+        ReturnType!fun flip(ReverseTypes!(ParameterTypeTuple!fun) rargs)
         {
             return fun(reverseTuple(tuple(rargs)).expand);
         }
     else
-        typeof(fun(Init!(ReverseType!T))) flip(T...)(T rargs)
+        typeof(fun(Init!(ReverseTypes!T))) flip(T...)(T rargs)
         {
             return fun(reverseTuple(tuple(rargs)).expand);
         }
 }
 
-/**
-To Be Documented.
+unittest
+{
+    int sub(int i, int j) { return i-j;}
+    int one(int i) { return i;}
+    int none() { return 0;}
+    double three(double a, int b, string c) { return a;}
 
+    alias flip!sub fsub;
+    alias flip!one fone;
+    alias flip!none fnone;
+    alias flip!three fthree;
+
+    assert(fsub(1,2) == sub(2,1));
+    assert(fone(1) == one(1));
+    assert(fnone() == none());
+    assert(fthree("abc", 0, 3.14) == three(3.14, 0, "abc"));
+
+    string conj(A,B)(A a, B b)
+    {
+        return to!string(a)~to!string(b);
+    }
+
+    string conjAll(A...)(A a)
+    {
+        string result;
+        foreach(i,elem;a) result ~= to!string(elem);
+        return result;
+    }
+
+    alias flip!conj fconj;
+    alias flip!conjAll fconjAll;
+
+    assert(fconj(1,2) == "21");
+    assert(fconjAll(1,2,3,4) == "4321");
+}
+
+/**
+Takes a standard function, and makes it variadic: it will accept any number of surnumerary arguments
+after the 'normal' ones that it had before. It's useful to 'adapt' a function to a range (with
+automatic unpacking of tuples, like for tmap).
+
+Example:
+----
+int foo(int i) { return i;}
+alias makeVariadic!foo vfoo;
+auto i = vfoo(1, 2,3,'a', "hello there!");
+assert(i == 1);
+----
 */
 template makeVariadic(alias fun)
 {
@@ -192,9 +351,51 @@ template makeVariadic(alias fun)
 }
 
 /**
-To Be Documented.
+Takes a D function, and curries it (in the Haskell sense, not as Phobos' $(M std.functional._curry)): given
+a n-args functions, it creates n 1-arg functions nested inside one another. When
+all original arguments are reached, it returns the result. It's useful to make 'incomplete'
+functions to be completed by ranges elements.
 
-Takes a D function, and curry it (in the Haskell sense, not as Phobos' curry).
+Example:
+----
+int add(int i, int j) { return i+j;}
+alias curry!add cadd; // cadd waits for an int, will return an int delegate(int)
+auto add3 = cadd(3); // add3 is a function that take an int and return this int + 3.
+
+auto m = map!add3([0,1,2,3]);
+assert(equal(m, [3,4,5,6]));
+
+bool equals(int i, int j) { return i==j;}
+alias curry!equals cequals;
+auto equals4 = cequals(4); // equals4 is a function taking an int and return true iff this int is 4.
+auto f = filter!equals4([2,3,4,5,4,3,2,2,3,4]);
+assert(equal(f, [4,4,4]));
+----
+
+What's fun is that it'll work for template functions too.
+
+Example:
+----
+string conj(A, B)(A a, B b)
+{
+    return to!string(a)~to!string(b);
+}
+
+alias curry!conj cconj;
+auto c1 = cconj(1); // c1 is a template function waiting for any type.
+
+----
+BUG:
+for now, it does not verify the compatibility of types while you give it the arguments. It's only
+at the end that it sees whether or not it can call the function with these arguments.
+Example:
+----
+// given a function like this, with dependencies between the arguments' types:
+A foo(A,B,C)(A a, Tuple!(B,A) b, Tuple!(C,B,A) c) { return a+b.field[1]+c.field[2];}
+// if you curries it and gives it an int as first argument, the returned template function should really be:
+int foo2(B,C)(Tuple!(B,int) b) { return anotherFunction;}
+// because we now know A to be an int...
+----
 */
 template curry(alias fun)
 {
@@ -203,7 +404,6 @@ template curry(alias fun)
     else
         enum curry = curriedFunction!(fun)();
 }
-
 
 template curryImpl(alias fun, string xs, T...)
 {
@@ -215,7 +415,6 @@ template curryImpl(alias fun, string xs, T...)
         enum curryImpl = "(" ~ T[0].stringof  ~ " x" ~ to!string(T.length) ~ ") { return "
                             ~ curryImpl!(fun,xs ~ "x" ~ to!string(T.length) ~ ", ", T[1..$]) ~ ";}";
 }
-
 
 struct CurriedFunction(alias fun, T...) /+if (T.length)+/
 {
@@ -250,13 +449,21 @@ CurriedFunction!(fun, TypeTuple!()) curriedFunction(alias fun)()
     return cf;
 }
 
-/+ See curry
-//equalto -> closure, returns a function
-ReturnType!f delegate(ParameterTypeTuple!f[T.length..$]) bind(alias f,T...)(T t)
+unittest
 {
-    return (ParameterTypeTuple!f[T.length..$] args) { return f(t,args);};
+    int add(int i, int j) { return i+j;}
+    alias curry!add cadd; // cadd waits for an int, will return an int delegate(int)
+    auto add3 = cadd(3); // add3 is a function that take an int and return this int + 3.
+
+    auto m = map!add3([0,1,2,3]);
+    assert(equal(m, [3,4,5,6]));
+
+    bool equals(int i, int j) { return i==j;}
+    alias curry!equals cequals;
+    auto equals4 = cequals(4); // equals4 is a function taking an int and return true iff this int is 4.
+    auto f = filter!equals4([2,3,4,5,4,3,2,2,3,4]);
+    assert(equal(f, [4,4,4]));
 }
-+/
 
 /**
 To Be Documented.
@@ -451,6 +658,19 @@ template adaptFun(alias pre, alias fun, alias post = "a")
     typeof(naryFun!post(naryFun!fun(naryFun!pre(Init!T)))) adaptFun(T...)(T t)
     {
         return naryFun!post(naryFun!fun(naryFun!pre(t)));
+    }
+}
+
+
+/**
+To Be Documented.
+
+*/
+template power(alias fun, size_t n)
+{
+    auto power(T...)(T args)
+    {
+        return wrapCode!(fun, n)(args);
     }
 }
 
@@ -733,6 +953,7 @@ template naryFun(string fun)
 
 // Works OK, but only at runtime. I need to code this for compile-time.
 // OK, done.
+// may 2010: CTFE got better with recent DMD version. I should give it a try again.
 /*
 size_t arityHeuristics(string s) {
     auto padded = " " ~ s ~ " ";

@@ -71,11 +71,12 @@ their variadic list is considered as one arg.
 <span class="currsymbol">ReturnTypes</span>
 <script>explorer.outline.addDecl('ReturnTypes');</script>
 
-(alias fun,Rest...)</span></dt>
+(Funs...)</span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Given a bunch of functions names, gives the typetuple of their return types.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -87,7 +88,46 @@ their variadic list is considered as one arg.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Given a bunch of functions names, gives the (flattened) typetuple of their return values.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Tuple!(StaticFilter!(isNotVoid,ReturnTypes!(Funs))) 
+<span class="currsymbol">juxtapose</span>
+<script>explorer.outline.addDecl('juxtapose');</script>
+
+(Funs...)(ParameterTypeTuples!(Funs) <span class="funcparam">params</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Takes n functions and create a new one, taking as arguments the concatenation of all input functions
+arguments and returning a tuple of their results. It will deal correctly with nullary (0-arg) functions
+by inserting their return value at the right place and with void-returning functions.
+Do not use variadic functions, though.
+<br><br>
+This template is very useful when dealing with tuple-returning ranges.
+
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>int</font> foo(<font color=blue>int</font> i) { <font color=blue>return</font> i*i;}       <font color=green>// int -&gt; int
+</font><font color=blue>int</font> bar() { <font color=blue>return</font> 0;}              <font color=green>// ()  -&gt; int
+</font><font color=blue>void</font> baz(string s) {}               <font color=green>// string -&gt; ()
+</font><font color=blue>double</font>[] quux(<font color=blue>double</font> d, <font color=blue>double</font>[] f) <font color=green>// (double,double[]) -&gt; double[]
+</font>    { <font color=blue>return</font> f ~ d;}
+
+<font color=blue>alias</font> <u>juxtapose</u>!(foo,bar,baz,quux) jux; <font color=green>// jux takes (int,string, double, double[]), returns Tuple!(int,int,double[]);
+</font>
+<font color=blue>auto</font> ir = [0,1,2,3,4,5];
+<font color=blue>auto</font> sr = [<font color=red>"abc"</font>, <font color=red>"def"</font>,<font color=red>"ghijk"</font>];
+<font color=blue>auto</font> dr = [3.14,2.78,1.00,-1.414];
+<font color=blue>auto</font> fr = [[0.1,0.2], [0.0,-1.0,-2.0]];
+
+<font color=blue>auto</font> m = tmap!jux(ir,sr,dr,fr);
+</pre>
+<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -100,37 +140,18 @@ their variadic list is considered as one arg.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>Flip and curry range functions, like take, drop, etc.<br><br>
-
-</dd>
-
-<script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Tuple!(ReturnTypes!(F)) 
-<span class="currsymbol">juxtapose</span>
-<script>explorer.outline.addDecl('juxtapose');</script>
-
-(F...)(ParameterTypeTuples!(F) <span class="funcparam">params</span>);
-</span></dt>
-<script>explorer.outline.writeEnabled = false;</script>
-
-
-<dd>To Be Documented.
+<dd>Flip and curry range functions, like take, drop, etc. These take a range and a size_t arguments, like take(r,3), etc.
+But sometimes, you just want to create a curried function that will act on any range.
 <br><br>
-Takes n functions and create a new one, taking as arguments the concatenatio of all input functions
-arguments and returning a tuple of their results.<br><br>
-
-</dd>
-
-<script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">template 
-<span class="currsymbol">maybeFun</span>
-<script>explorer.outline.addDecl('maybeFun');</script>
-
-(alias fun)</span></dt>
-<script>explorer.outline.writeEnabled = false;</script>
-
-
-<dd>To Be Documented.<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>alias</font> <u>flipn</u>!take takeN; <font color=green>// takeN is a generic function, waiting for a number of elements to take.
+</font><font color=blue>auto</font> take3 = takeN(3);  <font color=green>// take3 is a generic function, taking 3 elements on any range (returns take(range,3))
+</font>
+<font color=blue>auto</font> threes = map!take3([[0,1,2,3,4,5],[6,7,8,9], [10]]); <font color=green>// get the first three elements of each range
+</font><font color=blue>auto</font> witness =          [[0,1,2],      [6,7,8],   [10]];
+<font color=blue>foreach</font>(i, elem; witness)  {<font color=blue>assert</font>(equal(elem, threes.front)); threes.popFront;}
+</pre>
+<br><br>
 
 </dd>
 
@@ -143,9 +164,41 @@ arguments and returning a tuple of their results.<br><br>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>To Be Documented.
+<dd>Flips (reverses) the arguments of a function. It also works for template functions, even
+variadic ones. Do not use it on standard variadic functions, though.
 <br><br>
-Flips (reverses) the arguments of a function.<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>int</font> sub(<font color=blue>int</font> i, <font color=blue>int</font> j) { <font color=blue>return</font> i-j;}
+<font color=blue>int</font> one(<font color=blue>int</font> i) { <font color=blue>return</font> i;}
+<font color=blue>double</font> three(<font color=blue>double</font> a, <font color=blue>int</font> b, string c) { <font color=blue>return</font> a;}
+
+<font color=blue>alias</font> <u>flip</u>!sub fsub;
+<font color=blue>alias</font> <u>flip</u>!one fone;
+<font color=blue>alias</font> <u>flip</u>!three fthree;
+
+<font color=blue>assert</font>(fsub(1,2) == sub(2,1));
+<font color=blue>assert</font>(fone(1) == one(1));
+<font color=blue>assert</font>(fthree(<font color=red>"abc"</font>, 0, 3.14) == three(3.14, 0, <font color=red>"abc"</font>));
+
+string conj(A,B)(A a, B b)
+{
+    <font color=blue>return</font> to!string(a)~to!string(b);
+}
+
+string conjAll(A...)(A a) <font color=green>// variadic template function
+</font>{
+    string result;
+    <font color=blue>foreach</font>(i,elem;a) result ~= to!string(elem);
+    <font color=blue>return</font> result;
+}
+
+<font color=blue>alias</font> <u>flip</u>!conj fconj;
+<font color=blue>alias</font> <u>flip</u>!conjAll fconjAll;
+
+<font color=blue>assert</font>(fconj(1,2) == <font color=red>"21"</font>);
+<font color=blue>assert</font>(fconjAll(1,2,3,4) == <font color=red>"4321"</font>);
+</pre>
+<br><br>
 
 </dd>
 
@@ -159,7 +212,16 @@ Flips (reverses) the arguments of a function.<br><br>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>To Be Documented.
+<dd>Takes a standard function, and makes it variadic: it will accept any number of surnumerary arguments
+after the 'normal' ones that it had before. It's useful to 'adapt' a function to a range (with
+automatic unpacking of tuples, like for tmap).
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>int</font> foo(<font color=blue>int</font> i) { <font color=blue>return</font> i;}
+<font color=blue>alias</font> <u>makeVariadic</u>!foo vfoo;
+<font color=blue>auto</font> i = vfoo(1, 2,3,'a', <font color=red>"hello there!"</font>);
+<font color=blue>assert</font>(i == 1);
+</pre>
 <br><br>
 
 </dd>
@@ -173,17 +235,52 @@ Flips (reverses) the arguments of a function.<br><br>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>To Be Documented.
+<dd>Takes a D function, and curries it (in the Haskell sense, not as Phobos' <b><code>std.functional.curry</code></b>): given
+a n-args functions, it creates n 1-arg functions nested inside one another. When
+all original arguments are reached, it returns the result. It's useful to make 'incomplete'
+functions to be completed by ranges elements.
 <br><br>
-Takes a D function, and 
-<span class="currsymbol">curry</span>
-<script>explorer.outline.addDecl('curry');</script>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>int</font> add(<font color=blue>int</font> i, <font color=blue>int</font> j) { <font color=blue>return</font> i+j;}
+<font color=blue>alias</font> <u>curry</u>!add cadd; <font color=green>// cadd waits for an int, will return an int delegate(int)
+</font><font color=blue>auto</font> add3 = cadd(3); <font color=green>// add3 is a function that take an int and return this int + 3.
+</font>
+<font color=blue>auto</font> m = map!add3([0,1,2,3]);
+<font color=blue>assert</font>(equal(m, [3,4,5,6]));
 
- it (in the Haskell sense, not as Phobos' 
-<span class="currsymbol">curry</span>
-<script>explorer.outline.addDecl('curry');</script>
+<font color=blue>bool</font> equals(<font color=blue>int</font> i, <font color=blue>int</font> j) { <font color=blue>return</font> i==j;}
+<font color=blue>alias</font> <u>curry</u>!equals cequals;
+<font color=blue>auto</font> equals4 = cequals(4); <font color=green>// equals4 is a function taking an int and return true iff this int is 4.
+</font><font color=blue>auto</font> f = filter!equals4([2,3,4,5,4,3,2,2,3,4]);
+<font color=blue>assert</font>(equal(f, [4,4,4]));
+</pre>
 
-).<br><br>
+What's fun is that it'll work for template functions too.
+
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code">string conj(A, B)(A a, B b)
+{
+    <font color=blue>return</font> to!string(a)~to!string(b);
+}
+
+<font color=blue>alias</font> <u>curry</u>!conj cconj;
+<font color=blue>auto</font> c1 = cconj(1); <font color=green>// c1 is a template function waiting for any type.
+</font>
+</pre>
+<br><br>
+<b>BUG:</b><br>
+for now, it does not verify the compatibility of types while you give it the arguments. It's only
+at the end that it sees whether or not it can call the function with these arguments.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=green>// given a function like this, with dependencies between the arguments' types:
+</font>A foo(A,B,C)(A a, Tuple!(B,A) b, Tuple!(C,B,A) c) { <font color=blue>return</font> a+b.field[1]+c.field[2];}
+<font color=green>// if you curries it and gives it an int as first argument, the returned template function should really be:
+</font><font color=blue>int</font> foo2(B,C)(Tuple!(B,<font color=blue>int</font>) b) { <font color=blue>return</font> anotherFunction;}
+<font color=green>// because we now know A to be an int...
+</font></pre>
+<br><br>
 
 </dd>
 
@@ -332,6 +429,20 @@ Takes a D function, and
 <script>explorer.outline.addDecl('adaptFun');</script>
 
 (alias pre,alias fun,alias post = "a")</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>To Be Documented.
+<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">power</span>
+<script>explorer.outline.addDecl('power');</script>
+
+(alias fun,size_t n)</span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
@@ -577,7 +688,7 @@ It's used internally by all the tuple-mapping functions: tmap, tfilter, etc.<br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Sat May 15 22:50:10 2010
+			on Sun May 30 22:49:49 2010
 
 		</td></tr>
 	</table>

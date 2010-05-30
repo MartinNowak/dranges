@@ -11,6 +11,8 @@ put policies for Segments and some others: ret-type: tuple, array, static array,
 review which args really need to be template params -> curry and flip when possible (see flipn)
 
 ** Ranges **
+enumerate pairs with infinite ranges (using diagonals)
+gematric search (see Alaska blog)
 dropUntil
 takeUntil
 rotateWhile

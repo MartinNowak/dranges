@@ -348,6 +348,21 @@ unittest
     assert(equal(m2, m));
 }
 
+bool delegate(ElementType!R) isOneOf(R)(R range) if (isInputRange!R)
+{
+    auto r = array(range);
+    sort(r);
+    return (ElementType!R e) { return !find(assumeSorted(r), e).empty;};
+}
+
+
+bool delegate(ElementType!R) isNotIn(R)(R range) if (isInputRange!R)
+{
+    auto r = array(range);
+    sort(r);
+    return (ElementType!R e) { return find(assumeSorted(r), e).empty;};
+}
+
 /**
 Returns true iff if all values in the variadic list vals are equal.
 Examples:
@@ -446,7 +461,7 @@ unittest
 }
 
 
-
+///
 struct Nub(T) {
     bool[T] values;
     bool opCall(T t) {
@@ -460,8 +475,10 @@ struct Nub(T) {
     }
 }
 
+/// ditto
 Nub!T nub(T)()
 {
     Nub!T n;
     return n;
 }
+

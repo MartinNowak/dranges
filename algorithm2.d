@@ -616,8 +616,8 @@ opIndex is defined, but may take some time (if you ask for a high index).
 Example:
 ----
 // Generating the natural numbers
-auto natural = iterate!"a+1"(1);    // 1,2,3,4,5, (as ints)
-assert(equal(take(5, natural), [1,2,3,4,5][]));
+auto natural = iterate!"a+1"(0);    // 0,1,2,3,4,5, (as ints)
+assert(equal(take(5, natural), [0,1,2,3,4][]));
 
 // Generating powers of two
 auto powersOf(size_t n)() { return iterate!(to!string(n) ~ "*a")(1L); // 1, n, n*n, n*n*n, n*n*n*n (as longs)
@@ -811,6 +811,24 @@ unittest
     assert(scan!"a+b"(e).empty);
 }
 
+/**
+A variation on scan: this range returns the same values than scan, but paired
+with the rest of the range.
+
+Example:
+----
+auto arr = [1,2,3,4];
+// running sum
+assert(equal(scan!"a+b"(0,arr),  [0,1,3,6,10]));
+// sum with rest of range
+assert(equal(scan2!"a+b"(0,arr), [tuple(0, [1,2,3,4][]),
+                                  tuple(1, [2,3,4][]),
+                                  tuple(3, [3,4][]),
+                                  tuple(6, [4][]),
+                                  tuple(10,(int[]).init)]));
+
+----
+*/
 struct Scan2(alias fun, S, R) if (isForwardRange!R)// && CompatibilityFuncArgs!(fun, S, R))
 {
     S _result;
@@ -2301,6 +2319,29 @@ struct Rotate(R) if (isBidirectionalRange!R)
         }
     }
 }
+
+/**
+Rotates a range while the predicate holds. It works for infinite ranges also.
+
+If the predicate is true for all elements, it will not cycle forever, but deliver a range equal
+to the orginal range.
+
+Note that the predicate can be unary, but also binary or whatever. rotateWhile!"a<b"(r) is possible.
+See takeWhile.
+Example:
+----
+auto arr = [0,1,2,3,4,3,2,1,0];
+wr(rotateWhile!"true"(arr));    // 0,1,2,3,4,3,2,1,0
+wr(rotateWhile!"a<2"(arr));     // 2,3,4,3,2,1,0,0,1
+wr(rotateWhile!"a<b"(arr));     // 4,3,2,1,0,0,1,2,3
+wr(rotateWhile!"a+b+c<10"(arr));// 3,4,3,2,1,0,0,1,2
+----
+*/
+Chain!(R, TakeWhile!(pred,R)) rotateWhile(alias pred, R)(R range) if (isForwardRange!R)
+{
+    return chain(dropWhile!pred(range), takeWhile!pred(range));
+}
+
 
 /+ Old version. To be redone
 unittest

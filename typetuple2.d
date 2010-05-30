@@ -143,34 +143,34 @@ Takes a type tuple and reverses it.
 Example:
 ----
 alias TypeTuple!(int,double,string) TT;
-alias FlipType!TT R;
+alias ReverseTypes!TT R;
 assert(is(R == TypeTuple!(string,double,int)));
 
 alias TypeTuple!(double) TT2;
-assert(is(FlipType!TT2 == TT2)); // one type: unchanged by inversion.
+assert(is(ReverseTypes!TT2 == TT2)); // one type: unchanged by inversion.
 
 alias StaticFilter!(isIntegral, TT2) F; // double is not an integral type -> F is empty
-assert(is(FlipType!F == F)); // no type: unchanged by inversion.
+assert(is(ReverseTypes!F == F)); // no type: unchanged by inversion.
 ----
 */
-template FlipType(T...) {
+template ReverseTypes(T...) {
     static if (T.length)
-        alias TypeTuple!(T[$-1], FlipType!(T[0..$-1])) FlipType;
+        alias TypeTuple!(T[$-1], ReverseTypes!(T[0..$-1])) ReverseTypes;
     else
-        alias TypeTuple!() FlipType;
+        alias TypeTuple!() ReverseTypes;
 }
 
 unittest
 {
     alias TypeTuple!(int,double,string) TT;
-    alias FlipType!TT R;
+    alias ReverseTypes!TT R;
     assert(is(R == TypeTuple!(string,double,int)));
 
     alias TypeTuple!(double) TT2;
-    assert(is(FlipType!TT2 == TT2)); // one type: unchanged by inversion.
+    assert(is(ReverseTypes!TT2 == TT2)); // one type: unchanged by inversion.
 
     alias StaticFilter!(isIntegral, TT2) F; // double is not an integral type -> F is empty
-    assert(is(FlipType!F == F)); // no type: unchanged by inversion.
+    assert(is(ReverseTypes!F == F)); // no type: unchanged by inversion.
 }
 
 /**
@@ -399,7 +399,7 @@ unittest {
     assert(is(SR2 == Tuple!(int, Tuple!(double, Tuple!(int, long)))));
 }
 
-
+///
 template TypeOf(alias a)
 {
     alias typeof(a) TypeOf;

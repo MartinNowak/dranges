@@ -363,9 +363,9 @@ auto r = reverseTuple(t);
 assert(r == tuple(3.14,'a',1));
 ----
 */
-Tuple!(ReverseType!R) reverseTuple(R...)(Tuple!R tup)
+Tuple!(ReverseTypes!R) reverseTuple(R...)(Tuple!R tup)
 {
-    ReverseType!R vals;
+    ReverseTypes!R vals;
     foreach(i, Unused; R) vals[R.length-1-i] = tup.field[i];
     return tuple(vals);
 }

@@ -147,8 +147,8 @@ only a value. The same for opIndexApply. I'm wondering if that's OK or not.
 
 <script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">V[K] 
-<span class="currsymbol">filter</span>
-<script>explorer.outline.addDecl('filter');</script>
+<span class="currsymbol">filterOnKeys</span>
+<script>explorer.outline.addDecl('filterOnKeys');</script>
 
 (alias pred, K, V)(V[K] <span class="funcparam">aa</span>);
 </span></dt>
@@ -168,7 +168,20 @@ only a value. The same for opIndexApply. I'm wondering if that's OK or not.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>A constraint template to detect associative arrays of a certain type. It's a curried (nested) template:
+
+<span class="currsymbol">isKV</span>
+<script>explorer.outline.addDecl('isKV');</script>
+
+!(int,string) is itself a template.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>alias</font> <u>isKV</u>(<font color=blue>int</font>,string) IntString;
+<font color=blue>assert</font>(IntString!(string[<font color=blue>int</font>]));
+<font color=blue>assert</font>(!IntString!(<font color=blue>double</font>[<font color=blue>int</font>]));
+</pre>
+<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -232,7 +245,7 @@ only a value. The same for opIndexApply. I'm wondering if that's OK or not.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Sun May 16 15:31:07 2010
+			on Sun May 30 22:49:49 2010
 
 		</td></tr>
 	</table>
