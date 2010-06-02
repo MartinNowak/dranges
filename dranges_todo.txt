@@ -1,5 +1,7 @@
 Dranges todo / braindump file.
 
+tuple Map? See Boost::Fusion
+
 ** Project **
 Update docs
 Update unittests to follow the changes on strings (no length!)

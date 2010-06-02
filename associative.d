@@ -1,6 +1,4 @@
 /**
-To Be Documented.
-
 Functions acting upon associative arrays: filtering them, etc.
 */
 module dranges.associative;

@@ -309,7 +309,8 @@ struct NDrop(R, Indices...) if (isForwardRange!R && rank!R >= Indices.length)
     void popFront() { _range.popFront;}
 }
 
-///
+/**
+*/
 NTake!(NDrop!(R,Indices[$/2..$]),Indices[0..$/2]) nSlice(R, Indices...)(R range, Indices indices) if (isForwardRange!R
                                                  && allSatisfy!(isIntegral, Indices)
                                                  && Indices.length%2 == 0

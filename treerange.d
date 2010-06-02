@@ -1,9 +1,6 @@
 /**
-This module is just a test, to see how to iterate on a binary tree.
-Another, more general, module on graphs and graphs algorithms will be added
-as soon as I can update it to the current D2 version.
-
-And also another one on multi-type trees as tuples: mapping on branching tuples and such.
+This module is just a test, to see how to iterate on a binary or n-ary tree.
+This entire module will probably be fused with recursive.d and the graph modules, to make it a coherent whole.
 */
 module dranges.treerange;
 
@@ -18,7 +15,8 @@ The basic node for a binary tree.
 */
 class Tree(T) {
     T t;/// Value stored on the node.
-    Tree!T left, right; /// children
+    Tree!T left; /// children
+    Tree!T right; /// ditto
 
     this(T t) { this.t = t;}
     this(T t, Tree!T l, Tree!T r) { this.t = t; left = l; right = r;}
@@ -75,7 +73,7 @@ NTree!T ntree(T)(T t) {
 /**
 To create a NTree!T with children.
 */
-NTree!T ntree(T,R)(T t, R c) if (isInputRange!R && is(ElementType!R == NTree!T)) {
+NTree!T ntree(T,R)(T t, R c) if (isInputRange!R && is(ElementType!R == NTree!T) && !isInfinite!R) {
     return new NTree!T(t, array(c));
 }
 
@@ -176,9 +174,10 @@ void transform(alias fun, T)(ref Tree!T tr)
     if (!(tr.right is null)) transform(tr.right);
 }
 
+/// A enum that control the mode of traversal on a tree
 enum TraversalMode { depthfirst, breadthfirst};
 
-struct Traversal(TraversalMode tm = TravsersalMode.depthfirst, T)
+struct Traversal(TraversalMode tm = TraversalMode.depthfirst, T)
 {
     T[] nodes;
 
@@ -197,7 +196,17 @@ struct Traversal(TraversalMode tm = TravsersalMode.depthfirst, T)
     }
 }
 
-
+/**
+Returns a range to iterate on a tree nodes. The mode of traversal is a template
+parameter and can be depthfirst (the default) or breadthfirst.
+Note:
+    it iterates on the tree nodes, not the content of the nodes. Maybe I should change this.
+Usage:
+----
+auto depthf = traversal(t);
+auto breadthf = travseral!(TraversalMode.breadthfirst)(t);
+----
+*/
 Traversal!(tm, T) traversal(TraversalMode tm = TraversalMode.depthfirst, T)(T treelike)
 {
     return Traversal!(tm, T)(treelike);
@@ -222,6 +231,23 @@ struct AsTrie(T)
     }
 }
 
+/**
+Produces a range to iterate in a standard tree as if it was a trie: the elements are
+arrays of all elements traversed from the root to the current focus of iteration.
+Example:
+----
+// t3 is the same tree used before for heigth/preorder, etc.
+//
+//              3
+//             / \
+//            1   4
+//           / \
+//          0   2
+auto trie = asTrie(t3);
+auto values = map!("array(map!\"a.t\"(a))")(trie); // The strange double map is to convert the nodes ot their values.
+assert(equal(values, [[3], [3,1], [3,1,0], [3,1,2], [3,4]]));
+----
+*/
 AsTrie!T asTrie(T)(Tree!T tree)
 {
     return AsTrie!T(tree);

@@ -383,7 +383,7 @@ string conj(A, B)(A a, B b)
 
 alias curry!conj cconj;
 auto c1 = cconj(1); // c1 is a template function waiting for any type.
-
+assert(c1('a') == "1a");
 ----
 BUG:
 for now, it does not verify the compatibility of types while you give it the arguments. It's only

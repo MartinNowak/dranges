@@ -1727,8 +1727,8 @@ FlattenType!(n,R) flatten(size_t n = size_t.max, R)(R range) if (isForwardRange!
 
 template FlattenType(size_t n,R)
 {
-    static if (n > depth!R)
-        alias FlattenType!(depth!R,R) FlattenType;
+    static if (n > rank!R)
+        alias FlattenType!(rank!R,R) FlattenType;
     else static if (n == 0)
         alias R FlattenType;
     else
