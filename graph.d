@@ -11,6 +11,7 @@ import std.string;
 import std.contracts;
 import std.file;
 import std.process;
+import std.array, std.algorithm;
 
 import dranges.graphrange;
 public import dranges.properties;
@@ -140,6 +141,7 @@ struct Graph {
         return false;
     }
 
+    ///
     bool isValidEdge(Node from, Node to) {
         if (isValidNode(from) && isValidNode(to)) {
             foreach(edge; edges[from]) {
@@ -150,6 +152,7 @@ struct Graph {
         return false;
     }
 
+    ///
     bool isValidEdge(Edge e) {
         if (isValidNode(e.from) && isValidNode(e.to)) {
             foreach(edge; edges[e.from]) {
@@ -346,13 +349,130 @@ This is just a helper/debugging function to easily visualize the graphs. Use wit
 */
 string toGraphviz(Graph g, string name = "graph")
 {
-    string gv = "digraph G {";
+    string gv = "digraph G { ratio = 1.0;";
     foreach(el; g.edges.values)
     {
         foreach(e; el) {
-            gv ~= to!string(e.from) ~" -> "~ to!string(e.to) ~ ";";
+            gv ~= "\"" ~ to!string(e.from) ~"\" -> \""~ to!string(e.to) ~ "\";";
         }
     }
     gv ~= "}";
     std.file.write(name~".dot", gv);
     return gv;
+}
+
+/**
+Given a module name, $(M _dependencyGraph) will explore its code, extract the import statements and recursively visit the corresponding modules.
+If you don't want it to visit the $(D std.*) or $(D core.*) part, juste use:
+----
+auto ig = dependencyGraph("myModule");
+----
+If you want it to explore the std.* and core.* modules, you must give it the directory where $(D DMD) is installed. It will then calculate the dependency
+graph of $(D Phobos) and the runtime along your own project's graph. Use like this:
+----
+auto ig = dependencyGraph("myModule", r"C:\dmd\");
+toGraphviz(ig, "imports");
+// then, in a command line: >> dot imports.dot -o imports.pdf
+----
+Returns: a $(M Graph), with nodes the modules names and edges pointing to imported modules.
+
+BUG: I don't get how $(D core.*) is organized. For now, it doesn't visit the core modules. It create them in the graph, though.
+*/
+Graph dependencyGraph(string moduleName, string DMDPath = "")
+{
+    Graph g;
+    auto ig = dependencyGraphImpl(moduleName, DMDPath);
+    Node[string] toNode;
+    foreach(n;ig.keys)
+    {
+        toNode[n] = Node("name", n);
+    }
+    g.addNodes(toNode.values);
+    foreach(n, toList; ig)
+    {
+        foreach(to; toList)
+        {
+            g.addEdge(toNode[n],toNode[to]);
+        }
+    }
+    return g;
+}
+
+Node makeNode(string n) { return Node("name", n);}
+
+enum string[string] dmdPaths = ["core":r"src\druntime\src\",
+                                "std":r"src\phobos\"];
+
+string[][string] dependencyGraphImpl(string moduleName, string DMDPath = "",  string[][string] deps = (string[][string]).init)
+{
+    if (moduleName in deps) return deps; // already explored
+
+    string path;
+    auto withSlashes = replace(moduleName, ".", "\\") ~".d";
+    if (moduleName.startsWith("std."))
+    {
+        if (DMDPath == "")
+        {
+            deps[moduleName] = (string[]).init;
+            return deps;
+        }
+        path = DMDPath ~ dmdPaths["std"] ~ withSlashes;
+    }
+    else if (moduleName.startsWith("core."))
+    {
+        deps[moduleName] = (string[]).init;
+        return deps; // core.* : I don't get how it works and from where it imports.
+//        path = DMDPath ~ dmdPaths["core"] ~ withSlashes;
+    }
+    else // local module
+    {
+        path = withSlashes;
+    }
+
+    string[] imports;
+    auto F = File(path);
+    auto bsc = F.byLine(F.KeepTerminator.no, ';'); // we will iterate on F by semicolon-delimited chunks
+
+    immutable string[] importTypes = ["import ", "public import ", "static import "];
+
+    foreach(block; bsc)
+    {
+        auto sblock = strip(block);
+        foreach(it; importTypes)
+        {
+            if (sblock.startsWith(it)) // We have an import
+            {
+                sblock = sblock[it.length..$];
+                auto spl = to!(string[])(split(sblock, ","));
+                foreach(index, ref imp; spl)
+                {
+                    auto i = imp.indexOf('=');
+                    auto j = imp.indexOf(':');
+                    if (i != -1) // import foo = std.stio, ...
+                    {
+                        imp = strip(imp[i+1..$]);
+                    }
+                    if (j != -1)  // import std.io: writeln, writefln; -> discard everithing after the ':', even beyond the first comma.
+                    {
+                        imp = imp[0..j];
+                        spl = spl[0..index]; // Uh, but I got to break the iteration
+                    }
+                }
+                imports ~= array(map!strip(spl));
+                break; // no need to test the other import types
+            }
+        }
+    }
+    F.close; // not needed anymore.
+    deps[moduleName] = imports;
+
+    foreach(i, imp; imports) // recursive exploration
+    {
+        if (!(imp in deps)) // dependency found for the first time
+        {
+            auto deps2 = dependencyGraphImpl(imp, DMDPath, deps);
+            if (deps2 != deps) foreach(mod, depList; deps2) deps[mod] = depList; // fusing AA
+        }
+    }
+    return deps;
+}
