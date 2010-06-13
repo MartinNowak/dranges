@@ -79,7 +79,7 @@ assert(Max!(1,2,4,3,0) == 4);
 */
 template Max(alias a, Rest...) {
     static if (Rest.length > 0) {
-        alias Max!(Max!(a, Rest[0]), Rest[1..$]) Max;
+        alias Max!(dranges.templates.Max!(a, Rest[0]), Rest[1..$]) Max;
     }
     else {
         alias a Max;
@@ -97,7 +97,7 @@ assert(Min!(1,2,4,3,0) == 4);
 */
 template Min(alias a, Rest...) {
     static if (Rest.length > 0) {
-        alias Min!(Min!(a, Rest[0]), Rest[1..$]) Min;
+        alias Min!(dranges.templates.Min!(a, Rest[0]), Rest[1..$]) Min;
     }
     else {
         alias a Min;

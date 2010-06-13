@@ -8,11 +8,11 @@ import std.functional;
 import std.range;
 import std.traits;
 
-
-import dranges.range2 : segment;
-import dranges.traits2;
 import dranges.functional2;
+import dranges.range2 : segment;
 import dranges.templates;
+import dranges.traits2;
+import dranges.typetuple2;
 
 /**
 Is true if some (at least one) element in range verify the predicate pred. False otherwise.

@@ -40,7 +40,7 @@ TODO:
 Compare to std.range.transverse, look at std.range.transposed.
 */
 struct Transpose(R)
-if (isRangeOfRanges!R && hasLength2!R && hasLength2!(ElementType!R))
+if (isRangeOfRanges!R && hasLength!R && hasLength!(ElementType!R))
 {
     alias ElementType!R RowType;
     alias ElementType!RowType CellType;
@@ -97,14 +97,14 @@ if (isRangeOfRanges!R && hasLength2!R && hasLength2!(ElementType!R))
 
 /// ditto
 UnWrap!("Transpose", R) transpose(R)(R ror)
-if (isTransposed!R && isRangeOfRanges!R && hasLength2!R && hasLength2!(ElementType!R))
+if (isTransposed!R && isRangeOfRanges!R && hasLength!R && hasLength!(ElementType!R))
 {
     return ror._ror;
 }
 
 /// ditto
 Transpose!R transpose(R)(R ror)
-if (!isTransposed!(R) && isRangeOfRanges!R && hasLength2!R && hasLength2!(ElementType!R))
+if (!isTransposed!(R) && isRangeOfRanges!R && hasLength!R && hasLength!(ElementType!R))
 {
     return Transpose!R(ror);
 }
@@ -446,7 +446,7 @@ size_t rlength(R)(R r) if (isForwardRange!R)
 {
     static if (isRangeOfRanges!R)
         return sum(map!(rlength!(ElementType!R))(r));
-    else static if (hasLength2!R)
+    else static if (hasLength!R)
         return r.length;
     else
         return walkLength(r, size_t.max);

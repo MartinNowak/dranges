@@ -5,7 +5,15 @@ reversing, rotating, extracting, filtering, unfolding, etc, all on typetuples.
 module dranges.typetuple2;
 
 import std.traits;
+import std.typecons;
 import std.typetuple;
+
+import dranges.templates: Min, Max;
+
+version(unittest)
+{
+    import std.stdio;
+}
 
 /**
 Alias itself to the .init value of a typetuple. When you have a typetuple (T...)
@@ -102,17 +110,28 @@ template RotateTypes(int n, R...) if (R.length>0 && n<0)
     alias TypeTuple!(R[$-((-n)%R.length)..$],R[0..$-((-n)%R.length)]) RotateTypes;
 }
 
+// useless: is R == TypeTuple!(), it's the curried template that gets instantiated.
+template RotateTypes(int n, R...) if (R.length == 0)
+{
+    alias R RotateTypes;
+}
+
 /// ditto
 template RotateTypes(int n)
 {
-    template RotateTypes(R...) if (R.length > 0)
+    template RotateTypes(R...)
     {
-        static if (n == 0)
-            alias TypeTuple RotateTypes; // Identity template on types
-        else static if (n > 0)
-            alias TypeTuple!(R[(n%R.length)..$],R[0..(n%R.length)]) RotateTypes;
-        else //         n <0
-            alias TypeTuple!(R[$-((-n)%R.length)..$],R[0..$-((-n)%R.length)]) RotateTypes;
+        static if (R.length > 0)
+        {
+            static if (n == 0)
+                alias R RotateTypes; // Identity template on types
+            else static if (n > 0)
+                alias TypeTuple!(R[(n%R.length)..$],R[0..(n%R.length)]) RotateTypes;
+            else //         n <0
+                alias TypeTuple!(R[$-((-n)%R.length)..$],R[0..$-((-n)%R.length)]) RotateTypes;
+        }
+        else // R.length == 0 ie, R is TypeTuple!()
+            alias R RotateTypes;
     }
 }
 
@@ -133,9 +152,6 @@ unittest
 
     alias TypeTuple!(double) TT2;
     assert(is(RotateTypes!(1,TT2) == TT2)); // one type: unchanged by rotation.
-
-    alias StaticFilter!(isIntegral, TT2) F; // double is not an integral type -> F is empty
-    assert(is(RotateTypes!(1,F) == F)); // zero type: also unchanged by rotation.
 }
 
 /**
@@ -220,12 +236,12 @@ template SegmentTypes(int n, T...) if (n > 0 && T.length % n == 0)
 }
 
 ///
-template allEqual(alias a, Rest...)
+template AllEqual(alias a, Rest...)
 {
     static if (Rest.length)
-        enum bool allEqual = (a == Rest[0]) && allEqual!(Rest);
+        enum bool AllEqual = (a == Rest[0]) && AllEqual!(Rest);
     else
-        enum bool allEqual = true;
+        enum bool AllEqual = true;
 }
 
 ///
@@ -346,11 +362,16 @@ template StaticFilter(alias Pred, T...)
     }
 }
 
+version(unittest)
+{
+    import std.range: hasLength;
+}
+
 unittest
 {
     alias TypeTuple!(int, double, string, long) TT;
     assert(is(StaticFilter!(isIntegral, TT) == TypeTuple!(int, long)));
-    assert(is(StaticFilter!(hasLength2, int[], int[3], int) == TypeTuple!(int[], int[3])));
+    assert(is(StaticFilter!(hasLength, int[], int[3], int) == TypeTuple!(int[], int[3])));
 }
 
 /**

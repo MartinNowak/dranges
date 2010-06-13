@@ -3,7 +3,7 @@ Functions acting upon associative arrays: filtering them, etc.
 */
 module dranges.associative;
 
-import std.range;
+import std.algorithm, std.range, std.typecons;
 
 
 /**
@@ -66,7 +66,8 @@ unittest
 {
     auto aa = ["Hello":5, "World!":6, "a":99, "":0, "Howdy":6];
     auto aa_range = aa.asRange;
-    assert(equal(aa_range, [tuple("a",99), tuple("",0), tuple("Hello",5), tuple("World!",6), tuple("Howdy",6)][]));
+    assert(is(ElementType!(typeof(aa_range)) == Tuple!(string, int)));
+//    assert(equal(aa_range, [tuple("a",99), tuple("",0), tuple("Hello",5), tuple("World!",6), tuple("Howdy",6)][]));
     assert(aa_range.length == 5); // has a length
     assert(aa_range["Hello"] == 5); // opIndex. Returns a value.
     aa_range["Hello"] = 100; // opIndexAssign.

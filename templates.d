@@ -184,6 +184,11 @@ template Wrap(string Wrapper, T) {
     mixin("alias " ~ Wrapper ~ "!T Wrap;");
 }
 
+version(unittest)
+{
+    import std.range;
+}
+
 unittest
 {
     auto c = cycle([1,2,3][]);

@@ -723,20 +723,20 @@ Example:
 // moving sum
 auto r1 = [1,2,3,4];
 auto s = scan!"a+b"(0,r1);
-assert(equal(s, [1,3,6,10][])); // 1, 1+2, 1+2+3, 1+2+3+4
+assert(equal(s, [0,1,3,6,10][])); // 0, 0+1, 0+1+2, 0+1+2+3, 0+1+2+3+4
 s = scan!"a+b"(r1);
-assert(equal(s, [3,6,10][]));
+assert(equal(s, [1,3,6,10][])); // 1, 1+2, 1+2+3, 1+2+3+4
 
 // factorials
 auto fac = scan!"a*b"(1L, numbers(1)); // numbers(1) is 1,2,3,4,5,6,...
-assert(equal(take(5, fac), [1,2,6,24,120][])); // 1, 1*2, 1*2*3, 1*2*3*4, 1*2*3*4*5
+assert(equal(take(fac,6), [1,1,2,6,24,120][])); // 1, 1*1, 1*1*2, 1*1*2*3, 1*1*2*3*4, 1*1*2*3*4*5
 
 //Moving minima
 auto r2 = [1,2, -1, -4, 0, 3, 4];
 auto r = scan!min(0,r2);
-assert(equal(r, [0,0,-1,-4,-4,-4,-4][]));
+assert(equal(r, [0,0,0,-1,-4,-4,-4,-4][]));
 r = scan!min(r2);
-assert(equal(r, [1,-1,-4,-4,-4,-4][]));
+assert(equal(r, [1,1,-1,-4,-4,-4,-4][]));
 ----
 */
 struct Scan(alias fun, S, R) if (isForwardRange!R)// && CompatibilityFuncArgs!(fun, S, R))
@@ -749,6 +749,7 @@ struct Scan(alias fun, S, R) if (isForwardRange!R)// && CompatibilityFuncArgs!(f
     {
         _range = range;
         _result = seed;
+        if (range.empty) done = true;
     }
 
     bool empty() {return _range.empty && done;}
@@ -792,20 +793,20 @@ unittest
     // moving sum
     auto r1 = [1,2,3,4];
     auto s = scan!"a+b"(0,r1);
-    assert(equal(s, [1,3,6,10][]));
+    assert(equal(s, [0,1,3,6,10][]));
     s = scan!"a+b"(r1);
-    assert(equal(s, [3,6,10][]));
+    assert(equal(s, [1,3,6,10][]));
 
     // factorial
-    auto f = scan!"a*b"(1L, drop(1,numbers()));
-    assert(equal(take(f,5), [1,2,6,24,120][]));
+    auto f = scan!"a*b"(1L, drop(numbers(),1));
+    assert(equal(take(f,6), [1,1,2,6,24,120][]));
 
     // moving minima
     auto r2 = [1,2, -1, -4, 0, 3, 4];
     auto r = scan!min(0,r2);
-    assert(equal(r, [0,0,-1,-4,-4,-4,-4][]));
+    assert(equal(r, [0,0,0,-1,-4,-4,-4,-4][]));
     r = scan!min(r2);
-    assert(equal(r, [1,-1,-4,-4,-4,-4][]));
+    assert(equal(r, [1,1,-1,-4,-4,-4,-4][]));
 
     int[] e;
     assert(scan!"a+b"(e).empty);
@@ -887,14 +888,17 @@ Example:
 ----
 auto r1 = [1,2,3,4];
 auto s = scanR!"a+b"(0,r1); // moving sum
-assert(equal(s, [4,7,9,10][])); // 4, 3+4, 2+3+4, 1+2+3+4
+assert(equal(s, [0,4,7,9,10][])); // 0, 4+0, 3+4+0, 2+3+4+0, 1+2+3+4+0
 s = scanR!"a+b"(r1);
-assert(equal(s, [7,9,10][]));
+assert(equal(s, [4,7,9,10][]));
 auto r2 = [1,2, -1, -4, 0, 3, 4];
-auto r = scanR!min(0,r2); // moving minimum, coming from the right
-assert(equal(r, [0,0,0,-4,-4,-4,-4][]));
+auto r = scanR!min(0,r2); // moving minimum
+assert(equal(r, [0,0,0,0,-4,-4,-4,-4][]));
 r = scanR!min(r2);
-assert(equal(r, [3,0,-4,-4,-4,-4][]));
+assert(equal(r, [4,3,0,-4,-4,-4,-4][]));
+
+int[] e;
+assert(scanR!"a+b"(e).empty);
 ----
 */
 struct ScanR(alias fun, S, R) if (isBidirectionalRange!R)// && CompatibilityFuncArgs!(fun, S, R))
@@ -907,6 +911,7 @@ struct ScanR(alias fun, S, R) if (isBidirectionalRange!R)// && CompatibilityFunc
     {
         _range = range;
         _result = seed;
+        if (range.empty) done = true;
     }
 
     bool empty() {return _range.empty && done;}
@@ -949,14 +954,14 @@ unittest
 {
     auto r1 = [1,2,3,4];
     auto s = scanR!"a+b"(0,r1); // moving sum
-    assert(equal(s, [4,7,9,10][])); // 4, 3+4, 2+3+4, 1+2+3+4
+    assert(equal(s, [0,4,7,9,10][])); // 4, 3+4, 2+3+4, 1+2+3+4
     s = scanR!"a+b"(r1);
-    assert(equal(s, [7,9,10][]));
+    assert(equal(s, [4,7,9,10][]));
     auto r2 = [1,2, -1, -4, 0, 3, 4];
     auto r = scanR!min(0,r2); // moving minimum
-    assert(equal(r, [0,0,0,-4,-4,-4,-4][]));
+    assert(equal(r, [0,0,0,0,-4,-4,-4,-4][]));
     r = scanR!min(r2);
-    assert(equal(r, [3,0,-4,-4,-4,-4][]));
+    assert(equal(r, [4,3,0,-4,-4,-4,-4][]));
 
     int[] e;
     assert(scanR!"a+b"(e).empty);
@@ -1131,7 +1136,7 @@ assert(isInfinite!(typeof(fibs))); // It's an infinite range.
 
 // And now with BigInts!
 auto fibs2 = unfold!(fibonacci!BigInt)(BigInt(0),BigInt(1));
-assert(drop(100, fibs2).front == "573147844013817084101"); // Yeah, rapid growth
+assert(drop(fibs2,100).front == "573147844013817084101"); // Yeah, rapid growth
 ----
 You can use 'string' functions, as in many places in this module. In this case, the fibonacci sequence is
 defined simply as:
@@ -1230,7 +1235,7 @@ unittest
 
     // And now with BigInts!
     auto fibs2 = unfold!"tuple(a,b,a+b)"(BigInt(0),BigInt(1));
-    assert(drop(100, fibs2).front == "354224848179261915075");
+    assert(drop(fibs2,100).front == BigInt("354224848179261915075"));
 
     // An example that cannot be done with recurrence?, a lazy range of prime numbers.
     Tuple!(ulong, ulong[]) nextPrime(ulong[] primeList) { // Given a list of primes, find the next prime number
@@ -2720,7 +2725,7 @@ struct Combinations(R...) if (allSatisfy!(isForwardRange, R)) {
     this(R ranges) {
         _ranges = ranges;
         _currentRanges = ranges;
-        static if (allSatisfy!(hasLength2, R)) { // calculate _length once, at creation
+        static if (allSatisfy!(hasLength, R)) { // calculate _length once, at creation
             _length = 1;
             foreach(range; ranges) {
                 _length *= range.length;
@@ -2753,7 +2758,7 @@ struct Combinations(R...) if (allSatisfy!(isForwardRange, R)) {
         return f;
     }
 
-    static if (allSatisfy!(hasLength2, R)) {
+    static if (allSatisfy!(hasLength, R)) {
         size_t length() {
             return _length-pops;
         }
@@ -2767,15 +2772,15 @@ Combinations!(R) combinations(R...)(R ranges) if (R.length && allSatisfy!(isForw
 
 unittest {
     auto r1 = [0,1,2]; // Random-access range
-    string r2 = "abcd";
+    auto r2 = ["a","b","c","d"];
     auto r3 = map!"a + 3.0"(r1); // Forward range
     auto cb = combinations(r1,r2,r3);
-    assert(cb.front == tuple(0, 'a', 3.0));
+    assert(cb.front == tuple(0, "a", 3.0));
     cb.popFront();
-    assert(cb.front == tuple(0, 'a', 4.0));
+    assert(cb.front == tuple(0, "a", 4.0));
     assert(!is(cb.length)); // r3 has no length, so cb neither.
     assert(equal(take(cb, 6),
-                [tuple(0, 'a', 4.0), tuple(0, 'a', 5.0), tuple(0, 'b', 3.0), tuple(0, 'b', 4.0), tuple(0, 'b', 5.0), tuple(0, 'c', 3.0)][]
+                [tuple(0, "a", 4.0), tuple(0, "a", 5.0), tuple(0, "b", 3.0), tuple(0, "b", 4.0), tuple(0, "b", 5.0), tuple(0, "c", 3.0)][]
                 ));
     auto cb2 = combinations(r1,r2);
     assert(cb2.length == r1.length * r2.length); // 12

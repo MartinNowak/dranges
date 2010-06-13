@@ -14,6 +14,7 @@ import std.traits;
 import std.typecons;
 import std.typetuple;
 
+
 /**
 Returns true iff F is a function type (a function, a delegate or something definining opCall as a function).
 */
@@ -70,7 +71,7 @@ template ElementTypes(R, Rest...) {
 unittest {
     auto r1 = [0,1];
     auto r2 = [2.0, 3.1];
-    auto r3 = cycle("abc");
+    auto r3 = cycle(['a','b','c']);
     assert(is(ElementTypes!(typeof(r1), typeof(r2), typeof(r3)) == TypeTuple!(int, double, dchar)), "ElementTypes!R test.");
 }
 
@@ -118,12 +119,10 @@ Is true iff all the R either have a length or are infinite.
 TODO: replace it.
 */
 template allHaveLength(R, Rest...) {
-    static if (Rest.length > 0) {
+    static if (Rest.length)
         enum bool allHaveLength = (hasLength!R || isInfinite!R) && allHaveLength!Rest;
-    }
-    else {
+    else
         enum bool allHaveLength = (hasLength!R || isInfinite!R);
-    }
 }
 
 /**
@@ -177,6 +176,7 @@ template isSimpleArray(R) {
     enum bool isSimpleArray = isArray!R && !isArray!(ElementType!(R));
 }
 
+/+
 /**
 Alternate template to std.range.hasLength, as hasLength doesn't work
 if R has length defined inside a static if.
@@ -192,6 +192,7 @@ unittest
     assert(hasLength!(string));
     assert(!hasLength!(int));
 }
++/
 
 /**
 Gives the rank of an array or a range. For a simple (flat, non-nested) range
@@ -307,9 +308,9 @@ unittest
 {
     static assert(someSatisfy!(isIntegral, int, double));
     static assert(someSatisfy!(isIntegral, int, long));
-    static assert(someSatisfy!(hasLength2, int[], int[2])); // does not work with std.range.hasLength
-    static assert(someSatisfy!(hasLength2, int, string)); // strings have a length
-    static assert(!someSatisfy!(hasLength2, int, real));
+    static assert(someSatisfy!(hasLength, int[], int[2])); // does not work with std.range.hasLength
+    static assert(!someSatisfy!(hasLength, int, string)); // DMD 2.041: strings do _not_ have a length
+    static assert(!someSatisfy!(hasLength, int, real));
 }
 
 /**

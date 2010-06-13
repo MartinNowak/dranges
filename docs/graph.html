@@ -168,6 +168,32 @@ This module was introduced from an older codebase. I will clean it up to homogen
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">bool 
+<span class="currsymbol">isValidEdge</span>
+<script>explorer.outline.addDecl('isValidEdge');</script>
+
+(Node <span class="funcparam">from</span>, Node <span class="funcparam">to</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd><br><br>
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">bool 
+<span class="currsymbol">isValidEdge</span>
+<script>explorer.outline.addDecl('isValidEdge');</script>
+
+(Edge <span class="funcparam">e</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd><br><br>
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">size_t 
 <span class="currsymbol">size</span>
 <script>explorer.outline.addDecl('size');</script>
@@ -437,6 +463,36 @@ Also, writes the file <b><code><span class="funcparam">name</span></code></b>.do
 This is just a helper/debugging function to easily visualize the graphs. Use with caution.<br><br>
 
 </dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Graph 
+<span class="currsymbol">dependencyGraph</span>
+<script>explorer.outline.addDecl('dependencyGraph');</script>
+
+(string <span class="funcparam">moduleName</span>, string <span class="funcparam">DMDPath</span> = "");
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Given a module name, <b><code>dependencyGraph</code></b> will explore its code, extract the import statements and recursively visit the corresponding modules.
+If you don't want it to visit the <b><font color=blue>std.*</font></b> or <b><font color=blue>core.*</font></b> part, juste use:
+<pre class="d_code"><font color=blue>auto</font> ig = <u>dependencyGraph</u>(<font color=red>"myModule"</font>);
+</pre>
+If you want it to explore the std.* and core.* modules, you must give it the directory where <b><font color=blue>DMD</font></b> is installed. It will then calculate the dependency
+graph of <b><font color=blue>Phobos</font></b> and the runtime along your own project's graph. Use like this:
+<pre class="d_code"><font color=blue>auto</font> ig = <u>dependencyGraph</u>(<font color=red>"myModule"</font>, <font color=red>r"C:\dmd\"</font>);
+toGraphviz(ig, <font color=red>"imports"</font>);
+<font color=green>// then, in a command line: &gt;&gt; dot imports.dot -o imports.pdf
+</font></pre>
+<br><br>
+<b>Returns:</b><br>
+a <b><code>Graph</code></b>, with nodes the modules names and edges pointing to imported modules.
+
+<br><br>
+<b>BUG:</b><br>
+I don't get how <b><font color=blue>core.*</font></b> is organized. For now, it doesn't visit the core modules. It create them in the graph, though.<br><br>
+
+</dd>
 </dl>
 <script>explorer.outline.decSymbolLevel();</script>
 
@@ -445,7 +501,7 @@ This is just a helper/debugging function to easily visualize the graphs. Use wit
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Thu Jun  3 00:11:59 2010
+			on Sun Jun 13 23:56:49 2010
 
 		</td></tr>
 	</table>

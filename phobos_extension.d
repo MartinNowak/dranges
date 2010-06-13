@@ -27,6 +27,7 @@ import dranges.traits2;
 import dranges.typetuple2;
 import dranges.templates;
 
+/+
 /**
 Alternate template to std.range.hasLength, as hasLength doesn't work
 if R has its length method defined inside a static if.
@@ -34,6 +35,7 @@ if R has its length method defined inside a static if.
 template hasLength(R) {
     enum bool hasLength = __traits(compiles, R.length);
 }
++/
 
 /**
 An extended version of std.algorithm.Map, that makes it propagate the
@@ -110,6 +112,7 @@ struct Map(alias fun, Range) if (isInputRange!(Range))
     }
 }
 
+/+
 unittest
 {
     auto r = [0,1,2,3,4]; // random-access range with a length and slicing.
@@ -124,6 +127,7 @@ unittest
     assert(isInfinite!(typeof(m2))); // m2 is infinite also.
     assert(!is(m2.length)); // cycle(r) doesn't have a length, so neither has m2.
 }
++/
 
 /**
 An extended version of std.algorithm.Filter that defines
@@ -176,6 +180,7 @@ struct Filter(alias pred, Range) if (isInputRange!(Range))
     }
 }
 
+/+
 unittest
 {
     auto r = [0,1,2,3,4];
@@ -183,6 +188,7 @@ unittest
     assert(equal(retro(f), [4,2,0][])); // f is a bidirectional range
     assert(equal(retro(f), [4,2,0][])); // f is a bidirectional range
 }
++/
 
 /**
 std.range.Repeat should have popBack defined.

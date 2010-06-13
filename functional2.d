@@ -296,6 +296,21 @@ template flip(alias fun)
         }
 }
 
+version(unittest)
+{
+    string conj(A,B)(A a, B b)
+    {
+        return to!string(a)~to!string(b);
+    }
+
+    string conjAll(A...)(A a)
+    {
+        string result;
+        foreach(i,elem;a) result ~= to!string(elem);
+        return result;
+    }
+}
+
 unittest
 {
     int sub(int i, int j) { return i-j;}
@@ -312,18 +327,6 @@ unittest
     assert(fone(1) == one(1));
     assert(fnone() == none());
     assert(fthree("abc", 0, 3.14) == three(3.14, 0, "abc"));
-
-    string conj(A,B)(A a, B b)
-    {
-        return to!string(a)~to!string(b);
-    }
-
-    string conjAll(A...)(A a)
-    {
-        string result;
-        foreach(i,elem;a) result ~= to!string(elem);
-        return result;
-    }
 
     alias flip!conj fconj;
     alias flip!conjAll fconjAll;

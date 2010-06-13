@@ -472,20 +472,20 @@ though not difficult to code...
 <pre class="d_code"><font color=green>// moving sum
 </font><font color=blue>auto</font> r1 = [1,2,3,4];
 <font color=blue>auto</font> s = scan!<font color=red>"a+b"</font>(0,r1);
-<font color=blue>assert</font>(equal(s, [1,3,6,10][])); <font color=green>// 1, 1+2, 1+2+3, 1+2+3+4
+<font color=blue>assert</font>(equal(s, [0,1,3,6,10][])); <font color=green>// 0, 0+1, 0+1+2, 0+1+2+3, 0+1+2+3+4
 </font>s = scan!<font color=red>"a+b"</font>(r1);
-<font color=blue>assert</font>(equal(s, [3,6,10][]));
-
+<font color=blue>assert</font>(equal(s, [1,3,6,10][])); <font color=green>// 1, 1+2, 1+2+3, 1+2+3+4
+</font>
 <font color=green>// factorials
 </font><font color=blue>auto</font> fac = scan!<font color=red>"a*b"</font>(1L, numbers(1)); <font color=green>// numbers(1) is 1,2,3,4,5,6,...
-</font><font color=blue>assert</font>(equal(take(5, fac), [1,2,6,24,120][])); <font color=green>// 1, 1*2, 1*2*3, 1*2*3*4, 1*2*3*4*5
+</font><font color=blue>assert</font>(equal(take(fac,6), [1,1,2,6,24,120][])); <font color=green>// 1, 1*1, 1*1*2, 1*1*2*3, 1*1*2*3*4, 1*1*2*3*4*5
 </font>
 <font color=green>//Moving minima
 </font><font color=blue>auto</font> r2 = [1,2, -1, -4, 0, 3, 4];
 <font color=blue>auto</font> r = scan!min(0,r2);
-<font color=blue>assert</font>(equal(r, [0,0,-1,-4,-4,-4,-4][]));
+<font color=blue>assert</font>(equal(r, [0,0,0,-1,-4,-4,-4,-4][]));
 r = scan!min(r2);
-<font color=blue>assert</font>(equal(r, [1,-1,-4,-4,-4,-4][]));
+<font color=blue>assert</font>(equal(r, [1,1,-1,-4,-4,-4,-4][]));
 </pre>
 <br><br>
 
@@ -560,14 +560,17 @@ scan, reduce, reduceR
 <b>Example:</b><br>
 <pre class="d_code"><font color=blue>auto</font> r1 = [1,2,3,4];
 <font color=blue>auto</font> s = scanR!<font color=red>"a+b"</font>(0,r1); <font color=green>// moving sum
-</font><font color=blue>assert</font>(equal(s, [4,7,9,10][])); <font color=green>// 4, 3+4, 2+3+4, 1+2+3+4
+</font><font color=blue>assert</font>(equal(s, [0,4,7,9,10][])); <font color=green>// 0, 4+0, 3+4+0, 2+3+4+0, 1+2+3+4+0
 </font>s = scanR!<font color=red>"a+b"</font>(r1);
-<font color=blue>assert</font>(equal(s, [7,9,10][]));
+<font color=blue>assert</font>(equal(s, [4,7,9,10][]));
 <font color=blue>auto</font> r2 = [1,2, -1, -4, 0, 3, 4];
-<font color=blue>auto</font> r = scanR!min(0,r2); <font color=green>// moving minimum, coming from the right
-</font><font color=blue>assert</font>(equal(r, [0,0,0,-4,-4,-4,-4][]));
+<font color=blue>auto</font> r = scanR!min(0,r2); <font color=green>// moving minimum
+</font><font color=blue>assert</font>(equal(r, [0,0,0,0,-4,-4,-4,-4][]));
 r = scanR!min(r2);
-<font color=blue>assert</font>(equal(r, [3,0,-4,-4,-4,-4][]));
+<font color=blue>assert</font>(equal(r, [4,3,0,-4,-4,-4,-4][]));
+
+<font color=blue>int</font>[] e;
+<font color=blue>assert</font>(scanR!<font color=red>"a+b"</font>(e).empty);
 </pre>
 <br><br>
 
@@ -711,7 +714,7 @@ Note that this version of unfold produces an infinite range.
 </font>
 <font color=green>// And now with BigInts!
 </font><font color=blue>auto</font> fibs2 = unfold!(fibonacci!BigInt)(BigInt(0),BigInt(1));
-<font color=blue>assert</font>(drop(100, fibs2).front == <font color=red>"573147844013817084101"</font>); <font color=green>// Yeah, rapid growth
+<font color=blue>assert</font>(drop(fibs2,100).front == <font color=red>"573147844013817084101"</font>); <font color=green>// Yeah, rapid growth
 </font></pre>
 You can use 'string' functions, as in many places in this module. In this case, the fibonacci sequence is
 defined simply as:
@@ -1970,7 +1973,7 @@ Reducing n ranges in parallel (in the same vein than tmap, tfilter).<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Thu Jun  3 00:11:58 2010
+			on Sun Jun 13 23:56:49 2010
 
 		</td></tr>
 	</table>

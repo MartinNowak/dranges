@@ -1,13 +1,13 @@
 /**
 This module defines new ranges or rather, higher-order ranges: ranges acting on ranges
 to transform them or present a new view. As far as possible, all higher-order ranges presented in this module
-and in algorithm2.d are 'tight wrappers': they are bidirectional if their input range is bidirectional,
+and in algorithm2.d are "tight wrappers": they are bidirectional if their input range is bidirectional,
 define opIndex, opIndexAssign, length if it's possible, etc. That way, a good input range (for example, a random-access range)
 will see its properties propagated through a chain of calls.
 $(UL
   $(LI Some of these are usual in other languages (Haskell, Scala, Clojure, ...) and are quite useful: drop, dropWhile, takeWhile, etc.)
   $(LI Some are extension of standard functions: delay as a generic way to segment a range.)
-  $(LI Some are there just for fun and served as exercices when I wanted to 'grok' ranges (like torus, bounce, emptyRange, once).)
+  $(LI Some are there just for fun and served as exercices when I wanted to "grok" ranges (like torus, bounce, emptyRange, once).)
   )
 Also, once we admit std.typecons.tuples as a common way to return many values, tuple-returning
 ranges can be acted upon in various ways, splicing/shredding/rotating/stitching them. As many ranges and algorithms
@@ -45,14 +45,15 @@ Return:
 the smallest length of all non-infinite ranges passed as inputs. All finite ranges must have a length member.
 Example:
 ----
-string s = "abcdefg";
-auto r = [0,1,2,3];
-auto c = cycle(r); // infinite
+auto s = ["a","b","c","d","e","f"];
+int[] r = [0,1,2,3];
+auto c = repeat(5); // infinite
 auto ml = minLength(s,r,c);
 assert(ml == 4); // r length
 ----
 */
-size_t minLength(R...)(R ranges) if (allSatisfy!(isForwardRange, R) && allHaveLength!R && !allAreInfinite!R) {
+size_t minLength(R...)(R ranges) if (allSatisfy!(isForwardRange, R) && allHaveLength!R && !allAreInfinite!R)
+{
     size_t minL = size_t.max;
     foreach(i,Range; R) {
         static if (hasLength!Range) {
@@ -64,14 +65,14 @@ size_t minLength(R...)(R ranges) if (allSatisfy!(isForwardRange, R) && allHaveLe
 
 unittest
 {
-    string s = "abcdefg";
+    auto s = ["a","b","c","d","e","f"];
     int[] r = [0,1,2,3];
     auto c = repeat(5); // infinite
-    auto ml = minLength(s,r);
+    auto ml = minLength(s,r,c);
     assert(ml == 4); // r length
 }
 
-
+/+
 auto takeLast(R)(R range, size_t n) if (isBidirectionalRange!R)
 {
 //    static if (hasSlicing!R && hasLength!R) {
@@ -81,10 +82,11 @@ auto takeLast(R)(R range, size_t n) if (isBidirectionalRange!R)
 //    else
         return retro(take(retro(range),n)); // Not exactly right, as take may not be a bidir range
 }
++/
 
 /**
 Returns a copy of r, with the first n elements dropped. Compare to
-popFrontN which affects r. 'n' is the first argument as in std.range.take
+popFrontN which affects r. "n" is the first argument as in std.range.take
 (which in turn takes this from Haskell)
 ----
 auto r1 = [0,1,2,3,4,5];
@@ -99,7 +101,7 @@ It's not lazy: it drops all available elements during the call.
 */
 R drop(R)(R r, size_t n) if (isForwardRange!(R))
 {
-    static if (hasSlicing!(R) && hasLength2!(R))
+    static if (hasSlicing!(R) && hasLength!(R))
     {
         n = min(n, r.length);
         return r[n .. r.length];
@@ -144,11 +146,11 @@ R dropLast(R)(R range, size_t n) if (isBidirectionalRange!R)
 unittest
 {
     auto r1 = [0,1,2,3,4,5];
-    auto d = dropLast(3, r1);
+    auto d = dropLast(r1,3);
     assert(equal(d, [0,1,2][]));
-    assert(equal(dropLast(0, r1), r1));
-    assert(dropLast(6, r1).empty);
-    assert(dropLast(100, r1).empty);
+    assert(equal(dropLast(r1,0), r1));
+    assert(dropLast(r1,6).empty);
+    assert(dropLast(r1,100).empty);
 }
 
 /**
@@ -158,7 +160,7 @@ popFrontWhile which affects r.
 The predicate may be unary:
 ----
 string s = "  , abcd  efg";
-auto d1 = dropWhile!(isOneOf!" ,")(s); // isOneOf!" ," returns true for ' ' and for ','
+auto d1 = dropWhile!(isOneOf!" ,")(s); // isOneOf!" ," returns true for " " and for ","
 assert(d1 == "abcd  efg");
 
 auto r1 = [0,1,2,3,3,4,5];
@@ -176,7 +178,7 @@ Example:
 ----
 auto d3 = dropWhile!"a<b"(r1);     // drop as long as r1 is strictly increasing, testing with binary predicate "a<b"
                                    // It will test [0,1] and drop 0. Then test [1,2] and drop 1, ...
-assert(equal(d3, [3,3,4,5][]));    // the result begins with a couple for which a<b doesn't hold
+assert(equal(d3, [3,3,4,5][]));    // the result begins with a couple for which a<b doesn"t hold
 
 auto d4 = dropWhile!("a<b",2)(r1); // drop as long as r1 is strictly increasing, testing with binary predicate, step of 2
                                    // It will test [0,1] and drop [0,1]. Then test [2,3] and drop it also.
@@ -239,7 +241,7 @@ unittest
 // N-ary predicate tests:
     auto d3 = dropWhile!("a<b")(r1);  // drop as long as r1 is strictly increasing, testing with binary predicate "a<b"
                                         // It will test [0,1] and drop 0. Then test [1,2] and drop 1, ...
-    assert(equal(d3, [3,3,4,5][]));     // the result begins with a couple for which a<b doesn't hold
+    assert(equal(d3, [3,3,4,5][]));     // the result begins with a couple for which a<b doesn"t hold
 
     auto d4 = dropWhile!("a<b",2)(r1);// drop as long as r1 is strictly increasing, testing with binary predicate, step of 2
                                         // It will test [0,1] and drop [0,1]. Then test [2,3] and drop it also.
@@ -531,14 +533,14 @@ unittest
 /**
 Takes n successive elements from range, with n going from 0 (an empty range) to range.length included.
 It's more efficient for a range with a length: heads knows when to stop. For a range
-that doesn't know its length, heads has to calculate for each new head if it's the entire range.
+that doesn"t know its length, heads has to calculate for each new head if it's the entire range.
 Example:
 ----
 auto r = [0,1,2,3];
 auto h = heads(r);
 assert(equal(h, [[], [0], [0,1], [0,1,2], [0,1,2,3] ][])); // from [] up to r itself.
 
-auto f = filter!"a<10"(r); // equivalent to r, but doesn't know its own length
+auto f = filter!"a<10"(r); // equivalent to r, but doesn"t know its own length
 auto hf = heads(f);
 foreach(elem; hf) { // Compare it to f
     assert(equal(elem, h.front)); // They are indeed the same
@@ -621,13 +623,13 @@ assert(equal(ia1, [0,99,1,2,3][]));
 */
 Chain!(Take!R1, R2, R1) insertAt(R1, R2)(size_t n, R1 range1, R2 range2) if (allSatisfy!(isForwardRange, R1, R2))
 {
-    return chain(take(range1,n), range2, drop(n, range1));
+    return chain(take(range1, n), range2, drop(range1, n));
 }
 
 /// ditto
 Chain!(Take!R, E[], R) insertAt(R, E)(size_t n, R range, E element) if (isForwardRange!R && is(ElementType!R == E))
 {
-    return chain(take(range,n), [element][], drop(n, range));
+    return chain(take(range, n), [element][], drop(range, n));
 }
 
 unittest
@@ -669,14 +671,14 @@ assert(equal(second(c4), [1,2,2,2,3,3,3,4,4,4,5,5,5][]));
 assert(is(typeof(second(c4)) == Stutter!(int[]))); // The second part is still a Stutter
 ----
 */
-Tuple!(R, R) cutAt(R)(size_t index, R range) if (isForwardRange!R && hasSlicing!R && hasLength2!R)
+Tuple!(R, R) cutAt(R)(size_t index, R range) if (isForwardRange!R && hasSlicing!R && hasLength!R)
 {
     if (index > range.length) index = range.length;
     return tuple(range[0 .. index], range[index .. range.length]);
 }
 
 /// ditto
-Tuple!(ElementType!R[], R) cutAt(R)(size_t index, R range) if (isForwardRange!R && (!hasSlicing!(R) || !hasLength2!(R)))
+Tuple!(ElementType!R[], R) cutAt(R)(size_t index, R range) if (isForwardRange!R && (!hasSlicing!(R) || !hasLength!(R)))
 {
     ElementType!R[] firstPart;
     R secondPart = range;
@@ -774,19 +776,19 @@ Example:
 ----
 auto r1 = [0,1,2,3,4,5];
 auto r2 = [3.14, 2.78, 0.25, -1.0, 0.0];
-string s = "abcd";
+auto s = ["a","b","c","d"];
 
 auto k = knit(r1,s,r2);
-assert(k.front == tuple(0,'a',3.14));
-assert(equal(k, [tuple(0,'a',3.14), tuple(1,'b',2.78), tuple(2,'c',0.25), tuple(3,'d',-1.0)][]));
+assert(k.front == tuple(0,"a",3.14));
+assert(equal(k, [tuple(0,"a",3.14), tuple(1,"b",2.78), tuple(2,"c",0.25), tuple(3,"d",-1.0)][]));
 
 // Defining more operations:
 assert(k.length == s.length); // length is defined
 // back and popBack are defined
 assert(equal(retro(k),
-            [tuple(3,'d',-1.0), tuple(2,'c',0.25), tuple(1,'b',2.78), tuple(0,'a',3.14)][]));
-assert(k[2] == tuple(2, 'c', 0.25)); // opIndex is defined
-assert(equal(k[1..3], [tuple(1, 'b', 2.78), tuple(2, 'c', 0.25)][])); // opSlice is defined
+            [tuple(3,"d",-1.0), tuple(2,"c",0.25), tuple(1,"b",2.78), tuple(0,"a",3.14)][]));
+assert(k[2] == tuple(2, "c", 0.25)); // opIndex is defined
+assert(equal(k[1..3], [tuple(1, "b", 2.78), tuple(2, "c", 0.25)][])); // opSlice is defined
 
 // More operations impossible:
 auto m = map!"a*a"(r2); // no .length, .back, ... (except if you use phobos_extension.d)
@@ -872,11 +874,12 @@ struct Knit(R...) if (allSatisfy!(isForwardRange,R)) {
         }
     }
 
-    static if(allHaveLength!(R) && !allAreInfinite!(R) && allSatisfy!(hasSlicing, R)) {
+    static if(allHaveLength!(R) && !allAreInfinite!(R))
         size_t length() {
-            return _ranges[0].length; // they have been all truncated to the same length
+            return minLength(_ranges);
         }
 
+    static if(allHaveLength!(R) && !allAreInfinite!(R) && allSatisfy!(hasSlicing, R)) {
         static if (allSatisfy!(isBidirectionalRange, R)) {
             FrontTuple back() {
                 FrontTuple f;
@@ -894,9 +897,7 @@ struct Knit(R...) if (allSatisfy!(isForwardRange,R)) {
         }
     }
 
-    mixin Chainable!();
-
-
+//    mixin Chainable!();
 }
 
 Knit!(R) knit(R...)(R ranges) if (allSatisfy!(isForwardRange, R))
@@ -907,19 +908,19 @@ Knit!(R) knit(R...)(R ranges) if (allSatisfy!(isForwardRange, R))
 unittest {
     auto r1 = [0,1,2,3,4,5];
     auto r2 = [3.14, 2.78, 0.25, -1.0, 0.0];
-    dchar[] s = cast(dchar[])"abcd";
+    auto s = ["a","b","c","d"];
 
     auto k = knit(r1,s, r2);
-    assert(k.front == tuple(0,'a', 3.14));
-    assert(equal(k, [tuple(0,'a', 3.14), tuple(1, 'b', 2.78), tuple(2, 'c', 0.25), tuple(3, 'd', -1.0)][]));
+    assert(k.front == tuple(0,"a", 3.14));
+    assert(equal(k, [tuple(0,"a", 3.14), tuple(1, "b", 2.78), tuple(2, "c", 0.25), tuple(3, "d", -1.0)][]));
 
     assert(k._ranges[1] == s);
 
 // Defining more operations:
     assert(k.length == s.length); // length is defined
-    assert(equal(retro(k), [tuple(3,'d', -1.0), tuple(2, 'c', 0.25), tuple(1, 'b', 2.78), tuple(0, 'a', 3.14)][])); // back and popBack are defined
-    assert(k[2] == tuple(2, 'c', 0.25)); // opIndex is defined
-    assert(equal(k[1..3], [tuple(1, 'b', 2.78), tuple(2, 'c', 0.25)][])); // opSlice is defined
+    assert(equal(retro(k), [tuple(3,"d", -1.0), tuple(2, "c", 0.25), tuple(1, "b", 2.78), tuple(0, "a", 3.14)][])); // back and popBack are defined
+    assert(k[2] == tuple(2, "c", 0.25)); // opIndex is defined
+    assert(equal(k[1..3], [tuple(1, "b", 2.78), tuple(2, "c", 0.25)][])); // opSlice is defined
     assert(k[0..0].empty);
 
 // More operations impossible:
@@ -950,7 +951,7 @@ Examples:
 auto r1 = [0,1,2,3,4,5];
 auto r2 = [0.1, 0.2, 0.3, 0.4];
 auto r3 = ["abc", "def", "", "g"];
-auto r4 = ['a', 'b', 'c', 'd', 'e', 'f'];
+auto r4 = ["a", "b", "c", "d", "e", "f"];
 
 auto k1 = knit(r1,r2); // returns Tuple!(int, double)
 auto k2 = knit(r3,r4); // returns Tuple!(string, char)
@@ -958,9 +959,9 @@ auto tf = tfilter!"b<2"(r3,r1); // returns Tuple!(string, int);
 
 auto s = stitch(k1,k2,tf); // returns Tuple!(int,double,string,char,string,int)
 
-assert(s.front == tuple(0, 0.1, "abc", 'a', "abc", 0));
+assert(s.front == tuple(0, 0.1, "abc", "a", "abc", 0));
 s.popFront;
-assert(s.front == tuple(1, 0.2, "def", 'b', "def", 1));
+assert(s.front == tuple(1, 0.2, "def", "b", "def", 1));
 s.popFront;
 assert(s.empty); // tf stops there because now r1's elements are not less than 2. So s stops there also.
 ----
@@ -984,7 +985,7 @@ unittest
     auto r1 = [0,1,2,3,4,5];
     auto r2 = [0.1, 0.2, 0.3, 0.4];
     auto r3 = ["abc", "def", "", "g"];
-    auto r4 = ['a', 'b', 'c', 'd', 'e', 'f'];
+    auto r4 = ["a", "b", "c", "d", "e", "f"];
 
     auto k1 = knit(r1, r2); // returns Tuple!(int, double)
     auto k2 = knit(r3,r4);  // returns Tuple!(string, char)
@@ -992,9 +993,9 @@ unittest
 
     auto s = stitch(k1,k2,tf); // returns Tuple!(int,double,string,char,string,int)
 
-    assert(s.front == tuple(0, 0.1, "abc", 'a', "abc", 0));
+    assert(s.front == tuple(0, 0.1, "abc", "a", "abc", 0));
     s.popFront;
-    assert(s.front == tuple(1, 0.2, "def", 'b', "def", 1));
+    assert(s.front == tuple(1, 0.2, "def", "b", "def", 1));
     s.popFront;
     assert(s.empty); // tf stops there because now r1's elements are not less than 2. So s stops there also.
 }
@@ -1008,20 +1009,20 @@ Example:
 ----
 auto r1 = [0,1,2,3,4];
 auto r2 = [3.14, 2.78, 1.414];
-string s = "abcdef";
+auto s = ["a","b","c","d","e","f"];
 
 // Let's create a tuple-returning range.
 auto k = knit(r1,r2,s);
-assert(is(ElementType!(typeof(k)) == Tuple!(int,double,char)));
-assert(equal(k, [tuple(0,3.14,'a'), tuple(1,2.78,'b'), tuple(2,1.414,'c')][]));
+assert(is(ElementType!(typeof(k)) == Tuple!(int,double,string)));
+assert(equal(k, [tuple(0,3.14,"a"), tuple(1,2.78,"b"), tuple(2,1.414,"c")][]));
 
 auto rot1 = twist!1(k);
-assert(is(ElementType!(typeof(rot1)) == Tuple!(double,char,int)));
-assert(equal(rot1, [tuple(3.14,'a',0), tuple(2.78,'b',1), tuple(1.414,'c',2)][]));
+assert(is(ElementType!(typeof(rot1)) == Tuple!(double,string,int)));
+assert(equal(rot1, [tuple(3.14,"a",0), tuple(2.78,"b",1), tuple(1.414,"c",2)][]));
 
 auto rot_1 = twist!(-1)(k);
-assert(is(ElementType!(typeof(rot_1)) == Tuple!(char,int,double)));
-assert(equal(rot_1, [tuple('a',0,3.14), tuple('b',1,2.78), tuple('c',2,1.414)][]));
+assert(is(ElementType!(typeof(rot_1)) == Tuple!(string,int,double)));
+assert(equal(rot_1, [tuple("a",0,3.14), tuple("b",1,2.78), tuple("c",2,1.414)][]));
 ----
 */
 Map!(naryFun!(rotateTuple!(n,ElementType!R.Types)),R)
@@ -1034,39 +1035,39 @@ unittest
 {
     auto r1 = [0,1,2,3,4];
     auto r2 = [3.14, 2.78, 1.414];
-    string s = "abcdef";
+    auto s = ["a","b","c","d","e","f"];
 
     auto k = knit(r1,r2,s);
-    assert(is(ElementType!(typeof(k)) == Tuple!(int,double,dchar)));
-    assert(equal(k, [tuple(0,3.14,'a'), tuple(1,2.78,'b'), tuple(2,1.414,'c')][]));
+    assert(is(ElementType!(typeof(k)) == Tuple!(int,double,string)));
+    assert(equal(k, [tuple(0,3.14,"a"), tuple(1,2.78,"b"), tuple(2,1.414,"c")][]));
 
     auto rot1 = twist!1(k);
-    assert(is(ElementType!(typeof(rot1)) == Tuple!(double,dchar,int)));
-    assert(equal(rot1, [tuple(3.14,'a',0), tuple(2.78,'b',1), tuple(1.414,'c',2)][]));
+    assert(is(ElementType!(typeof(rot1)) == Tuple!(double,string,int)));
+    assert(equal(rot1, [tuple(3.14,"a",0), tuple(2.78,"b",1), tuple(1.414,"c",2)][]));
 
     auto rot_1 = twist!(-1)(k);
-    assert(is(ElementType!(typeof(rot_1)) == Tuple!(dchar,int,double)));
-    assert(equal(rot_1, [tuple('a',0,3.14), tuple('b',1,2.78), tuple('c',2,1.414)][]));
+    assert(is(ElementType!(typeof(rot_1)) == Tuple!(string,int,double)));
+    assert(equal(rot_1, [tuple("a",0,3.14), tuple("b",1,2.78), tuple("c",2,1.414)][]));
 }
 
 /**
 Takes a tuple-producing range and reverse each tuple: the first field
 becomes the last one, and so on.
-Note: I'd like another name. twist?
+Note: I"d like another name. twist?
 
 Example:
 ----
 auto r1 = [0,1,2,3,4];
 auto r2 = [3.14, 2.78, 1.414];
-string s = "abcdef";
+auto s = ["a","b","c","d","e","f"];
 
 auto k = knit(r1,r2,s);
-assert(is(ElementType!(typeof(k)) == Tuple!(int,double,char)));
-assert(equal(k, [tuple(0,3.14,'a'), tuple(1,2.78,'b'), tuple(2,1.414,'c')][]));
+assert(is(ElementType!(typeof(k)) == Tuple!(int,double,string)));
+assert(equal(k, [tuple(0,3.14,"a"), tuple(1,2.78,"b"), tuple(2,1.414,"c")][]));
 
 auto rev = reverse(k);
-assert(is(ElementType!(typeof(rot1)) == Tuple!(char,double,int)));
-assert(equal(rot1, [tuple('a',3.14,0), tuple('b',2.78,1), tuple('c',1.414,2)][]));
+assert(is(ElementType!(typeof(rev)) == Tuple!(string,double,int)));
+assert(equal(rev, [tuple("a",3.14,0), tuple("b",2.78,1), tuple("c",1.414,2)][]));
 ----
 */
 Map!(naryFun!(reverseTuple!(ElementType!R.Types)),R)
@@ -1079,32 +1080,37 @@ unittest
 {
     auto r1 = [0,1,2,3,4];
     auto r2 = [3.14, 2.78, 1.414];
-    string s = "abcdef";
+    auto s = ["a","b","c","d","e","f"];
 
     auto k = knit(r1,r2,s);
-    assert(is(ElementType!(typeof(k)) == Tuple!(int,double,dchar)));
-    assert(equal(k, [tuple(0,3.14,'a'), tuple(1,2.78,'b'), tuple(2,1.414,'c')][]));
+    assert(is(ElementType!(typeof(k)) == Tuple!(int,double,string)));
+    assert(equal(k, [tuple(0,3.14,"a"), tuple(1,2.78,"b"), tuple(2,1.414,"c")][]));
 
     auto rev = reverse(k);
-    assert(is(ElementType!(typeof(rev)) == Tuple!(dchar,double,int)));
-    assert(equal(rev, [tuple('a',3.14,0), tuple('b',2.78,1), tuple('c',1.414,2)][]));
+    assert(is(ElementType!(typeof(rev)) == Tuple!(string,double,int)));
+    assert(equal(rev, [tuple("a",3.14,0), tuple("b",2.78,1), tuple("c",1.414,2)][]));
 }
 
 /**
 Takes a tuple-producing range, range1, and another range, range2 and creates a new tuple-returning range
 which inserts the elements of range2 at position n into range1's elements. As for an array, index 0
 is before all other elements, etc.
+
 Example:
 ----
 auto r1 = [0,1,2,3,4];
-string s = "abcdef";
-auto k = knit(r1,s); // k's elements type is Tuple!(int,char)
+auto s = ["a","b","c","d","e","f"];
+auto k = knit(r1,s); // k returns Tuple!(int,string)
 
 auto r2 = [-2.1, 0.0, 3.14];
 
 auto spl = splice!1(k,r2); // splices r2 in the middle of k's elements.
-assert(is(ElementType!(typeof(spl)) == Tuple!(int,double,char)));
-assert(equal(spl, [tuple(0,-2.1,'a'), tuple(1,0.0,'b'), tuple(2, 3.14, 'c')][]));
+assert(is(ElementType!(typeof(spl)) == Tuple!(int,double,string)));
+assert(equal(spl, [tuple(0,-2.1,"a"), tuple(1,0.0,"b"), tuple(2, 3.14, "c")][]));
+
+auto spl2 = splice!0(spl,k); // splices k before all spl's elements.
+assert(is(ElementType!(typeof(spl2)) == Tuple!(Tuple!(int,string), int,double,string))); // non-flattening
+assert(equal(spl2, [tuple(tuple(0,"a"), 0,-2.1,"a"), tuple(tuple(1,"b"),1,0.0,"b"), tuple(tuple(2,"c"),2, 3.14, "c")][]));
 ----
 
 As std.typecons.Tuple is not auto-flattening, you can splice tuple-producing ranges into one another.
@@ -1112,7 +1118,7 @@ Example:
 ----
 auto spl2 = splice!0(spl,k); // splices k before all spl's elements.
 assert(is(ElementType!(typeof(spl2)) == Tuple!(Tuple!(int,char), int,double,char))); // non-flattening
-assert(equal(spl2, [tuple(tuple(0,'a'), 0,-2.1,'a'), tuple(tuple(1,'b'),1,0.0,'b'), tuple(tuple(2,'c'),2, 3.14, 'c')][]));
+assert(equal(spl2, [tuple(tuple(0,"a"), 0,-2.1,"a"), tuple(tuple(1,"b"),1,0.0,"b"), tuple(tuple(2,"c"),2, 3.14, "c")][]));
 ----
 */
 SpliceType!(n,R1,R2) splice(size_t n, R1, R2)(R1 range1, R2 range2)
@@ -1129,23 +1135,23 @@ template SpliceType(size_t n, R1, R2)
 unittest
 {
     auto r1 = [0,1,2,3,4];
-    string s = "abcdef";
+    auto s = ["a","b","c","d","e","f"];
     auto k = knit(r1,s);
 
     auto r2 = [-2.1, 0.0, 3.14];
 
     auto spl = splice!1(k,r2); // splices r2 in the middle of k's elements.
-    assert(is(ElementType!(typeof(spl)) == Tuple!(int,double,dchar)));
-    assert(equal(spl, [tuple(0,-2.1,'a'), tuple(1,0.0,'b'), tuple(2, 3.14, 'c')][]));
+    assert(is(ElementType!(typeof(spl)) == Tuple!(int,double,string)));
+    assert(equal(spl, [tuple(0,-2.1,"a"), tuple(1,0.0,"b"), tuple(2, 3.14, "c")][]));
 
     auto spl2 = splice!0(spl,k); // splices k before all spl's elements.
-    assert(is(ElementType!(typeof(spl2)) == Tuple!(Tuple!(int,dchar), int,double,dchar))); // non-flattening
-    assert(equal(spl2, [tuple(tuple(0,'a'), 0,-2.1,'a'), tuple(tuple(1,'b'),1,0.0,'b'), tuple(tuple(2,'c'),2, 3.14, 'c')][]));
+    assert(is(ElementType!(typeof(spl2)) == Tuple!(Tuple!(int,string), int,double,string))); // non-flattening
+    assert(equal(spl2, [tuple(tuple(0,"a"), 0,-2.1,"a"), tuple(tuple(1,"b"),1,0.0,"b"), tuple(tuple(2,"c"),2, 3.14, "c")][]));
 }
 
 /**
-Takes a tuple-producing range and an array of indices ([0,1,2] for example, meaning 'first, second and third fields')
-and returns a tuple-producing range whose elements' fields are those indicated by array.
+Takes a tuple-producing range and an array of indices ([0,1,2] for example, meaning "first, second and third fields")
+and returns a tuple-producing range whose elements" fields are those indicated by array.
 The indices can be repeated, omitted, put in any order and the array can be longer than the input tuple ([0,1,2,3,2,1,3,1,0]).
 Example:
 ----
@@ -1162,14 +1168,14 @@ auto shr2 = shred!([1])(k); // taking only one field
 assert(equal(shr2, [tuple(3.14), tuple(2.78), tuple(1.414)][]));
 
 auto shr3 = shred!([2,0,1,1])(k); // repating some fields
-assert(equal(shr3, [tuple('a',0,3.14,3.14), tuple('b',1,2.78,2.78), tuple('c',2,1.414,1.414)][]));
+assert(equal(shr3, [tuple("a",0,3.14,3.14), tuple("b",1,2.78,2.78), tuple("c",2,1.414,1.414)][]));
 
 auto shr4 = shred!([1,2,0])(shr3); // re-inverting the fields
 assert(equal(shr4, k)); // this re-creates k
 ----
 */
 ShredType!(array, R) shred(alias array, R)(R range)
-if (isTupleRange!R && hasLength2!(typeof(array)))
+if (isTupleRange!R && hasLength!(typeof(array)))
 {
     return map!(naryFun!(shredTuple!(array, ElementType!R.Types)))(range);
 }
@@ -1183,15 +1189,24 @@ Example:
 ----
 auto r1 = [0,1,2,3,4];
 auto r2 = [3.14, 2.78,1.414];
-string s = "abcdef";
+auto s = ["a","b","c","d","e","f"];
 
 auto k = knit(r1,r2,s);
 
-auto shr1 = shred!([1])(k); // taking only one field
+auto shr1 = shred!([1,0])(k); // inverting the order
+assert(equal(shr1, [tuple(3.14,0), tuple(2.78,1), tuple(1.414,2)][]));
+
+auto shr2 = shred!([1])(k); // taking only one field
 assert(equal(shr2, [tuple(3.14), tuple(2.78), tuple(1.414)][]));
 
-auto shr2 = shred!1(k);
-assert(equal(shr2, r2)); // we find r2 again.
+auto shr3 = shred!([2,0,1,1])(k); // repating some fields
+assert(equal(shr3, [tuple("a",0,3.14,3.14), tuple("b",1,2.78,2.78), tuple("c",2,1.414,1.414)][]));
+
+auto shr4 = shred!([1,2,0])(shr3); // re-inverting the fields
+assert(equal(shr4, k)); // this re-creates k
+
+auto shr5 = shred!1(k);
+assert(equal(shr5, r2));
 ----
 */
 ShredType!(n,R) shred(size_t n, R)(R range) if (isTupleRange!R)
@@ -1200,7 +1215,7 @@ ShredType!(n,R) shred(size_t n, R)(R range) if (isTupleRange!R)
     return map!(naryFun!shredder)(range);
 }
 
-template ShredType(alias array, R) if (isTupleRange!R && hasLength2!(typeof(array)))
+template ShredType(alias array, R) if (isTupleRange!R && hasLength!(typeof(array)))
 {
     alias Map!(naryFun!(shredTuple!(array, ElementType!R.Types)), R) ShredType;
 }
@@ -1213,7 +1228,7 @@ unittest
 {
     auto r1 = [0,1,2,3,4];
     auto r2 = [3.14, 2.78,1.414];
-    string s = "abcdef";
+    auto s = ["a","b","c","d","e","f"];
 
     auto k = knit(r1,r2,s);
 
@@ -1224,7 +1239,7 @@ unittest
     assert(equal(shr2, [tuple(3.14), tuple(2.78), tuple(1.414)][]));
 
     auto shr3 = shred!([2,0,1,1])(k); // repating some fields
-    assert(equal(shr3, [tuple('a',0,3.14,3.14), tuple('b',1,2.78,2.78), tuple('c',2,1.414,1.414)][]));
+    assert(equal(shr3, [tuple("a",0,3.14,3.14), tuple("b",1,2.78,2.78), tuple("c",2,1.414,1.414)][]));
 
     auto shr4 = shred!([1,2,0])(shr3); // re-inverting the fields
     assert(equal(shr4, k)); // this re-creates k
@@ -1235,7 +1250,7 @@ unittest
 
 /**
 Takes a tuple-producing range whose elements are 1-element tuples (mainly, this can happen as the result
-of some extracting, shredding, filtering, etc.) and 'untuplify' it, extracting the tuples values.
+of some extracting, shredding, filtering, etc.) and "untuplify" it, extracting the tuples values.
 Example:
 ----
 auto r1 = [0,1,2,3,4];
@@ -1265,7 +1280,7 @@ unittest
 
 /**
 A range that iterates alternatively on the ranges given at creation. It's related
-to std.range.Transversal, but will iterated on all 'columns' and will stop
+to std.range.Transversal, but will iterated on all "columns" and will stop
 as soon as one of them is empty.
 Example:
 ----
@@ -1362,7 +1377,7 @@ Transverse!(B,Cycle!S) interleave(B, S)(B bigRange, S smallRange) {
 
 unittest {
     auto i = interleave("abcdef", ",");
-    assert(asString(i) == "a,b,c,d,e,f,"); // Yes, there is a ',' at the end.
+    assert(asString(i) == "a,b,c,d,e,f,"); // Yes, there is a "," at the end.
     auto i2 = interleave("abcdef", ",;.");
     assert(asString(i2) == "a,b;c.d,e;f.");
     auto r1 = [0,1,2,3,4];
@@ -1403,9 +1418,9 @@ assert(s[2] == tuple(2,0));    // it affects its neighbors.
 assert(s[4] == tuple(0,5));
 assert(r1 == [0,1,2,0,0,5][]); // affects r1 back (no .dup internally)
 
-string st = "abcdef";
+auto st = ["a","b","c","d","e","f"]; // initial example with a string. Change due to DMD 2.041
 auto s2 = segment!3(st);
-assert(s2.front == tuple('a','b','c'));
+assert(s2.front == tuple("a","b","c"));
 
 r1 = [0,1,2,3,4,5]; // regenerates r1
 auto s3 = segment!1(r1);
@@ -1443,9 +1458,9 @@ unittest
     assert(s[4] == tuple(0,5));
     assert(r1 == [0,1,2,0,0,5][]); // affects r1 back (no .dup internally)
 
-    string st = "abcdef";
+    auto st = ["a","b","c","d","e","f"];
     auto s2 = segment!3(st);
-    assert(s2.front == tuple('a','b','c'));
+    assert(s2.front == tuple("a","b","c"));
 
     r1 = [0,1,2,3,4,5]; // regenerates r1
     auto s3 = segment!1(r1);
@@ -1462,7 +1477,7 @@ unittest
 
 /**
 A generalization of segment: given an array of indices (as template argument) and a range,
-it will produce the corresponding 'extracts' (disjointed segments, as tuples).
+it will produce the corresponding "extracts" (disjointed segments, as tuples).
 segment!n(r) is equivalent to delay!([0,1,2, ...,n])(r).
 
 But delay is much more powerful than segment.
@@ -1503,7 +1518,7 @@ int[] e;
 assert(delay!([0,1])(e).empty);
 ----
 */
-Knit!(TypeNuple!(R, array.length)) delay(alias array, R)(R range) if (isForwardRange!R && isStaticArray!(typeof(array)) && array.length > 0)
+Knit!(TypeNuple!(R, array.length)) delay(alias array, R)(R range) if (isForwardRange!R && isArray!(typeof(array)) && array.length > 0)
 {
     enum size_t l = array.length;
     TypeNuple!(R, l) _ranges;
@@ -1521,7 +1536,6 @@ Knit!(TypeNuple!(R, array.length)) delay(alias array, R)(R range) if (isForwardR
 
 unittest
 {
-    /+
     auto r1 = [0,1,2,3,4,5];
     auto d = delay!([0,1])(r1); // will iterate on the pair ([0,1,2,3,4,5], [1,2,3,4,5]).
                                 // It's equivalent to segment!2(r1)
@@ -1548,12 +1562,11 @@ unittest
 
     int[] e;
     assert(delay!([0,1])(e).empty);
-    +/
 }
 
 /**
-Another 'delay' cousin: takes a number (as template argument) and a range, and produces
-a 'knit' of n times the same range in parallel.
+Another "delay" cousin: takes a number (as template argument) and a range, and produces
+a "knit" of n times the same range in parallel.
 See_Also: segment, delay.
 Example:
 ----
@@ -1599,7 +1612,7 @@ assert(array(sentence2) == "thequickbrownfoxjumpedoverthelazydog.");
 
 assert(equal(concat(c), c));        // c is a simple range, concat(c) has no effect.
 ----
-BUG: doesn't play so nice with retro. retro.popBack calls concat.popFront, but it seems to have no effect.
+BUG: doesn"t play so nice with retro. retro.popBack calls concat.popFront, but it seems to have no effect.
 */
 struct Concat(R) if (isRangeOfRanges!R)
 {
@@ -1694,8 +1707,8 @@ unittest
 }
 
 /**
-Flatten a range of ranges (of ranges, etc.) n levels deep. n == 1 is just concat(range),
-n == 2 is concat(concat(range)), etc. n==0 does nothing. The default is to go for the maximum flattening.
+Flatten a range of ranges (of ranges, etc.) n levels deep. n==0 does nothing. n == 1 is just concat(range),
+n == 2 is concat(concat(range)), etc. The default is to go for the maximum flattening.
 Example:
 ----
 int[][] r1 = [[0,1,2], [3,4], [5]];
@@ -1719,8 +1732,8 @@ assert(equal(retro(f5), [[5], [3,4], [0,1,2], [6], [5], [3,4], [0,1,2]][]));
 ----
 */
 FlattenType!(n,R) flatten(size_t n = size_t.max, R)(R range) if (isForwardRange!R) {
-    static if(n > depth!R)
-        return wrapCode!(concat, depth!R, R)(range);
+    static if(n > rank!R)
+        return wrapCode!(concat, rank!R, R)(range);
     else
         return wrapCode!(concat, n, R)(range);
 }
@@ -1731,6 +1744,8 @@ template FlattenType(size_t n,R)
         alias FlattenType!(rank!R,R) FlattenType;
     else static if (n == 0)
         alias R FlattenType;
+    else static if (n == rank!R)
+        alias FlattenType!(n-1, R) FlattenType;
     else
         alias Concat!(FlattenType!(n-1, R)) FlattenType;
 }
@@ -1770,6 +1785,8 @@ assert(r1.length == s.length);
 assert(equal(r1, [0,1,2,3][]));
 assert(s == "abcd");
 ----
+BUG:
+Does not work since DMD 2.04x, when strings were modified. Maybe by using byCodePoint or somesuch?
 */
 void truncate(R...)(ref R r) if (allHaveLength!R && !allAreInfinite!R && allSatisfy!(hasSlicing, R))
 {
@@ -1779,45 +1796,46 @@ void truncate(R...)(ref R r) if (allHaveLength!R && !allAreInfinite!R && allSati
     }
 }
 
+
 unittest {
     auto r1 = [0,1,2,3];
-    string s = "abcdefghijk";
+    auto s = ["a","b","c","d","e","f","g","h","i","j","k"];
     truncate(r1, s);
     assert(r1.length == s.length);
     assert(equal(r1, [0,1,2,3][]));
-    assert(s == "abcd");
+    assert(s == ["a","b","c","d"]);
 }
+
 
 /**
 Emulates the standard Clojure/Python/Ruby function: given a range r,
-it will produce an indexed range (the index beginning _from from).
-Elements of indexed are tuples(index, element)
+it will produce an indexed range, with elements tuples(index, element).
+
 If possible, indexed defines back, popBack, length, opIndex and opSlice.
 ----
-string s = "abcdef";
-auto e = indexed(s); // (0,'a), (1,'b), (2,'c), (3,'d), (4, 'e'), (5, 'f')
-assert(e.front == tuple(0, 'a'));
+auto s = ["a", "b", "c", "d", "e", "f"];
+auto e = indexed(s); // (0,"a"), (1,"b"), (2,"c"), (3,"d"), (4, "e"), (5, "f")
+assert(e.front == tuple(0, "a"));
 assert(e.length == s.length);
 e.popFront;
-assert(e.front == tuple(1, 'b'));
-assert(e[3]    == tuple(4, 'e')); // opIndex
-assert(e.back  == tuple(5, 'f')); // back
+assert(e.front == tuple(1, "b"));
+assert(e[3]    == tuple(4, "e")); // opIndex
+assert(e.back  == tuple(5, "f")); // back
 ----
 */
-Knit!(Numbers, R) indexed(R)(R range, int from = 0) {
-    return knit(numbers(from, int.max, 1), range);
+Knit!(Numbers, R) indexed(R)(R range) {
+    return knit(numbers(0,int.max,1), range);
 }
 
 unittest {
-    auto s = cast(dchar[])"abcdef";
-    auto e = indexed(s);
-    assert(e.front == tuple(0, 'a'));
+    auto s = ["a", "b", "c", "d", "e", "f"];
+    auto e = indexed(s); // (0,"a"), (1,"b"), (2,"c"), (3,"d"), (4, "e"), (5, "f")
+    assert(e.front == tuple(0, "a"));
     assert(e.length == s.length);
-
     e.popFront;
-    assert(e.front == tuple(1, 'b'));
-    assert(e[3]    == tuple(4, 'e')); // opIndex
-    assert(e.back  == tuple(5, 'f')); // back
+    assert(e.front == tuple(1, "b"));
+    assert(e[3]    == tuple(4, "e")); // opIndex
+    assert(e.back  == tuple(5, "f")); // back
 
     int[] empt;
     assert(indexed(empt).empty);
@@ -1869,7 +1887,7 @@ struct Numbers {
         return Numbers(index1*_step + _num, index2*_step + _num);
     }
 
-    size_t length() { return (empty ? 0 : cast(size_t)((_max-_num)/_step));}
+    @property size_t length() { return (this.empty ? 0 : cast(size_t)((_max-_num)/_step));}
 }
 
 /// ditto
@@ -1962,18 +1980,20 @@ Numberz!T numberz(T)(T to) {
 }
 
 /// ditto
-Numberz!T numberz(T)(T from, T to, T step = cast(T)1) {
+Numberz!T numberz(T)(T from, T to, T step) {
     return Numberz!T(from, to, step);
 }
 
+/+
 unittest
 {
-    auto n1 = numberz(BigInt("1000000000000000"), BigInt("2000000000000000"));
+    auto n1 = numberz(BigInt("1000000000000000"), BigInt("2000000000000000"), BigInt("1"));
     // -> 1000000000000000, 1000000000000001, 1000000000000002, 1000000000000003, ..., 1000000000000010
     assert(n1[3] == BigInt("1000000000000003"));
     assert(n1[BigInt("500000000000000")] == BigInt("1500000000000000"));
     assert(n1.length == BigInt("1000000000000000"));
 }
++/
 
 /**
 Simple range producing all natural numbers, alternating
@@ -2082,7 +2102,7 @@ struct Once(T) {
     Once!T opSlice() { return this;}
 /+    Once!T opSlice(ulong i1, ulong i2) // strange, I had to put ulong to satisfy std.range.ChainImpl
     {
-        assert(i1 <= this.length()); // It was originally == 0, but [1..1] seems authorized for arrays. I thought it wasn't.
+        assert(i1 <= this.length()); // It was originally == 0, but [1..1] seems authorized for arrays. I thought it wasn"t.
         assert(i2 <= this.length());
         auto slice = this;
         if (i1 == i2 && !slice.empty) slice.popFront;
@@ -2255,7 +2275,7 @@ struct ReplicateRange(R) if (isForwardRange!R) {
         ElementType!R back() { return _backCopy.back;}
     }
 
-    static if (hasLength2!R) {
+    static if (hasLength!R) {
         size_t length() {
             switch (_times) {
                 case 0:
@@ -2268,7 +2288,7 @@ struct ReplicateRange(R) if (isForwardRange!R) {
         }
     }
 
-    static if (isRandomAccessRange!R && hasLength2!R) { // and hasLength...
+    static if (isRandomAccessRange!R && hasLength!R) { // and hasLength...
         ElementType!R opIndex(size_t index) {
             int i = (index + _range.length - _copy.length) / _range.length;
             if (i == 0) return _copy[index];
@@ -2366,7 +2386,7 @@ struct Stutter(R) if (isForwardRange!R){
         return _range.front;
     }
 
-    static if (hasLength2!R) {
+    static if (hasLength!R) {
         size_t length() {
             return   _range.length * _times
                    - (_times - _frontCount)
@@ -2395,7 +2415,7 @@ struct Stutter(R) if (isForwardRange!R){
     static if (isRandomAccessRange!R) {
         ElementType!R opIndex(size_t index) {
             size_t idx = (index + _times - _frontCount);
-            static if (hasLength2!R) {
+            static if (hasLength!R) {
                 if (idx > this.length +1) {
                     throw new Exception("stutter.opIndex: Out of range. index: " ~ to!string(idx) ~ " max: " ~ to!string(this.length +1));
                 }
@@ -2483,7 +2503,7 @@ struct Extremities(R) if (isBidirectionalRange!R) {
         _state = 1 - _state;
     }
 
-    static if (hasLength2!R) {
+    static if (hasLength!R) {
         size_t length() {
             return _range.length;
         }
@@ -2655,7 +2675,7 @@ struct AsSet(R : Repeat!U, U)
 {
     U[] _range;
 
-    this(R range) { if (!range.empty) _range = [range.front][];} // or else range is an empty Repeat. I don't think that's even possible.
+    this(R range) { if (!range.empty) _range = [range.front][];} // or else range is an empty Repeat. I don"t think that's even possible.
     bool empty() {return _range.empty;}
     void popFront() { _range.popFront;}
     ElementType!R front() { return _range.front;}
@@ -2687,7 +2707,7 @@ auto r1 = [0,1,2,3,4];
 string s = "abc";
 auto c = cycle([0,1,2,3]);
 auto l = smallestLength(r1,s,c);
-assert(l == s.length); // c doesn't count, it's infinite.
+assert(l == s.length); // c doesn"t count, it's infinite.
 ----
 */
 size_t smallestLength(R, Rest...)(R range0, Rest rest) {
@@ -2695,7 +2715,7 @@ size_t smallestLength(R, Rest...)(R range0, Rest rest) {
 }
 
 size_t smallestLengthImpl(R, Rest...)(size_t currentLength, R range0, Rest rest) {
-    static if (hasLength2!R) {
+    static if (hasLength!R) {
         size_t r0Length = range0.length;
         if (r0Length < currentLength) currentLength = r0Length;
     }
@@ -2712,7 +2732,7 @@ unittest {
     string s = "abc";
     auto c = cycle([0,1,2,3][]);
     auto l = smallestLength(r1,s,c);
-    assert(l == s.length); // c doesn't count, it's infinite.
+    assert(l == s.length); // c doesn"t count, it's infinite.
 }
 +/
 
@@ -2749,11 +2769,11 @@ Cache!R cache(R)(R r) if (isForwardRange!R) {
 }
 
 /**
-To iterate on range using a function with side-effects. It doesn't use the return values,
+To iterate on range using a function with side-effects. It doesn"t use the return values,
 so it acts only through fun's side-effects. Mainly used to print a range.
 ----
 auto r1 = [0,1,2,3,4];
-forEach!(write)(r1); // writes '01234'
+forEach!(write)(r1); // writes "01234"
 int sum;
 forEach!((int a){sum += a;})(r1);
 assert(sum == reduce!"a+b"(r1)); // sum contains 0+1+2+3+4
@@ -2852,7 +2872,7 @@ e[] ~ r1;// Concatenation on the left with an array of elements.
 r1 ~ e;  // concatenation on the right with a new element.
 e ~ r1;  // concatenation on the left with a new element.
 ----
-What you don't get is:
+What you don"t get is:
 ----
 r2 ~ r1; // No, r2 must define opCat. A templated opCat_r does not work if r1 and r2 both define it and opCat.
 ----
@@ -2912,8 +2932,8 @@ auto mapFunRange(R, E)(R rangeOfFuns, E elem) if (isForwardRange!R && is(Paramet
 /**
 A sort-of extension of standard ranges that remembers the previous values output through
 front and back and can deliver them anew. The front can go back with retreat and the back
-can 'go forward' with advance. Use asNew/backAsNew to see if you can still retreat/advance.
-BUG: doesn't quite work. I'm getting fed up with this: too many internal states to consider. I should
+can "go forward" with advance. Use asNew/backAsNew to see if you can still retreat/advance.
+BUG: doesn"t quite work. I"m getting fed up with this: too many internal states to consider. I should
 tackle this anew.
 */
 struct Store(R) if (isInputRange!R)
@@ -2948,7 +2968,7 @@ struct Store(R) if (isInputRange!R)
     {
         if (usingStore)
         {
-            if (index == store.length) // 'empty store'. If we are using popFront, it means Store is not empty. So backStore is not empty.
+            if (index == store.length) // "empty store". If we are using popFront, it means Store is not empty. So backStore is not empty.
             {
                 store ~= backStore.back; // transfer one element from backStore to store.
                 backStore.popBack;

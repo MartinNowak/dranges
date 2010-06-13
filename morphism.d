@@ -6,12 +6,16 @@ known under the delightful names of catamorphisms, anamorphisms, paramorphisms a
 */
 module dranges.morphism;
 
-import std.range, std.array, std.algorithm, std.traits;
+import std.algorithm, std.array, std.functional,std.range, std.traits;
 
-import dranges.traits2;
-import dranges.typetuple2;
-import dranges.templates;
 import dranges.algorithm2;
+import dranges.functional2;
+import dranges.templates;
+import dranges.traits2;
+import dranges.tuple2;
+import dranges.typetuple2;
+
+
 
 /**
 Catamorphism.
@@ -107,8 +111,8 @@ unittest
 //    writeln(fact);
     auto fact2 = hylo!(1, "a*b", "a==0", "tuple(a, a-1)")(5);
 //    writeln(fact2);
-    int[] h;
-    auto heads =reduce!"a~(a[$-1]~b)"(e~h,nums);
+    int[][] h;
+    auto heads =reduce!"a~(a[$-1]~b)"(h ~ e,nums);
 //    wr(heads);
 
 

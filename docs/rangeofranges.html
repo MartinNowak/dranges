@@ -26,7 +26,7 @@ a linear range into a range of ranges, zipping them, creating them by tensorial 
 <span class="currsymbol">Transpose</span>
 <script>explorer.outline.addDecl('Transpose');</script>
 
-(R) if (isRangeOfRanges!(R) &amp;&amp; hasLength2!(R) &amp;&amp; hasLength2!(ElementType!(R)));
+(R) if (isRangeOfRanges!(R) &amp;&amp; hasLength!(R) &amp;&amp; hasLength!(ElementType!(R)));
 <br>UnWrap!("Transpose",R) 
 <span class="currsymbol">transpose</span>
 <script>explorer.outline.addDecl('transpose');</script>
@@ -411,7 +411,7 @@ the 0-based coordinates. It's a n-dim generalization of indexed.<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Thu Jun  3 00:11:59 2010
+			on Sun Jun 13 23:56:50 2010
 
 		</td></tr>
 	</table>
