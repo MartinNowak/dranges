@@ -6,7 +6,7 @@ reversing, rotating, extracting, filtering, unfolding, etc, all on typetuples.
 
 
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
-Authors:   Philippe Sigaud
+Authors:   Philippe Sigaud and Simen Kjaeraas
 
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -37,6 +37,129 @@ template Init(T...)
 
 }
 
+/**
+Compares tuples that might contain a mixture of types and values.
+Author:
+Simen Kjaeraas.
+
+Example:
+----
+static assert(SameTuple!(int, int).As!(int, int));
+static assert(SameTuple!(int, "foo").As!(int, "foo"));
+static assert(!SameTuple!(int, "foo").As!("foo", int));
+----
+*/
+template SameTuple(T...) {
+    template As(U...) {
+        enum As = is( SameTupleImpl!T == SameTupleImpl!U );
+    }
+}
+
+struct SameTupleImpl(T...) {}
+
+unittest {
+    static assert(SameTuple!(int, int).As!(int, int));
+    static assert(SameTuple!(float).As!(float));
+    static assert(SameTuple!("foo").As!("foo"));
+    static assert(!SameTuple!("foo").As!("bar"));
+    static assert(!SameTuple!(int ).As!("bar"));
+    static assert(!SameTuple!(int ).As!(float));
+    static assert(SameTuple!(int, "foo").As!(int, "foo"));
+    static assert(!SameTuple!(int, "foo").As!("foo", int));
+    static assert(SameTuple!().As!());
+    static assert(!SameTuple!(int).As!());
+    static assert(!SameTuple!().As!(int));
+    static assert(!SameTuple!("foo").As!());
+    static assert(!SameTuple!().As!("foo"));
+}
+
+/**
+Checks if one tuple contains another.
+Author:
+Simen Kjaeraas.
+
+Example:
+----
+static assert(Contained!(int).In!(float, int));
+static assert(!Contained!(int).In!(float, "foo"));
+static assert(Contained!(int,"foo").In!(float, int, "foo", "bar"));
+----
+ */
+template Contained(T...) {
+   template In(U...) {
+       static if (T.length == 0) {
+           enum In = true;
+       } else static if (U.length >= T.length) {
+           enum In = SameTuple!(T).As!( U[0..T.length]) ||
+               Contained!(T).In!(U[1..$]);
+       } else {
+           enum In = false;
+       }
+   }
+}
+
+unittest {
+   static assert(Contained!(int).In!(float, int));
+   static assert(!Contained!(int).In!(float, "foo"));
+   static assert(Contained!(int,"foo").In!(float, int, "foo", "bar"));
+   static assert(!Contained!(int,"foo").In!(float, int, "bar", "foo"));
+   static assert(Contained!().In!(float, int, "bar", "foo"));
+}
+
+
+/**
+Evaluates to $(D F!(T[0..tupleLength]) && F!(T[tupleLength..2*tupleLength]) && ... && F[T[$-tupleLength..$]]).
+Author:
+Simen Kjaeraas.
+
+Example:
+----
+static assert(allTuplesSatisfy!(Contained!(int).In, 2, int, float, "foo", int));
+static assert(!allTuplesSatisfy!(Contained!(int).In, 2, int, float, "foo",string));
+----
+ */
+template allTuplesSatisfy( alias F, uint tupleLength, T... ) {
+   static assert( !( T.length % tupleLength ) );
+
+   static if ( T.length == tupleLength ) {
+       enum allTuplesSatisfy = F!( T );
+   } else {
+       enum allTuplesSatisfy = F!( T[0..tupleLength] ) && allTuplesSatisfy!( F, tupleLength, T[tupleLength..$] );
+   }
+}
+
+unittest {
+   static assert(allTuplesSatisfy!(Contained!(int).In, 2, int, float, "foo", int));
+   static assert(!allTuplesSatisfy!(Contained!(int).In, 2, int, float, "foo",string));
+}
+
+/**
+Repeats a type or typetuple $(D num) times.
+Author:
+Simen Kjaeraas.
+
+Example:
+----
+static assert(SameTuple!(Repeat!(4, int)).As!(int, int, int, int));
+static assert(SameTuple!(Repeat!(4, "foo")).As!("foo", "foo", "foo", "foo"));
+static assert(SameTuple!(Repeat!(2, int, "foo")).As!(int, "foo", int, "foo"));
+static assert(!SameTuple!(Repeat!(2, int)).As!());
+----
+ */
+template Repeat( uint num, T... ) {
+   static if ( num > 1 ) {
+       alias TypeTuple!( T, Repeat!( num -1, T ) ) Repeat;
+   } else {
+       alias T Repeat;
+   }
+}
+
+unittest {
+   static assert(SameTuple!(Repeat!(4, int)).As!(int, int, int, int));
+   static assert(SameTuple!(Repeat!(4, "foo")).As!("foo", "foo", "foo", "foo"));
+   static assert(SameTuple!(Repeat!(2, int, "foo")).As!(int, "foo", int, "foo"));
+   static assert(!SameTuple!(Repeat!(2, int)).As!());
+}
 
 /**
 Extracts some types from the variadic type tuple R according to the indices given by array (a static array).

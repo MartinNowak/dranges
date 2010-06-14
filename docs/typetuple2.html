@@ -20,7 +20,7 @@ reversing, rotating, extracting, filtering, unfolding, etc, all on typetuples.
 <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 <br><br>
 <b>Authors:</b><br>
-Philippe Sigaud
+Philippe Sigaud and Simen Kjaeraas
 <br><br>
 
 Distributed under the Boost Software License, Version 1.0.
@@ -44,6 +44,102 @@ inside a template, you cannot do (T.init), DMD does not accept it. Use
 <script>explorer.outline.addDecl('Init');</script>
 
 !T instead.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">SameTuple</span>
+<script>explorer.outline.addDecl('SameTuple');</script>
+
+(T...)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Compares tuples that might contain a mixture of types and values.
+<br><br>
+<b>Author:</b><br>
+Simen Kjaeraas.
+
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>static</font> <font color=blue>assert</font>(<u>SameTuple</u>!(<font color=blue>int</font>, <font color=blue>int</font>).As!(<font color=blue>int</font>, <font color=blue>int</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(<u>SameTuple</u>!(<font color=blue>int</font>, <font color=red>"foo"</font>).As!(<font color=blue>int</font>, <font color=red>"foo"</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(!<u>SameTuple</u>!(<font color=blue>int</font>, <font color=red>"foo"</font>).As!(<font color=red>"foo"</font>, <font color=blue>int</font>));
+</pre>
+<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">Contained</span>
+<script>explorer.outline.addDecl('Contained');</script>
+
+(T...)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Checks if one tuple contains another.
+<br><br>
+<b>Author:</b><br>
+Simen Kjaeraas.
+
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>static</font> <font color=blue>assert</font>(<u>Contained</u>!(<font color=blue>int</font>).In!(<font color=blue>float</font>, <font color=blue>int</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(!<u>Contained</u>!(<font color=blue>int</font>).In!(<font color=blue>float</font>, <font color=red>"foo"</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(<u>Contained</u>!(<font color=blue>int</font>,<font color=red>"foo"</font>).In!(<font color=blue>float</font>, <font color=blue>int</font>, <font color=red>"foo"</font>, <font color=red>"bar"</font>));
+</pre>
+<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">allTuplesSatisfy</span>
+<script>explorer.outline.addDecl('allTuplesSatisfy');</script>
+
+(alias F,uint tupleLength,T...)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Evaluates to <b><font color=blue>F!(T[0..tupleLength]) &amp;&amp; F!(T[tupleLength..2*tupleLength]) &amp;&amp; ... &amp;&amp; F[T[$-tupleLength..$]]</font></b>.
+<br><br>
+<b>Author:</b><br>
+Simen Kjaeraas.
+
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>static</font> <font color=blue>assert</font>(<u>allTuplesSatisfy</u>!(Contained!(<font color=blue>int</font>).In, 2, <font color=blue>int</font>, <font color=blue>float</font>, <font color=red>"foo"</font>, <font color=blue>int</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(!<u>allTuplesSatisfy</u>!(Contained!(<font color=blue>int</font>).In, 2, <font color=blue>int</font>, <font color=blue>float</font>, <font color=red>"foo"</font>,string));
+</pre>
+<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">Repeat</span>
+<script>explorer.outline.addDecl('Repeat');</script>
+
+(uint num,T...)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Repeats a type or typetuple <b><font color=blue>num</font></b> times.
+<br><br>
+<b>Author:</b><br>
+Simen Kjaeraas.
+
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>Repeat</u>!(4, <font color=blue>int</font>)).As!(<font color=blue>int</font>, <font color=blue>int</font>, <font color=blue>int</font>, <font color=blue>int</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>Repeat</u>!(4, <font color=red>"foo"</font>)).As!(<font color=red>"foo"</font>, <font color=red>"foo"</font>, <font color=red>"foo"</font>, <font color=red>"foo"</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>Repeat</u>!(2, <font color=blue>int</font>, <font color=red>"foo"</font>)).As!(<font color=blue>int</font>, <font color=red>"foo"</font>, <font color=blue>int</font>, <font color=red>"foo"</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(!SameTuple!(<u>Repeat</u>!(2, <font color=blue>int</font>)).As!());
+</pre>
+<br><br>
 
 </dd>
 
@@ -622,7 +718,7 @@ while composing templates.<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Mon Jun 14 14:51:16 2010
+			on Mon Jun 14 14:57:36 2010
 
 		</td></tr>
 	</table>

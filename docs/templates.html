@@ -20,7 +20,7 @@ transforming other templates, currying them, flipping their arguments, etc.
 <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 <br><br>
 <b>Authors:</b><br>
-Philippe Sigaud
+Philippe Sigaud and Simen Kjaeraas
 <br><br>
 
 Distributed under the Boost Software License, Version 1.0.
@@ -46,6 +46,29 @@ see TemplateParametersTypeTuple.
 </font><font color=blue>alias</font> <font color=blue>typeof</font>(cy) Cy;
 <font color=blue>assert</font>(<u>isInstanceOf</u>!(Cy, Cycle));
 </pre>
+<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">staticSwitch</span>
+<script>explorer.outline.addDecl('staticSwitch');</script>
+
+(alias F,T...) if (allSatisfy!(isAlias,T))</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Switches between template instantiations depending on the parameters passed.
+<br><br>
+<b>Author:</b><br>
+Simen Kjaeraas.
+
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>alias</font> <u>staticSwitch</u>( foo, 1, 2, 3 ).With callFoo;
+callFoo( 2 ); <font color=green>// Actually calls foo!(2)( )
+</font></pre>
 <br><br>
 
 </dd>
@@ -761,7 +784,7 @@ based on a directing type.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Mon Jun 14 14:51:16 2010
+			on Mon Jun 14 14:57:36 2010
 
 		</td></tr>
 	</table>

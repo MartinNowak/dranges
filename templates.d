@@ -6,7 +6,7 @@ transforming other _templates, currying them, flipping their arguments, etc.
 
 
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
-Authors:   Philippe Sigaud
+Authors:   Philippe Sigaud and Simen Kjaeraas
 
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -54,6 +54,42 @@ template isInstanceOf(T, alias templ)
         enum bool isInstanceOf = true;
     else
         enum bool isInstanceOf = false;
+}
+
+/**
+Switches between template instantiations depending on the parameters passed.
+Author:
+Simen Kjaeraas.
+
+Example:
+
+----
+alias staticSwitch( foo, 1, 2, 3 ).With callFoo;
+callFoo( 2 ); // Actually calls foo!(2)( )
+----
+*/
+template staticSwitch( alias F, T... ) if ( allSatisfy!( isAlias, T ) ) {
+   auto With( CommonType!T index, ParameterTypeTuple!( F!( T[0] ) ) args ) {
+       switch ( index ) {
+           foreach ( i, e; T ) {
+               mixin( Format!( q{case %s:}, e ) );
+               return F!( e )( args );
+           }
+           default:
+                assert(false);
+       }
+       assert( false );
+   }
+}
+
+version( unittest ) {
+   int foo(int p)( int n ) {
+       return p*n;
+   }
+}
+
+unittest {
+   assert( staticSwitch!( foo, 1, 2 ).With( 2,3 ) == 6 );
 }
 
 /**
