@@ -1,6 +1,14 @@
+// Written in the D programming language
+
 /**
 This module is a grab-bag of templates used by the other modules, mostly
 as guards by other templates (isRangeOfRanges, isTupleRange, ...).
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.traits2;
 

@@ -1,7 +1,16 @@
+// Written in the D programming language
+
 /**
 This module contains a few graph implementations, to use the algorithms presented in dranges.graphalgorithm.
 
 This module was introduced from an older codebase. I will clean it up to homogeneize it with the rest of this project.
+
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.graph;
 

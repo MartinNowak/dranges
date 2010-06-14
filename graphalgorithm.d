@@ -1,3 +1,5 @@
+// Written in the D programming language
+
 /**
 Some algorithms on graphs: extracting the meta-graph, finding path
 in the graph and such.
@@ -5,6 +7,11 @@ in the graph and such.
 All the algorithms in this module come from their descriptions in
 <a href = "http://www.cs.berkeley.edu/~vazirani/algorithms.html">this book</a>.
 
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.graphalgorithm;
 

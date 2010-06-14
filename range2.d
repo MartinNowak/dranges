@@ -1,3 +1,5 @@
+// Written in the D programming language
+
 /**
 This module defines new ranges or rather, higher-order ranges: ranges acting on ranges
 to transform them or present a new view. As far as possible, all higher-order ranges presented in this module
@@ -13,6 +15,12 @@ Also, once we admit std.typecons.tuples as a common way to return many values, t
 ranges can be acted upon in various ways, splicing/shredding/rotating/stitching them. As many ranges and algorithms
 presented in this package produce tuples (tmap, tfilter, etc), having a rich way to act upon them permits
 all kind of reuse.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.range2;
 
@@ -129,6 +137,7 @@ unittest
 }
 
 /**
+To Be Documented.
 */
 Take!R slice(R)(R range, int begin, int end)
 {

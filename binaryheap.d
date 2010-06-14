@@ -1,8 +1,16 @@
+// Written in the D programming language.
+
 /**
 A simple binary heap implementation, used as a basis for a priority queue in dranges.priorityqueue, itself
 used in the dranges.graph algorithms.
 
 This module is old (august 2009), I will clean it up to follow the changes in D containers and ranges.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.binaryheap;
 

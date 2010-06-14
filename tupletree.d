@@ -1,3 +1,18 @@
+// Written in the D programming language
+
+/**
+To Be Documented. This will become a module to deal with trees as tuples: polymorphic trees, like this:
+----
+Tuple!(int, Tuple!(string, char), double, Tuple!(string, Tuple!(string, char))) tree;
+----
+And then reducing them, mapping functions on them, pattern matching with templates on them, etc.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+*/
 module tupletree;
 
 import std.traits;

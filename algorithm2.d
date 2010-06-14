@@ -1,3 +1,5 @@
+// Written in the D programming language.
+
 /**
 This module contains functions akin to map and filter, found in std.algorithm.
 You'll find there generalizations of these functions to act on a variadic numbers
@@ -10,6 +12,12 @@ As far as possible, all higher-order ranges presented in this module
 and in algorithm2.d are 'tight wrappers': they are bidirectional if their input range is bidirectional,
 define opIndex, opIndexAssign, length if it's possible, etc. That way, a good input range (for example, a random-access range)
 will see its properties propagated through a chain of calls.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.algorithm2;
 

@@ -1,8 +1,14 @@
-/**
-To Be Documented.
+// Written in the D programming language
 
+/**
 This module contains functions creating or acting upon range of ranges (of whatever rank): mapping them, transforming
 a linear range into a range of ranges, zipping them, creating them by tensorial product, etc.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.rangeofranges;
 

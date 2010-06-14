@@ -1,3 +1,5 @@
+// Written in the D programming language
+
 /**
 This module contains different functions acting on tuples (std.typeconsTuple, not
 type-tuples): converting to and from arrays, inserting fields, rotating fields,
@@ -6,6 +8,12 @@ inverting them, mapping/reducing/filtering them.
 In many ways, it's a way to act on tuples as if they were polymorphic ranges.
 
 The corresponding typetuples templates can be found in typetuple2.d.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.tuple2;
 

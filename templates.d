@@ -1,6 +1,15 @@
+// Written in the D programming language
+
 /**
 This module defines some useful _templates for the other modules and some 'meta-_templates'. Templates
 transforming other _templates, currying them, flipping their arguments, etc.
+
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.templates;
 

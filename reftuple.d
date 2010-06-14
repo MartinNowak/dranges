@@ -1,3 +1,5 @@
+// Written in the D programming language
+
 /**
 To Be Documented. Lots of warts still.
 
@@ -12,6 +14,12 @@ int[] arr = [0,1,2,3,4];
 int [] c;
 _(a,b,c) = arr; // a = 0, b = 1, c = [2,3,4]
 ----
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.reftuple;
 

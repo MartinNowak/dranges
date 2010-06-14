@@ -1,8 +1,16 @@
+// Written in the D programming language
+
 /**
 To Be Documented.
 
 This module is a test to code eager versions of some lazy functions
 seen elsewhere, and eager algorithm, acting only on finite ranges.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.eager;
 

@@ -1,8 +1,16 @@
+// Written in the D programming language
+
 /**
 To Be Documented.
 
 An attempts to code generalization of folding/unfolding algorithms on branching structures, also
 known under the delightful names of catamorphisms, anamorphisms, paramorphisms and hylomorphisms.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.morphism;
 

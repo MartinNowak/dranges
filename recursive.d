@@ -1,3 +1,5 @@
+// Written in the D programming language
+
 /**
 This modules explores the possibility of '_recursive' or 'branching' ranges, like trees or graphs. It a work-in-progress,
 as I'm not quite sure of the semantics yet (empty/hasValue..., should filter conserve the entire topology?)
@@ -172,6 +174,13 @@ $(TABLE
   $(TR $(TD -) $(TD hasInfiniteDepth))
   $(TR $(TD -) $(TD hasInfiniteHeight))
 )
+
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.recursive;
 

@@ -1,6 +1,14 @@
+// Written in the D programming language
+
 /**
 This module is just a test, to see how to iterate on a binary or n-ary tree.
 This entire module will probably be fused with recursive.d and the graph modules, to make it a coherent whole.
+
+License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+Authors:   Philippe Sigaud
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 module dranges.treerange;
 
