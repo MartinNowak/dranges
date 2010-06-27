@@ -455,8 +455,8 @@ string[][string] dependencyGraphImpl(string moduleName, string DMDPath = "",  st
                 auto spl = to!(string[])(split(sblock, ","));
                 foreach(index, ref imp; spl)
                 {
-                    auto i = imp.indexOf('=');
-                    auto j = imp.indexOf(':');
+                    auto i = std.string.indexOf(imp,'=');
+                    auto j = std.string.indexOf(imp,':');
                     if (i != -1) // import foo = std.stio, ...
                     {
                         imp = strip(imp[i+1..$]);

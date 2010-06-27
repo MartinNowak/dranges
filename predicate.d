@@ -16,6 +16,7 @@ import std.algorithm;
 import std.functional;
 import std.range;
 import std.traits;
+import std.typetuple;
 
 import dranges.functional2;
 import dranges.range2 : segment;

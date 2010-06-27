@@ -192,6 +192,7 @@ struct Traversal(TraversalMode tm = TraversalMode.depthfirst, T)
     this(T t) { nodes = [t];}
     bool empty() { return nodes.empty;}
     T front() { return nodes.front;}
+    @property Traversal save() { return this;}
     void popFront() {
         if (!nodes.empty) {
             auto cn = nodes.front; // current node
@@ -228,6 +229,7 @@ struct AsTrie(T)
     this(Tree!T t) { tree = t; nodes = [[t]];}
     bool empty() { return nodes.empty;}
     Tree!T[] front() { return nodes.front;}
+    @property AsTrie save() { return this;}
     void popFront() {
         if (!nodes.empty) {
             auto pcn = nodes.front; // path to the current node

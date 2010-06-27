@@ -57,6 +57,7 @@ struct AsRange(K,V)
 
     bool empty() { return _keys.empty;}
     Tuple!(K,V) front() { return tuple(_keys.front, _aa[_keys.front]);}
+    @property AsRange save() { return this;}
     void popFront() { _keys.popFront;}
     Tuple!(K,V) back() { return tuple(_keys.back, _aa[_keys.back]);}
     void popBack() { _keys.popBack;}

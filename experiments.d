@@ -57,6 +57,9 @@ struct BiInfiniteRange(R1, R2) if (isForwardRange!R1 && isForwardRange!R1
     enum bool empty = false;
 
     ET front() { return center[index];}
+
+    @property BiInfiniteRange save() { return this;}
+
     void popFront()
     {
         if (index == center.length-1)
@@ -115,6 +118,7 @@ struct BiInfiniteRange(G)
 
     enum bool empty = false;
     ET front() { return _gen(index);}
+    @property BiInfiniteRange save() { return this;}
     void popFront() { ++index;}
     ET back() { return _gen(index-1);}
     void popBack() { --index;}

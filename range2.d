@@ -397,6 +397,8 @@ struct TakeWhile(alias pred, R) if (isForwardRange!R && arity!pred > 0)
         return _range.front;
     }
 
+    @property TakeWhile save() { return this;}
+
     void popFront() {
         _range.popFront;
         _sr.popFront;
@@ -421,6 +423,8 @@ struct TakeWhile(alias pred, R) if (isForwardRange!R && arity!pred ==0)
     ElementType!R front() {
         return _range.front;
     }
+
+    @property TakeWhile save() { return this;}
 
     void popFront() {
         _range.popFront;
@@ -585,6 +589,7 @@ struct HeadsStruct(R) if (isForwardRange!R && !hasLength!R)
         return (n>0 && drop(n-1,_range).empty && drop(n,_range).empty);
     }
     Take!R front() { return take(_range, n);}
+    @property HeadsStruct save() { return this;}
     void popFront() {n++;}
 }
 
@@ -630,13 +635,13 @@ auto ia1 = insertAt(1, r1, 99);
 assert(equal(ia1, [0,99,1,2,3][]));
 ----
 */
-Chain!(Take!R1, R2, R1) insertAt(R1, R2)(size_t n, R1 range1, R2 range2) if (allSatisfy!(isForwardRange, R1, R2))
+Chain!(typeof(take(R1.init, 0)), R2, R1) insertAt(R1, R2)(size_t n, R1 range1, R2 range2) if (allSatisfy!(isForwardRange, R1, R2))
 {
     return chain(take(range1, n), range2, drop(range1, n));
 }
 
 /// ditto
-Chain!(Take!R, E[], R) insertAt(R, E)(size_t n, R range, E element) if (isForwardRange!R && is(ElementType!R == E))
+Chain!(typeof(take(R.init,0)), E[], R) insertAt(R, E)(size_t n, R range, E element) if (isForwardRange!R && is(ElementType!R == E))
 {
     return chain(take(range, n), [element][], drop(range, n));
 }
@@ -849,6 +854,8 @@ struct Knit(R...) if (allSatisfy!(isForwardRange,R)) {
         }
         return f;
     }
+
+    @property Knit save() { return this;}
 
     void popFront() {
         foreach(i, r; _ranges) {
@@ -1334,6 +1341,8 @@ struct Transverse(R...) if (allSatisfy!(isForwardRange,R) && CompatibleRanges!R)
         return willBeEmpty && globalFront.empty;
     }
 
+    @property Transverse save() { return this;}
+
     void popFront() {
         globalFront.popFront;
         if (globalFront.empty && !willBeEmpty) {
@@ -1656,6 +1665,8 @@ struct Concat(R) if (isRangeOfRanges!R)
         return _subrange.front;
     }
 
+    @property Concat save() { return this;}
+
     void popFront() {
         if (!_subrange.empty) _subrange.popFront;
 
@@ -1876,6 +1887,7 @@ struct Numbers {
 
     bool empty() { return (_step > 0) ? _num >= _max : _num <= _max;}
     int front() {return _num;}
+    @property Numbers save() { return this;}
     void popFront() { _num = _num + _step;}
     int back() { return _max-1;}
     void popBack()  { _max = _max - _step;}
@@ -1955,6 +1967,7 @@ struct Numberz(T) {
 
     bool empty() { return (_step > 0) ? _num >= _max : _num <= _max;}
     T front() {return _num;}
+    @property Numberz save() { return this;}
     void popFront() { _num = _num + _step;}
     T back() { return _max - _step;}
     void popBack()  { _max = _max - _step;}
@@ -2013,6 +2026,7 @@ struct NaturalNumbers {
     bool _positive = true;
     enum bool empty = false;
     long front() { return _num;}
+    @property NaturalNumbers save() { return this;}
     void popFront() {
         if (_num == 0) {
             _num = 1;
@@ -2054,6 +2068,7 @@ assert(hasSlicing!(typeof(e)));
 struct EmptyRange(T) {
     enum bool empty = true;
     enum size_t length = 0;
+    @property EmptyRange save() { return this;}
     void popFront() {throw new Exception("EmptyRange is empty: do not call popFront");}
     T front() {throw new Exception("EmptyRange is empty: do not call front");}
     void popBack() {throw new Exception("EmptyRange is empty: do not call popBack");}
@@ -2102,6 +2117,7 @@ struct Once(T) {
 
     bool empty() { return elem.empty;}
     T front() { return elem.front;}
+    @property Once save() { return this;}
     void popFront() { elem.popFront;}
     T back() { return elem.front;}
     void popBack() { elem.popFront;}
@@ -2150,6 +2166,7 @@ struct Pi
     BigInt q,r,t,i,u,y;
     enum bool empty = false;
     int front() { return to!int(y.toInt);}
+    @property Pi save() { return this;}
     void popFront()
     {
         r = BigInt(10)*u*(q*(BigInt(5)*i-BigInt(2)) +r-y*t);
@@ -2189,6 +2206,7 @@ struct InfiniteBiDir(R1, R2) if (isForwardRange!R1 && isForwardRange!R1
     enum bool empty = false;
 
     ET front() { return _r1.front;}
+    @property InfiniteBiDir save() { return this;}
     void popFront() { _r1.popFront;}
     ET back() { return _r2.front;}
     void popBack() { _r2.popFront;}
@@ -2246,6 +2264,8 @@ struct ReplicateRange(R) if (isForwardRange!R) {
     }
 
     bool empty() { return (_times == 0 || _range.empty);}
+
+    @property ReplicateRange save() { return this;}
 
     void popFront() {
         _copy.popFront;
@@ -2379,6 +2399,8 @@ struct Stutter(R) if (isForwardRange!R){
                                                       // Else it will become zero once _range is empty.
     }
 
+    @property Stutter save() { return this;}
+
     void popFront() {
         if (_frontCount <= 1) {
             if (!_range.empty) _range.popFront;
@@ -2502,6 +2524,8 @@ struct Extremities(R) if (isBidirectionalRange!R) {
         return _state == 0 ? _range.front : _range.back;
     }
 
+    @property Extremities save() { return this;}
+
     void popFront() {
         if (_state == 0) {
             _range.popFront;
@@ -2603,6 +2627,8 @@ struct Without(R1, R2)
 
     ElementType!R1 front() { return _range1.front;}
 
+    @property Without save() { return this;}
+
     void popFront() {
         _range1.popFront;
         while (!_range1.empty && !_range2.empty && isOneOf!(_range2)(_range1.front)) {
@@ -2650,6 +2676,7 @@ struct AsSet(R) if (isForwardRange!R) {
 
     this(R range) { _range = range;}
     bool empty() {return _range.empty;}
+    @property AsSet save() { return this;}
     void popFront() { while(!_range.empty && (_range.front in elements) ) _range.popFront;}
 
     ElementType!R front() {
@@ -2667,6 +2694,7 @@ struct AsSet(R : Cycle!U, U)
 
     this(R range) { _range = range._original;}
     bool empty() {return _range.empty;}
+    @property AsSet save() { return this;}
     void popFront() {
         _range.popFront;
         while(!_range.empty && (_range.front in elements)) _range.popFront;
@@ -2686,6 +2714,7 @@ struct AsSet(R : Repeat!U, U)
 
     this(R range) { if (!range.empty) _range = [range.front][];} // or else range is an empty Repeat. I don"t think that's even possible.
     bool empty() {return _range.empty;}
+    @property AsSet save() { return this;}
     void popFront() { _range.popFront;}
     ElementType!R front() { return _range.front;}
 }
@@ -2762,6 +2791,7 @@ struct Cache(R) if (isForwardRange!R)
 
     bool empty() { return _input.empty;}
     ElementType!R front() { return _front;}
+    @property Cache save() { return this;}
     void popFront() { _input.popFront; if (!_input.empty) _front = _input.front;}
     static if (isBidirectionalRange!R) {
         ElementType!R back() { return _back;}
@@ -2972,6 +3002,8 @@ struct Store(R) if (isInputRange!R)
             return (exhausted) ? backStore.front : _range.front;
         }
     }
+
+    @property Store save() { return this;}
 
     void popFront()
     {

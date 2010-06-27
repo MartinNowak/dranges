@@ -65,6 +65,9 @@ struct BinaryHeap(alias predicate = "a < b", T) {
     }
 
     ///
+    @property BinaryHeap save() { return this;}
+
+    ///
     void popFront() {
         end--;
         data[0] = data[end];

@@ -68,6 +68,8 @@ if (isRangeOfRanges!R && hasLength!R && hasLength!(ElementType!R))
         return result;
     }
 
+    @property Transpose save() { return this;}
+
     void popFront() {
         foreach(ref row; _ror) row.popFront;
     }
@@ -283,6 +285,8 @@ struct NTake(R, Indices...) if (isForwardRange!R && rank!R >= Indices.length)
     else
         ElementType!R front() { return _range.front;}
 
+    @property NTake save() { return this;}
+
     void popFront() { _range.popFront;}
 }
 
@@ -311,6 +315,8 @@ struct NDrop(R, Indices...) if (isForwardRange!R && rank!R >= Indices.length)
         NDrop!(ElementType!R, Indices[1..$]) front() { return nDrop(_range.front, _indices[1..$]);}
     else
         ElementType!R front() { return _range.front;}
+
+    @property NDrop save() { return this;}
 
     void popFront() { _range.popFront;}
 }
@@ -394,6 +400,8 @@ struct TensorProduct(alias fun = tuple, R...) if (R.length && isForwardRange!(R[
         typeof(naryFun!fun(_elems, et)) front() {
             return naryFun!fun(_elems, _ranges[0].front);}
 
+    @property TensorProduct save() { return this;}
+
     void popFront() {
         _ranges[0].popFront;}
 }
@@ -430,6 +438,8 @@ struct RecursiveIndex(R...) if (R.length && isForwardRange!(R[$-1])){
         {
             return tuple(_elems, index, _range.front);
         }
+
+    @property RecursiveIndex save() { return this;}
 
     void popFront()
     {
@@ -479,6 +489,7 @@ struct AsRangeOfRanges(R) if (isForwardRange!R)
 
     bool empty() { return r.empty;}
     Take!R front() { return take(r,n);}
+    @property AsRangeOfRanges save() { return this;}
     void popFront() { popFrontN(r,n);}
 }
 

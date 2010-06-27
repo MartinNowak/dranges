@@ -6,7 +6,7 @@ transforming other _templates, currying them, flipping their arguments, etc.
 
 
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
-Authors:   Philippe Sigaud and Simen Kjaeraas
+Authors:   Philippe Sigaud and Simen Kj&aelig;r&aring;s
 
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,6 +15,7 @@ module dranges.templates;
 
 import std.conv: to;
 import std.functional;
+import std.metastrings;
 import std.typecons;
 import std.typetuple;
 import std.traits;
@@ -59,7 +60,7 @@ template isInstanceOf(T, alias templ)
 /**
 Switches between template instantiations depending on the parameters passed.
 Author:
-Simen Kjaeraas.
+Simen Kj&aelig;r&aring;s.
 
 Example:
 

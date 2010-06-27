@@ -91,6 +91,8 @@ struct GraphTraversal(TraversalMode travmode) {
         }
     }
 
+    @property GraphTraversal save() { return this;}
+
     void popFront() {
         auto first = toBeVisited.pop();
         visited[first] = true;

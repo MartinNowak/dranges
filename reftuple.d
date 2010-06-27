@@ -40,7 +40,7 @@ struct AssignTuple(T...) {
     void opAssign(TT...)(Tuple!TT newFields) /*if (TT.length > 1) {
             foreach(i, Type; PT) *(pFields[i]) = newFields.field[i];}*/
             {
-                writeln("calling Tuple!TT ", TT.stringof);
+//                writeln("calling Tuple!TT ", TT.stringof);
                 static if (TT.length > 1)
                     this.opAssign(newFields.expand);
                 else
@@ -60,14 +60,14 @@ struct AssignTuple(T...) {
     void opAssign(U)(U newField) if (T.length ==1
                                      && !isInputRange!U && !is(U == class) && !is(U == struct)
                                      && !__traits(compiles, U.Types)  && !__traits(compiles, U.AllowedTypes)) {
-        writeln("Calling opAssign U");
+//        writeln("Calling opAssign U");
         *(pFields[0]) = newField;
     }
 
 
     void opAssign(TT...)(TT tup) if (TT.length > 1 && TT.length >= T.length)
                                      /*&& ConvertibleTypeTuples!(TT[0..T.length], T)*/ {
-        writeln("Calling opAssign TT... > 1");
+//        writeln("Calling opAssign TT... > 1");
         foreach(i, Type; PT) *(pFields[i]) = tup[i];
     }
 /+
@@ -83,13 +83,13 @@ struct AssignTuple(T...) {
     }
 
     void opAssign(S)(S theStruct) if (is(S == struct) && !isInputRange!S && !__traits(compiles, S.Types) && !__traits(compiles, S.AllowedTypes)) {
-        writeln("Calling opAssign struct");
+//        writeln("Calling opAssign struct");
         foreach(i, Type; PT) *(pFields[i]) = theStruct.tupleof[i];
     }
 
     void opAssign(V)(V var) if (T.length == 1
                                 && __traits(compiles, V.AllowedTypes)) {
-        writeln("Calling opAssign Variant");
+//        writeln("Calling opAssign Variant");
         if (var.convertsTo!(T[0])) {
             *(pFields[0]) = var.get!T();
         }

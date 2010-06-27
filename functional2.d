@@ -205,7 +205,10 @@ template isNotVoid(T)
 struct FlipnR(alias fun)
 {
     size_t n;
-    typeof(fun(R.init, 0)) opCall(R)(R r) if (isForwardRange!R) { return fun(r,n);}
+    typeof(fun(R.init, 0)) opCall(R)(R r) if (isForwardRange!R)// && is(typeof(fun(r,n))))
+    {
+        return fun(r,n);
+    }
 }
 
 /**
@@ -252,6 +255,7 @@ unittest
     auto all = map!take100(rr);
     foreach(elem; rr) {assert(equal(elem, all.front)); all.popFront;}
 }
+
 
 /**
 Flips (reverses) the arguments of a function. It also works for template functions, even
@@ -363,7 +367,7 @@ template makeVariadic(alias fun)
 
 /**
 Takes a D function, and curries it (in the Haskell sense, not as Phobos' $(M std.functional._curry)): given
-a n-args functions, it creates n 1-arg functions nested inside one another. When
+a n-args function, it creates n 1-arg functions nested inside one another. When
 all original arguments are reached, it returns the result. It's useful to make 'incomplete'
 functions to be completed by ranges elements.
 
@@ -412,7 +416,7 @@ template curry(alias fun)
 {
     static if (isFunction!fun)
         enum curry =  mixin(curryImpl!(fun, "", ParameterTypeTuple!fun));
-    else
+    else // template function
         enum curry = curriedFunction!(fun)();
 }
 
