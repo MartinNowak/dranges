@@ -2,8 +2,9 @@
 
 /**
 This module contains all the function-related templates.
-Its main use is to generate functions from strings, with the naryFun template,
-an extension of std.functional.unaryFun and binaryFun and to transform functions.
+Its main use used to be to generate functions from strings, with the $(M naryFun) template,
+an extension of $(M std.functional.unaryFun) and $(M binaryFun). Now, it presents a nice collection
+of adaptors and transformers: functions or templates acting on functions to transform them.
 
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 Authors:   Philippe Sigaud
@@ -38,20 +39,20 @@ import dranges.algorithm2;
 import dranges.patternmatch;
 
 /**
-Gives the arity of a function: unary, binary, etc. A 0-args function has a arity of 0.
+Gives the _arity of a function: unary, binary, etc. A 0-args function has an _arity of 0.
 
 ----
 int foo0() { return 0;}
 int foo1(int a) { return a;}
 int foo2(int a, int b) { return a+b;}
-T foo3(T, U)(T t, U u) { return t;} // templated
+
 assert(arity!foo0 == 0);
 assert(arity!foo1 == 1);
 assert(arity!foo2 == 2);
 ----
 
 It does not work on non-instantiated template functions (because they
-are not functions) and gives an arity of 1 for variadic functions, because
+are not functions) and gives an _arity of 1 for variadic functions, because
 their variadic list is considered as one arg.
 ----
 T foo(T)(T t) { ...};
@@ -61,6 +62,8 @@ auto b = arity!(foo!int); // OK.
 int foov(int a...) { return 0;}
 assert(arity!foov == 1);
 ----
+
+See_Also: $(M dranges.templates.TemplateFunArity).
 */
 template arity(alias fun) if (isFunction!fun) {
     enum size_t arity = ParameterTypeTuple!(fun).length;
@@ -86,13 +89,13 @@ unittest {
     assert(arity!foov == 1);
 }
 
-/// Given a bunch of functions names, gives the typetuple of their return types. Used by $(D juxtapose).
+/// Given a bunch of functions names, gives the typetuple of their return types. Used by $(M juxtapose).
 template ReturnTypes(Funs...)
 {
     alias MapOnAlias!(ReturnType, Funs) ReturnTypes;
 }
 
-/// Given a bunch of functions names, gives the (flattened) typetuple of their return values. Used by $(D juxtapose).
+/// Given a bunch of functions names, gives the (flattened) typetuple of their return values. Used by $(M juxtapose).
 template ParameterTypeTuples(alias fun, Rest...)
 {
     alias MapOnAlias!(ParameterTypeTuple, fun, Rest) ParameterTypeTuples;
@@ -148,7 +151,7 @@ auto fr = [[0.1,0.2], [0.0,-1.0,-2.0]];
 auto m = tmap!jux(ir,sr,dr,fr);
 ----
 
-Note: another, more mathematical way, to look at it is that juxtapose creates a function whose type is the product the input functions' types.
+Note: another, more mathematical way, to look at it is that $(M _juxtapose) creates a function whose type is the product the input functions' types.
 In D, product of types are tuples.
 */
 template juxtapose(Funs...)
@@ -215,7 +218,7 @@ struct FlipnR(alias fun)
 }
 
 /**
-Flip and curry range functions, like $(D take), $(D drop), etc. These take a range and a size_t arguments, like $(D take(r,3)), etc.
+Flip and curry range functions, like $(M take), $(M drop), etc. These take a range and a size_t arguments, like $(M take(r,3)), etc.
 But sometimes, you just want to create a curried function that will act on any range.
 
 Example:
@@ -351,24 +354,6 @@ unittest
 }
 
 /**
-Takes a standard function, and makes it variadic: it will accept any number of surnumerary arguments
-after the 'normal' ones that it had before. It's useful to 'adapt' a function to a range (with
-automatic unpacking of tuples, like for tmap).
-
-Example:
-----
-int foo(int i) { return i;}
-alias makeVariadic!foo vfoo;
-auto i = vfoo(1, 2,3,'a', "hello there!");
-assert(i == 1);
-----
-*/
-template makeVariadic(alias fun)
-{
-    ReturnType!fun makeVariadic(ParameterTypeTuple!fun args, ...) { return fun(args);}
-}
-
-/**
 Takes a D function, and curries it (in the Haskell sense, not as Phobos' $(M std.functional._curry)): given
 a n-args function, it creates n 1-arg functions nested inside one another. When
 all original arguments are reached, it returns the result. It's useful to make 'incomplete'
@@ -498,9 +483,9 @@ struct InvertibleFun(A, B)
 }
 
 /**
-Takes two delegates: one from $(D A) to $(D B), the other from $(D B) to $(D A). $(D A) and $(D B) must be different types.
+Takes two delegates: one from $(M A) to $(M B), the other from $(M B) to $(M A). $(M A) and $(M B) must be different types.
 The functions are supposed to be the inverse of one another (that is: f(g(x)) == x), but that's not checked.
-$(M invertibleFun) is then a function that accepts either a $(D A) or a $(D B) and then returns a $(D B) or a $(D A).
+$(M _invertibleFun) is then a function that accepts either a $(M A) or a $(M B) and then returns a $(M B) or a $(M A).
 */
 InvertibleFun!(A,B) invertibleFun(A, B)(B delegate(A) fun, A delegate(B) funInv)
 {
@@ -510,19 +495,62 @@ InvertibleFun!(A,B) invertibleFun(A, B)(B delegate(A) fun, A delegate(B) funInv)
     return ifun;
 }
 
-/**
-Takes a value as compile-time argument and creates a templated function that will accept any delegate
-and apply it to the original value. It's useful when you want to map a certain value on a range of functions:
-just map apply!value to the range.
-
-TODO: make value a runtime argument. That means returning a struct with $(D opCall) defined, instead of a function.
-*/
-template apply(alias value)
+struct Apply(T...)
 {
-    typeof(F.init(typeof(value).init)) apply(F)(F fun)
+    T value;
+
+    typeof(F.init(Init!T)) opCall(F)(F fun)
     {
         return fun(value);
     }
+}
+
+/**
+Takes a value argument and creates a function (in fact, a struct with an opCall) that will accept any delegate
+and _apply it to the original value. It's useful when you want to map a certain value on a range of functions:
+just map $(M _apply!value) to the range.
+
+Example:
+----
+int f0(int i) { return i;}
+int f1(int i) { return i*i;}
+int f2(int i) { return i*i*i;}
+
+auto apply4 = apply(4); // will call any function with '4' as argument.
+auto rangeFun = [&f0, &f1, &f2];
+auto map4 = map!apply4(rangeFun);
+assert(equal(map4, [4, 4*4, 4*4*4]));
+
+// This works for n-args functions too:
+double g0(int i, double d) { return i+d;}
+
+auto apply123 = apply(1, 2.30);
+assert(apply123(&g0) == 3.30);
+----
+*/
+Apply!T apply(T...)(T value)
+{
+    Apply!T app;
+    foreach(i, Type; T) app.value[i] = value[i];
+    return app;
+}
+
+unittest
+{
+    int f0(int i) { return i;}
+    int f1(int i) { return i*i;}
+    int f2(int i) { return i*i*i;}
+
+    auto apply4 = apply(4); // will call any function with '4' as argument.
+    auto rangeFun = [&f0, &f1, &f2];
+    auto map4 = map!apply4(rangeFun);
+    assert(equal(map4, [4, 4*4, 4*4*4]));
+
+    // This works for n-args functions too:
+    double g0(int i, double d) { return i+d;}
+
+    auto apply123 = apply(1, 2.30);
+    assert(apply123(&g0) == 3.30);
 }
 
 /**
@@ -530,14 +558,14 @@ Transforms a standard function into a destructuring one. Given:
 ----
 int foo(int a, int b, int c) {}
 ----
-then, $(D destructured!foo) is a function that accepts three ints as arguments, but also $(D Tuple!(int,int,int))
-or $(D int[]) or $(D int[3]) or even any class $(D C) or struct $(D S) if $(D C.tupleof)/$(D S.tupleof) gives three $(D int)s. In effect,
-$(D destructured!foo) will try to destructure (decompose, crack open, if you will) anything passed to it, to find three ints in a row to give
-to foo.
+then, $(M _destructured!foo) is a function that accepts three $(M int)s as arguments, but also $(M Tuple!(int,int,int))
+or $(M int[]) or $(M int[3]) or even any class $(M C) or struct $(M S) if $(M C.tupleof)/$(M S.tupleof) gives three $(M int)s. In effect,
+$(M _destructured!foo) will try to destructure (decompose, crack open, if you will) anything passed to it, to find three $(M int)s in a row to give
+to $(M foo).
 
-Note: It's still 'in construction', as it depends on the $(D _()) function from $(D dranges.reftuple). The doc
+Note: It's still 'in construction', as it depends on the $(M __()) function from $(M dranges.reftuple). The doc
 should be extended.
-TODO: also if t is itself a tuple _(params) = t;
+TODO: also if t is itself a tuple __(params) = t;
 */
 template destructured(alias fun)
 {
@@ -555,8 +583,8 @@ template destructured(alias fun)
 }
 
 /**
-Transforms a function $(D foo) taking a $(D T) into a function accepting a $(D T[]) as an argument
-and which applies $(D foo) to each element of the array, returning the resulting array.
+Transforms a function $(M foo) taking a $(M T) into a function accepting a $(M T[]) as an argument
+and which applies $(M foo) to each element of the array, returning the resulting array.
 
 Example:
 ----
@@ -566,7 +594,7 @@ alias mapper!foo mfoo;
 assert(mfoo([0,1,2,3,4]) == [0,1,4,9,16]);
 ----
 
-If $(D foo) takes more than one argument, $(D mapper!foo) waits for a $(D Tuple!(Args)[]) or accepts
+If $(M foo) takes more than one argument, $(M _mapper!foo) waits for a $(M Tuple!(Args)[]) or accepts
 a variadic number of arguments, as long as the types and their numbers correspond.
 
 Example:
@@ -576,8 +604,6 @@ alias mapper!bar mbar;
 
 assert(mbar(1,3.14,"ab", 2,-0.5,"hello!", 0,0,"") == [3,-3,0]);
 ----
-
-TODO: generalize for any range, not just arrays.
 TODO: expand tuples [tuple(a,b), tuple(a,b), ...]
 */
 template mapper(alias fun)
@@ -628,9 +654,9 @@ unittest
 }
 
 /**
-Transforms a function $(D foo) accepting a $(D T) into a function accepting
-a $(D Tuple!(T,T,T,...T)) (or any tuple with compatible types). It will apply
-$(D foo) to all elements of the tuple and return the tuple of these results.
+Transforms a function $(M foo) accepting a $(M T) into a function accepting
+a $(M Tuple!(T,T,T,...T)) (or any tuple with compatible types). It will apply
+$(M foo) to all elements of the tuple and return the tuple of these results.
 
 Example:
 ----
@@ -662,15 +688,15 @@ unittest
     assert(tfoo(t) == tuple(0,1,4,9,16));
 }
 
-/// The void function: takes any arguments, returns $(D void).
+/// The void function: takes any arguments, returns $(M void).
 void voidFun(...) {}
 
-/// The null function: takes no argument, returns $(D void).
+/// The _null function: takes no argument, returns $(M void).
 void nullFun() {}
 
 /**
 Takes any value, returns a constant function: one that accepts any arguments and will always return
-the initial value. If called with no argument, it will produce the equivalent of $(D voidFun).
+the initial value. If called with no argument, it will produce the equivalent of $(M voidFun).
 
 Example:
 ----
@@ -683,7 +709,12 @@ T[0] delegate(...) constantFun(T...)(T t) if (T.length == 1)
     return (...) { return t[0];};
 }
 
-///
+/// ditto
+Tuple!T delegate(...) constantFun(T...)(T t) if (T.length > 1)
+{
+    return (...) { return tuple(t);};
+}
+/// ditto
 void delegate(...) constantFun(T...)(T t) if (T.length == 0)
 {
     return (...) { return;};
@@ -717,13 +748,13 @@ struct ExtendFun(alias fun)
 }
 
 /**
-Takes a function $(D foo) and 'extends' it, allowing it to accept any type of argument.
-If the arguments types are compatible with $(D foo), returns foo(args) otherwise, it just returns
+Takes a function $(M foo) and 'extends' it, allowing it to accept any type of argument.
+If the arguments types are compatible with $(M foo), returns foo(args) otherwise, it just returns
 the argument.
 
-That may seem a strange template to define, but it's quite useful for mapping a tuple (see $(D dranges.tuple2.mapTuple)).
-Suppose you have a tuple and what to change only the strings in it. Defined $(D foo) to act on strings, extend it with
-$(D extend!foo) and voila, you can then map $(D extend!foo) on your tuple: the strings will be transformed, leaving the
+That may seem a strange template to define, but it's quite useful for mapping a tuple (see $(M dranges.tuple2.mapTuple)).
+Suppose you have a tuple and what to change only the strings in it. Define $(M foo) to act on strings, extend it with
+$(M _extendFun!foo) and voila, you can then map $(M _extendFun!foo) on your tuple: the strings will be transformed, leaving the
 other types untouched. I learnt the trick from a Haskell article.
 
 Example:
@@ -790,7 +821,7 @@ struct ExtendFun0(alias fun, D)
 
 /**
 Same as before, but with a default value returned when extendFun is offered
-an arg that $(D foo) cannot accept. The default value can be of any type.
+an arg that $(M foo) cannot accept. The default value can be of any type.
 
 Example:
 ----
@@ -834,8 +865,8 @@ unittest
 }
 
 /**
-This is just a wrapper around the $(D match) function found in $(D dranges.pattermatch), here to emphasize
-the way $(D match) is just a many-types-to-many-types 'function'. Explained a bit more clearly, $(D _eitherFun)
+This is just a wrapper around the $(M match) function found in $(M dranges.pattermatch), here to emphasize
+the way $(M match) is just a many-types-to-many-types 'function'. Explained a bit more clearly, $(M _eitherFun)
 takes any number of functions and keep them near its hot little heart. When passed an argument, it will
 successively test each function and returns the result of the first one that matches. No match means it will
 throw a NoMatch exception. Functions are tested the same order they were passed as arguments.
@@ -843,16 +874,16 @@ throw a NoMatch exception. Functions are tested the same order they were passed 
 How is this different from overloading, will you ask? I'm glad you did:
 
 $(UL
-  $(LI first, you can use it to 'group' many different function, from different origins and different names.)
+  $(LI first, you can use it to 'group' many different functions, from different origins and different names.)
   $(LI second (and that may be the most important point), it's a template, so the return
-type of $(D eitherFun) can be different for each argument type. So you can use it to map a range, but also a tuple, with $(D dranges.tuple2.mapTuple).
-  $(LI third, it accepts templates functions. In fact, it even accepts 'string' functions, as in "a+b*c-d.expand". See the $(D patternmatch)
+type of $(M _eitherFun) can be different for each argument type. So you can use it to map a range, but also a tuple, with $(M dranges.tuple2.mapTuple)).
+  $(LI third, it accepts template functions. In fact, it even accepts 'string' functions, as in "a+b*c-d.expand". See the $(M patternmatch)
 module documentation for more explanations.)
   $(LI fourth, once it's defined, you can pass it around as one entity. Most notably, it can becomes the argument
-    of another meta-function there or even the argument to another $(D eitherFun!))
+    of another meta-function there or even the argument to another $(M _eitherFun!))
 )
 
-So, in functionnal languages terms, it's a sum of functions (as $(D juxtapose) is a product).
+So, in functional languages terms, it's a sum of functions (just as $(M juxtapose) is a product).
 
 Example:
 ----
@@ -915,7 +946,9 @@ unittest
 
 /**
 A simple adapter, when you have a complicated function you do not (or cannot) want to touch. It
-applies the pre pre-treatment to the arguments, calls fun and then returns post(result).
+applies the $(M pre) preprocessing to the arguments, calls fun and then postprocess the result. The
+default for post is "a", that is the identity string function. So the two args version of $(M _adaptFun)
+just deals with adapting the arguments.
 */
 template adaptFun(alias pre, alias fun, alias post = "a")
 {
@@ -927,15 +960,15 @@ template adaptFun(alias pre, alias fun, alias post = "a")
 
 
 /**
-The composition 'power' of a function: f(f(f(x)...)), n times. n == 1 is the same
-as fun and n = 0 is the identity function (just returns the arguments).
+The composition 'power' of a function: $(M fun(fun(fun(x)...))), n times. n == 1 is the same
+as $(M fun) and n = 0 is the identity function (just returns the arguments).
 
 Example:
 ----
 int inc(int i) { return i+1;}
 string conc(string s) { return s ~ s;}
 
-alias powerFun!(inc, 5) plus5;
+alias powerFun!(inc, 5) plus5; // calls inc(inc(inc(inc(inc(t))))), so returns t+5
 alias powerFun!(inc, 1) plus1;
 alias powerFun!(inc, 0) plus0;
 
@@ -986,7 +1019,7 @@ to the last d arguments.
 Example:
 ----
 int foo(int i, int j, double k) { return i+j+to!int(k);}
-auto dfoo = withDefaultValues!(foo)(2,1.5); // two default values provided -> for j and for k
+auto dfoo = withDefaultValues!(foo)(2,1.5); // two default values provided -> 2 for j and 1.5 for k
                                             // so dfoo can accept 1, 2 or 3 arguments.
 
 assert(dfoo(1)         == foo(1, 2, 1.5)); // 1 arg given -> dfoo use two defaults
@@ -994,7 +1027,7 @@ assert(dfoo(1, 1)      == foo(1, 1, 1.5)); // 2 args -> one default
 assert(dfoo(1, 1, 0.5) == foo(1, 1, 0.5)); // 3 args -> no default
 ----
 
-Most of the time, withDefaultValues will determine the arity of your function. In case of doubt, you can provide it as
+Most of the time, $(M _withDefaultValues) will determine the arity of your function. In case of doubt, you can provide it as
 a second template argument, like this:
 ----
 A bar(A,B)(A a0, A a1, B a2, Tuple!(A,B) a3) { return a0;} // template function, withDefaultValues cannot determine the arity is 4
@@ -1047,7 +1080,79 @@ unittest
 }
 
 /**
-Transforms a function accepting (T, T, T, ...) into a function accepting (T[]). The new function
+Accepts a $(M class) or $(M struct) name as template argument and creates a factory function that creates
+the corresponding $(M class)/$(M struct). It allows one to map a constructor on a range, to create a
+range of classes. It's not possible normally.
+
+Example:
+----
+class C {
+    int i;
+    this(int _i) { i = _i;}
+}
+
+auto arr = [0,1,2,3];
+
+// auto m = map!C(arr); // does not work.
+alias construct!C CC;
+auto m = map!CC(arr); // works;
+// m is like [new C(0), new C(1), new C(2), new C(3)]
+----
+
+What's fun is when you use it on many-args constructors or structs:
+----
+struct S { int i; double d;}
+
+alias construct!S CS;
+
+auto s = tmap!CS([0,1,2,3], [-1.1,-2.2,3.3,4.]); // Yeah, tmap
+assert(equal(s, [S(0,-1.1), S(1, -2.2), S(2, 3.3), S(3, 4.0)]));
+----
+*/
+template construct(Struct) if (is(Struct == struct))
+{
+    Struct construct(T...)(T t)
+    {
+        return Struct(t);
+    }
+}
+
+/// ditto
+template construct(Class) if (is(Class == class))
+{
+    Class construct(T...)(T t)
+    {
+        return new Class(t);
+    }
+}
+
+version(unittest)
+{
+    class C {
+        int i;
+        this(int _i) { i = _i;}
+    }
+}
+
+unittest
+{
+
+    auto arr = [0,1,2,3];
+
+    // auto m = map!C(arr); // does not work.
+    alias construct!C CC;
+    auto m = map!CC(arr); // works;
+
+    struct S { int i; double d;}
+
+    alias construct!S CS;
+
+    auto s = tmap!CS([0,1,2,3], [-1.1,-2.2,3.3,4.]); // Yeah, tmap
+    assert(equal(s, [S(0,-1.1), S(1, -2.2), S(2, 3.3), S(3, 4.0)]));
+}
+
+/**
+Transforms a function accepting $(M (T, T, T, ...)) into a function accepting $(M (T[])). The new function
 will consume as many arguments as needed, but won't throw if there are more.
 
 Example:
@@ -1070,7 +1175,7 @@ template arrayify(alias fun) if (isFunction!fun && is(CommonType!(ParameterTypeT
 }
 
 /**
-Transforms a function accepting a (T,T,T,...) into a function accepting a range of Ts.
+Transforms a function accepting a $(M (T,T,T,...)) into a function accepting a range of $(M T)s.
 */
 template rangify(alias fun) if (isFunction!fun && is(CommonType!(ParameterTypeTuple!fun)))
 {
@@ -1084,7 +1189,83 @@ template rangify(alias fun) if (isFunction!fun && is(CommonType!(ParameterTypeTu
 }
 
 /**
-A simple adaptor for fun, making it accept supplementary arguments of type (T...).
+Transforms a function into a tuple-accepting function. Useful to map a standard function
+on a tuple-producing range. A parameterless function (zero args) is left untouched.
+
+See_Also: $(M tmap), $(M tfilter), $(M comp) and $(M pComp) in $(M dranges.algorithm2.d).
+
+Example:
+----
+string foo3(int a, string b, double c) {
+    return to!string(a) ~ "+" ~ b ~ "+" ~ to!string(c);
+}
+
+auto tfoo3 = tuplify!foo3;
+auto t = tuple(1, "a", 3.0);
+auto result = tfoo3(t);
+assert(result == "1+a+3");
+
+string foo() {
+    return "aha";
+}
+auto tfoo = tuplify!foo;
+assert(tfoo() == "aha");
+----
+*/
+template tuplify(alias fun) {
+    static if(isFunction!fun)
+        alias tuplifyImpl!(fun).result tuplify;
+//    else static if (is(fun = struct)) // struct name -> constructor
+//        alias construct!fun
+}
+
+template tuplifyImpl(alias fun) if (isFunction!fun) {
+    alias ReturnType!fun R;
+    alias ParameterTypeTuple!fun A;
+    static if (A.length > 0) {
+        R result(Tuple!(A) tup) {
+                return fun(tup.field);
+        }
+    }
+    else {
+        R result() {
+            return fun();
+        }
+    }
+}
+
+
+//
+//auto tuplify(R, A...)(R delegate(A) fun) {
+//    static if (A.length == 0) {
+//        return fun;
+//    }
+//    else {
+//        R tuplified(Tuple!(A) tup) {
+//            return tupleApply!fun(tup);
+//        }
+//        return &tuplified;
+//    }
+//}
+//
+unittest {
+    string foo3(int a, string b, double c) {
+        return to!string(a) ~ "+" ~ b ~ "+" ~ to!string(c);
+    }
+
+    alias tuplify!foo3 tfoo3;
+    auto t = tuple(1, "a", 3.0);
+    auto result = tfoo3(t);
+    assert(result == "1+a+3");
+
+    string foo() { return "aha";}
+    alias tuplify!foo tfoo;
+    assert(tfoo == "aha");
+}
+
+/**
+A simple adaptor for $(M fun), making it accept supplementary arguments of type $(M T...).
+See_Also: $(M makeVariadic).
 */
 template addArgs(alias fun, T...)
 {
@@ -1092,6 +1273,25 @@ template addArgs(alias fun, T...)
     {
         return fun(args);
     }
+}
+
+
+/**
+Takes a standard function, and makes it variadic: it will accept any number of surnumerary arguments of any type
+after the 'normal' ones that it had before. It's useful to 'adapt' a function to a range (with
+automatic unpacking of tuples, like for $(M tmap)).
+
+Example:
+----
+int foo(int i) { return i;}
+alias makeVariadic!foo vfoo;
+auto i = vfoo(1, 2,3,'a', "hello there!");
+assert(i == 1);
+----
+*/
+template makeVariadic(alias fun)
+{
+    ReturnType!fun makeVariadic(ParameterTypeTuple!fun args, ...) { return fun(args);}
 }
 
 template RT(alias fun)
@@ -1169,7 +1369,7 @@ template aritySImpl(string s, size_t index)
 }
 
 /**
-Is true iff fun can be applied on the TypeTuple ARGS.
+Is true iff $(M fun) can be applied on the TypeTuple $(M ARGS).
 Example:
 ----
 assert(CompatibilityFuncArgs!("a+b", int, int)); // 'string' function are templated by unaryFun or binaryFun
@@ -1245,12 +1445,13 @@ string BNL(uint n, uint max) { return " ElementType" ~ to!string(n) ~ " __" ~ az
 string AL(uint n, uint max)  { return " alias __" ~ az(n) ~ " " ~ az(n) ~ ";";}
 
 /**
-A generalization of std.functional.unaryFun and .binaryFun for as many params as you need, in the 'a' - 'z' (included)
-range. You can indicate the desired final arity if you want but otherwise a compile-time heuristics
+A generalization of $(M std.functional.unaryFun) and $(M .binaryFun) for as many params as you need, in the 'a' - 'z' (included)
+range. You can indicate the desired final arity if you want, but otherwise a compile-time heuristics
 tries to determine the string's 'arity'.
-As for unaryFun and binaryFun, 'a' means first argument, 'b' the second and so on.
-As for unaryFun and binaryFun, it creates a templated function, with the type of each parameter left undecided.
-As for unaryFun and binaryFun, it does not change fun if it's already a function.
+As for $(M unaryFun) and $(M binaryFun), 'a' means first argument, 'b' the second and so on.
+As for $(M unaryFun) and $(M binaryFun), it creates a templated function, with the type of each parameter left undecided.
+As for $(M unaryFun) and $(M binaryFun), it does not change $(M fun) if it's already a function.
+
 Examples:
 ----
 alias naryFun!("a+b*c-d") test4;  // Creates a templated 4-args function test4(A, B, C, D)(A a, B b, C c, D d) { return a+b*c-d;}
@@ -1554,86 +1755,14 @@ unittest {
 }
 +/
 
-/**
-Transforms a function into a tuple-accepting function. Useful to map a standard function
-on a tuple-producing range. A parameterless function (zero args) is left untouched.
-See_Also: tmap, tfilter, comprehension, parallelComprehension in algorithm2.d
-Example:
-----
-string foo3(int a, string b, double c) {
-    return to!string(a) ~ "+" ~ b ~ "+" ~ to!string(c);
-}
-
-auto tfoo3 = tuplify!foo3;
-auto t = tuple(1, "a", 3.0);
-auto result = tfoo3(t);
-assert(result == "1+a+3");
-
-string foo() {
-    return "aha";
-}
-auto tfoo = tuplify!foo;
-assert(tfoo() == "aha");
-----
-*/
-template tuplify(alias fun) {
-    static if(isFunction!fun)
-        alias tuplifyImpl!(fun).result tuplify;
-//    else static if (is(fun = struct)) // struct name -> constructor
-//        alias construct!fun
-}
-
-template tuplifyImpl(alias fun) if (isFunction!fun) {
-    alias ReturnType!fun R;
-    alias ParameterTypeTuple!fun A;
-    static if (A.length > 0) {
-        R result(Tuple!(A) tup) {
-                return fun(tup.field);
-        }
-    }
-    else {
-        R result() {
-            return fun();
-        }
-    }
-}
-
-
-//
-//auto tuplify(R, A...)(R delegate(A) fun) {
-//    static if (A.length == 0) {
-//        return fun;
-//    }
-//    else {
-//        R tuplified(Tuple!(A) tup) {
-//            return tupleApply!fun(tup);
-//        }
-//        return &tuplified;
-//    }
-//}
-//
-unittest {
-    string foo3(int a, string b, double c) {
-        return to!string(a) ~ "+" ~ b ~ "+" ~ to!string(c);
-    }
-
-    alias tuplify!foo3 tfoo3;
-    auto t = tuple(1, "a", 3.0);
-    auto result = tfoo3(t);
-    assert(result == "1+a+3");
-
-    string foo() { return "aha";}
-    alias tuplify!foo tfoo;
-    assert(tfoo == "aha");
-}
 
 /**
 Internal template to transform a function or a 'string' function
-to be applied on a tuple. The R... part must contains the information
+to be applied on a tuple. The $(M T...) part must contains the information
 about the args types. It's used to instantiate the correct function
-from the template function created by naryFun.
+from the template function created by $(M naryFun).
 
-It's used internally by all the tuple-mapping functions: tmap, tfilter, etc.
+It's used internally by all the tuple-mapping functions: $(M tmap), $(M tfilter), etc.
 */
 template Prepare(alias fun, T...)
 {
@@ -1648,75 +1777,4 @@ template PrepareImpl(alias fun, T...)
     else
         alias nfun infun;    // It's a function, do nothing.
     alias tuplify!infun result;
-}
-
-/**
-Accept a class or struct name as template argument and creates a factory function that creates
-the corresponding class/struct. It allows one to map a constructor on a range, to create a
-range of classes. It's not possible normally.
-
-Example:
-----
-class C {
-    int i;
-    this(int _i) { i = _i;}
-}
-
-auto arr = [0,1,2,3];
-
-// auto m = map!C(arr); // does not work.
-alias construct!C CC;
-auto m = map!CC(arr); // works;
-// m is like [new C(0), new C(1), new C(2), new C(3)])
-----
-
-What's fun is when you use it on many-args constructors or structs:
-----
-struct S { int i; double d;}
-
-alias construct!S CS;
-
-auto s = tmap!CS([0,1,2,3], [-1.1,-2.2,3.3,4.]); // Yeah, tmap
-assert(equal(s, [S(0,-1.1), S(1, -2.2), S(2, 3.3), S(3, 4.0)]));
-----
-*/
-template construct(Struct) if (is(Struct == struct))
-{
-    Struct construct(T...)(T t)
-    {
-        return Struct(t);
-    }
-}
-
-template construct(Class) if (is(Class == class))
-{
-    Class construct(T...)(T t)
-    {
-        return new Class(t);
-    }
-}
-
-version(unittest)
-{
-    class C {
-        int i;
-        this(int _i) { i = _i;}
-    }
-}
-
-unittest
-{
-
-    auto arr = [0,1,2,3];
-
-    // auto m = map!C(arr); // does not work.
-    alias construct!C CC;
-    auto m = map!CC(arr); // works;
-
-    struct S { int i; double d;}
-
-    alias construct!S CS;
-
-    auto s = tmap!CS([0,1,2,3], [-1.1,-2.2,3.3,4.]); // Yeah, tmap
-    assert(equal(s, [S(0,-1.1), S(1, -2.2), S(2, 3.3), S(3, 4.0)]));
 }
