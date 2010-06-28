@@ -86,13 +86,13 @@ unittest {
     assert(arity!foov == 1);
 }
 
-/// Given a bunch of functions names, gives the typetuple of their return types.
+/// Given a bunch of functions names, gives the typetuple of their return types. Used by $(D juxtapose).
 template ReturnTypes(Funs...)
 {
     alias MapOnAlias!(ReturnType, Funs) ReturnTypes;
 }
 
-/// Given a bunch of functions names, gives the (flattened) typetuple of their return values.
+/// Given a bunch of functions names, gives the (flattened) typetuple of their return values. Used by $(D juxtapose).
 template ParameterTypeTuples(alias fun, Rest...)
 {
     alias MapOnAlias!(ParameterTypeTuple, fun, Rest) ParameterTypeTuples;
@@ -147,6 +147,9 @@ auto fr = [[0.1,0.2], [0.0,-1.0,-2.0]];
 
 auto m = tmap!jux(ir,sr,dr,fr);
 ----
+
+Note: another, more mathematical way, to look at it is that juxtapose creates a function whose type is the product the input functions' types.
+In D, product of types are tuples.
 */
 template juxtapose(Funs...)
 {
@@ -212,7 +215,7 @@ struct FlipnR(alias fun)
 }
 
 /**
-Flip and curry range functions, like take, drop, etc. These take a range and a size_t arguments, like take(r,3), etc.
+Flip and curry range functions, like $(D take), $(D drop), etc. These take a range and a size_t arguments, like $(D take(r,3)), etc.
 But sometimes, you just want to create a curried function that will act on any range.
 
 Example:
@@ -480,10 +483,6 @@ unittest
     assert(equal(f, [4,4,4]));
 }
 
-/**
-To Be Documented.
-
-*/
 struct InvertibleFun(A, B)
 {
     B delegate(A) fun;
@@ -498,6 +497,11 @@ struct InvertibleFun(A, B)
     }
 }
 
+/**
+Takes two delegates: one from $(D A) to $(D B), the other from $(D B) to $(D A). $(D A) and $(D B) must be different types.
+The functions are supposed to be the inverse of one another (that is: f(g(x)) == x), but that's not checked.
+$(M invertibleFun) is then a function that accepts either a $(D A) or a $(D B) and then returns a $(D B) or a $(D A).
+*/
 InvertibleFun!(A,B) invertibleFun(A, B)(B delegate(A) fun, A delegate(B) funInv)
 {
     InvertibleFun!(A,B) ifun;
@@ -507,8 +511,11 @@ InvertibleFun!(A,B) invertibleFun(A, B)(B delegate(A) fun, A delegate(B) funInv)
 }
 
 /**
-To Be Documented.
+Takes a value as compile-time argument and creates a templated function that will accept any delegate
+and apply it to the original value. It's useful when you want to map a certain value on a range of functions:
+just map apply!value to the range.
 
+TODO: make value a runtime argument. That means returning a struct with $(D opCall) defined, instead of a function.
 */
 template apply(alias value)
 {
@@ -519,10 +526,19 @@ template apply(alias value)
 }
 
 /**
-To Be Documented.
+Transforms a standard function into a destructuring one. Given:
+----
+int foo(int a, int b, int c) {}
+----
+then, $(D destructured!foo) is a function that accepts three ints as arguments, but also $(D Tuple!(int,int,int))
+or $(D int[]) or $(D int[3]) or even any class $(D C) or struct $(D S) if $(D C.tupleof)/$(D S.tupleof) gives three $(D int)s. In effect,
+$(D destructured!foo) will try to destructure (decompose, crack open, if you will) anything passed to it, to find three ints in a row to give
+to foo.
 
+Note: It's still 'in construction', as it depends on the $(D _()) function from $(D dranges.reftuple). The doc
+should be extended.
+TODO: also if t is itself a tuple _(params) = t;
 */
-// TODO: also if t is itself a tuple _(params) = t;
 template destructured(alias fun)
 {
     ReturnType!fun destructured(T...)(T t)
@@ -539,11 +555,31 @@ template destructured(alias fun)
 }
 
 /**
-To Be Documented.
+Transforms a function $(D foo) taking a $(D T) into a function accepting a $(D T[]) as an argument
+and which applies $(D foo) to each element of the array, returning the resulting array.
 
+Example:
+----
+int foo(int i) { return i*i;}
+alias mapper!foo mfoo;
+
+assert(mfoo([0,1,2,3,4]) == [0,1,4,9,16]);
+----
+
+If $(D foo) takes more than one argument, $(D mapper!foo) waits for a $(D Tuple!(Args)[]) or accepts
+a variadic number of arguments, as long as the types and their numbers correspond.
+
+Example:
+----
+int bar(int i, double j, string s) { return (to!int(i*j));}
+alias mapper!bar mbar;
+
+assert(mbar(1,3.14,"ab", 2,-0.5,"hello!", 0,0,"") == [3,-3,0]);
+----
+
+TODO: generalize for any range, not just arrays.
+TODO: expand tuples [tuple(a,b), tuple(a,b), ...]
 */
-// TODO: for any range
-// TODO: expand tuples [tuple(a,b), tuple(a,b), ...]
 template mapper(alias fun)
 {
     auto mapper(T...)(T args) {
@@ -578,9 +614,32 @@ template mapper(alias fun)
     }
 }
 
-/**
-To Be Documented.
+unittest
+{
+    int foo(int i) { return i*i;}
+    alias mapper!foo mfoo;
 
+    assert(mfoo([0,1,2,3,4]) == [0,1,4,9,16]);
+
+    int bar(int i, double j, string s) { return (to!int(i*j));}
+    alias mapper!bar mbar;
+
+    assert(mbar(1,3.14,"ab", 2,-1.5,"hello!", 0,0,"") == [3,-3,0]);
+}
+
+/**
+Transforms a function $(D foo) accepting a $(D T) into a function accepting
+a $(D Tuple!(T,T,T,...T)) (or any tuple with compatible types). It will apply
+$(D foo) to all elements of the tuple and return the tuple of these results.
+
+Example:
+----
+int foo(int i) { return i*i;}
+alias tupler!foo tfoo;
+auto t = tuple(0,1,2,3,4);
+
+assert(tfoo(t) == tuple(0,1,4,9,16));
+----
 */
 template tupler(alias fun)
 {
@@ -594,79 +653,269 @@ template tupler(alias fun)
     }
 }
 
-///
+unittest
+{
+    int foo(int i) { return i*i;}
+    alias tupler!foo tfoo;
+    auto t = tuple(0,1,2,3,4);
+
+    assert(tfoo(t) == tuple(0,1,4,9,16));
+}
+
+/// The void function: takes any arguments, returns $(D void).
 void voidFun(...) {}
-///
+
+/// The null function: takes no argument, returns $(D void).
 void nullFun() {}
 
 /**
-To Be Documented.
+Takes any value, returns a constant function: one that accepts any arguments and will always return
+the initial value. If called with no argument, it will produce the equivalent of $(D voidFun).
 
+Example:
+----
+auto one = constantFun(1);
+assert(equal(map!one(["a","b","abc"]), [1,1,1]));
+----
 */
-auto constantFun(T)(T t)
+T[0] delegate(...) constantFun(T...)(T t) if (T.length == 1)
 {
-    T constantFun(...) { return t;}
+    return (...) { return t[0];};
 }
 
-template ExtendFunType(alias fun, T...)
+///
+void delegate(...) constantFun(T...)(T t) if (T.length == 0)
 {
-    static if (is(typeof(fun(T.init))))
-        alias typeof(fun(T.init)) ExtendFunType;
-    else
-        alias T[0] ExtendFunType;
+    return (...) { return;};
 }
 
-/**
-To Be Documented.
-
-*/
-template extendFun(alias fun)
+unittest
 {
-    ExtendFunType!(fun, T) extendFun(T...)(T t)
+    auto one = constantFun(1);
+    assert(equal(map!one(["a","b","abc"]), [1,1,1]));
+}
+
+//template ExtendFunType(alias fun, T...)
+//{
+//    static if (is(typeof(fun(T.init))))
+//        alias typeof(fun(T.init)) ExtendFunType;
+//    else
+//        alias T[0] ExtendFunType;
+//}
+
+struct ExtendFun(alias fun)
+{
+    typeof(fun(Init!T)) opCall(T...)(T t) if (T.length && is(typeof(fun(t))))
     {
-        static if (is(typeof(fun(t))))
-            return fun(t);
-        else
-            return t[0];// tuple(t)?
+        return fun(t);
     }
-}
 
-
-template ExtendFunType2(alias fun, alias Default, T)
-{
-    static if (is(typeof(fun(T.init))))
-        alias typeof(fun(T.init)) ExtendFunType2;
-    else
-        alias typeof(Default) ExtendFunType2;
-}
-
-/**
-To Be Documented.
-
-*/
-template extendFun(alias fun,alias Default)
-{
-    ExtendFunType2!(fun, Default, T) extendFun(T)(T t)
+    T[0] opCall(T...)(T t) if (T.length && !is(typeof(fun(t))))
     {
-        static if (is(typeof(fun(t))))
-            return fun(t);
-        else
-            return Default;
+        return t[0];
     }
 }
 
 /**
-To Be Documented.
+Takes a function $(D foo) and 'extends' it, allowing it to accept any type of argument.
+If the arguments types are compatible with $(D foo), returns foo(args) otherwise, it just returns
+the argument.
 
+That may seem a strange template to define, but it's quite useful for mapping a tuple (see $(D dranges.tuple2.mapTuple)).
+Suppose you have a tuple and what to change only the strings in it. Defined $(D foo) to act on strings, extend it with
+$(D extend!foo) and voila, you can then map $(D extend!foo) on your tuple: the strings will be transformed, leaving the
+other types untouched. I learnt the trick from a Haskell article.
+
+Example:
+----
+import dranges.tuple2;
+
+auto t = tuple("bin", 1024, 3.14159,
+               "src", 0,    1.0,
+               "myDirectory/foo", 100, -2.3);
+
+string foo(string s) { return "std/" ~ s;}
+
+auto efoo = extendFun!foo; // beware: it's not alias extendFun!foo efoo;, as for other templates around here.
+
+auto t2 = mapTuple ! efoo (t);
+
+assert(t2 == tuple("std/bin", 1024, 3.14159,
+                   "std/src", 0,    1.0,
+                   "std/myDirectory/foo", 100, -2.3));
+----
+*/
+ExtendFun!fun extendFun(alias fun)()
+{
+    ExtendFun!(fun) efun;
+    return efun;
+}
+
+version(unittest)
+{
+    import dranges.tuple2;
+    string foo(string s) { return "std/" ~ s;}
+}
+
+unittest
+{
+    auto t = tuple("bin", 1024, 3.14159,
+                   "src", 0,    1.0,
+                   "myDirectory/foo", 100, -2.3);
+
+    auto efoo = extendFun!foo;
+
+    auto t2 = mapTuple ! efoo (t);
+
+    assert(t2 == tuple("std/bin", 1024, 3.14159,
+                       "std/src", 0,    1.0,
+                       "std/myDirectory/foo", 100, -2.3));
+}
+
+struct ExtendFun0(alias fun, D)
+{
+    D defaultValue;
+
+    typeof(fun(Init!T)) opCall(T...)(T t) if (is(typeof(fun(t))))
+    {
+        return fun(t);
+    }
+
+
+    D opCall(T...)(T t) if (!is(typeof(fun(t))))
+    {
+        return defaultValue;
+    }
+}
+
+/**
+Same as before, but with a default value returned when extendFun is offered
+an arg that $(D foo) cannot accept. The default value can be of any type.
+
+Example:
+----
+import dranges.tuple2;
+
+auto t = tuple("bin", 1024, 3.14159,
+               "src", 0,    1.0,
+               "myDirectory/foo", 100, -2.3);
+
+string foo(string s) { return "std/" ~ s;}
+
+auto efoo = extendFun0!foo(0);
+
+auto t2 = mapTuple ! efoo (t);
+
+assert(t2 == tuple("std/bin",               0, 0,
+                   "std/src",               0, 0,
+                   "std/myDirectory/foo",   0, 0));
+----
+*/
+ExtendFun0!(fun, D) extendFun0(alias fun, D)(D defaultValue)
+{
+    ExtendFun0!(fun,D) efun;
+    efun.defaultValue = defaultValue;
+    return efun;
+}
+
+unittest
+{
+    auto t = tuple("bin", 1024, 3.14159,
+                   "src", 0,    1.0,
+                   "myDirectory/foo", 100, -2.3);
+
+    auto efoo0 = extendFun0!foo(0); // foo is defined in a version(unittest) statement higher up in the code
+
+    auto t2 = mapTuple ! efoo0 (t);
+
+    assert(t2 == tuple("std/bin",               0, 0,
+                       "std/src",               0, 0,
+                       "std/myDirectory/foo",   0, 0));
+}
+
+/**
+This is just a wrapper around the $(D match) function found in $(D dranges.pattermatch), here to emphasize
+the way $(D match) is just a many-types-to-many-types 'function'. Explained a bit more clearly, $(D _eitherFun)
+takes any number of functions and keep them near its hot little heart. When passed an argument, it will
+successively test each function and returns the result of the first one that matches. No match means it will
+throw a NoMatch exception. Functions are tested the same order they were passed as arguments.
+
+How is this different from overloading, will you ask? I'm glad you did:
+
+$(UL
+  $(LI first, you can use it to 'group' many different function, from different origins and different names.)
+  $(LI second (and that may be the most important point), it's a template, so the return
+type of $(D eitherFun) can be different for each argument type. So you can use it to map a range, but also a tuple, with $(D dranges.tuple2.mapTuple).
+  $(LI third, it accepts templates functions. In fact, it even accepts 'string' functions, as in "a+b*c-d.expand". See the $(D patternmatch)
+module documentation for more explanations.)
+  $(LI fourth, once it's defined, you can pass it around as one entity. Most notably, it can becomes the argument
+    of another meta-function there or even the argument to another $(D eitherFun!))
+)
+
+So, in functionnal languages terms, it's a sum of functions (as $(D juxtapose) is a product).
+
+Example:
+----
+int    f1(int i) { return i;}
+double f2(double d) { return d*d;}
+int    f3(int i, string s) { return i;}
+string f4(string s, int i) { return s;}
+
+alias eitherFun!(f1,f2,f3,f4) efun; // efun accepts either an int, or a double, or a (int,string) or a (string, int)
+
+assert(efun(1) == 1);
+assert(efun(1.5) == 2.25);
+assert(efun(1,"abc") == 1);
+assert(efun("abc",1) == "abc");
+
+// Let's extend it, then.
+int[] f5(int[] i) { return i.reverse;}
+
+alias eitherFun!(efun, f5) efun5;   // efun5 will test f1, then f2, ... and f5 at last resort.
+// alias eitherFun(f5, efun) efun5bis would have tested f5 first, then f1, ...
+
+assert(efun5(1) == 1);              // efun5 is like efun
+assert(efun5(1.5) == 2.25);
+assert(efun5(1,"abc") == 1);
+assert(efun5("abc",1) == "abc");
+assert(efun5([0,1,2]) == [2,1,0]);  // except it also accepts an array of ints as argument.
+----
+
+Note: as said before, functions are tested in the same order they were passed as arguments. So a function can 'swallow' arguments
+that could have been accepted by another, downstream function.
 */
 template eitherFun(F...)
 {
     alias match!(StaticMap!(naryFun, F)) eitherFun;
 }
 
-/**
-To Be Documented.
+unittest
+{
+    int f1(int i) { return i;}
+    double f2(double d) { return d*d;}
+    int f3(int i, string s) { return i;}
+    string f4(string s, int i) { return s;}
 
+    int[] f5(int[] i) { return i.reverse;}
+
+    alias eitherFun!(f1,f2,f3,f4) efun;
+    assert(efun(1) == 1);
+    assert(efun(1.5) == 2.25);
+    assert(efun(1,"abc") == 1);
+    assert(efun("abc",1) == "abc");
+
+    alias eitherFun!(efun, f5) efun5;
+
+    assert(efun5(1) == 1);
+    assert(efun5(1.5) == 2.25);
+    assert(efun5(1,"abc") == 1);
+    assert(efun5("abc",1) == "abc");
+    assert(efun5([0,1,2]) == [2,1,0]);
+}
+
+/**
+A simple adapter, when you have a complicated function you do not (or cannot) want to touch. It
+applies the pre pre-treatment to the arguments, calls fun and then returns post(result).
 */
 template adaptFun(alias pre, alias fun, alias post = "a")
 {
@@ -678,20 +927,81 @@ template adaptFun(alias pre, alias fun, alias post = "a")
 
 
 /**
-To Be Documented.
+The composition 'power' of a function: f(f(f(x)...)), n times. n == 1 is the same
+as fun and n = 0 is the identity function (just returns the arguments).
 
+Example:
+----
+int inc(int i) { return i+1;}
+string conc(string s) { return s ~ s;}
+
+alias powerFun!(inc, 5) plus5;
+alias powerFun!(inc, 1) plus1;
+alias powerFun!(inc, 0) plus0;
+
+assert(plus5(4) == 9);
+assert(plus1(4) == 5);
+assert(plus0(4) == 4);
+
+alias powerFun!(conc, 2) conc2;
+
+assert(conc("abc") == "abcabc");
+assert(conc2("abc") == "abcabcabcabc");
+assert(conc2("abc") == conc(conc("abc")));
+----
 */
-template power(alias fun, size_t n)
+template powerFun(alias fun, size_t n)
 {
-    auto power(T...)(T args)
+    auto powerFun(T...)(T args)
     {
         return wrapCode!(fun, n)(args);
     }
 }
 
-/**
-To Be Documented.
+unittest
+{
+    int inc(int i) { return i+1;}
+    string conc(string s) { return s ~ s;}
 
+    alias powerFun!(inc, 5) plus5;
+    alias powerFun!(inc, 1) plus1;
+    alias powerFun!(inc, 0) plus0;
+
+    assert(plus5(4) == 9);
+    assert(plus1(4) == 5);
+    assert(plus0(4) == 4);
+
+    alias powerFun!(conc, 2) conc2;
+
+    assert(conc("abc") == "abcabc");
+    assert(conc2("abc") == "abcabcabcabc");
+    assert(conc2("abc") == conc(conc("abc")));
+}
+
+/**
+Takes a function and store default values for its last arguments. For a n-arg function,
+you can provided d default values, d being between 0 and n. These values will be applied
+to the last d arguments.
+
+Example:
+----
+int foo(int i, int j, double k) { return i+j+to!int(k);}
+auto dfoo = withDefaultValues!(foo)(2,1.5); // two default values provided -> for j and for k
+                                            // so dfoo can accept 1, 2 or 3 arguments.
+
+assert(dfoo(1)         == foo(1, 2, 1.5)); // 1 arg given -> dfoo use two defaults
+assert(dfoo(1, 1)      == foo(1, 1, 1.5)); // 2 args -> one default
+assert(dfoo(1, 1, 0.5) == foo(1, 1, 0.5)); // 3 args -> no default
+----
+
+Most of the time, withDefaultValues will determine the arity of your function. In case of doubt, you can provide it as
+a second template argument, like this:
+----
+A bar(A,B)(A a0, A a1, B a2, Tuple!(A,B) a3) { return a0;} // template function, withDefaultValues cannot determine the arity is 4
+auto dbar = withDefaultValues!(bar, 4)(2, tuple(2, 3.14));
+----
+
+TODO: No, that should be possible now that I have a template to determine the arity even of template functions.
 */
 DefaultValues!(fun, arity!fun, D) withDefaultValues(alias fun, D...)(D defaults) if (D.length <= arity!fun)
 {
@@ -716,13 +1026,37 @@ struct DefaultValues(alias fun, size_t arity, D...)
         static if ( arity - D.length <= T.length && T.length <= arity )
             return naryFun!fun(t,_defaults[D.length+T.length-arity..$]);
         else
-            static assert(false, "withDefaultValues: bad number of arguments. Need " ~ to!string(arity) ~ ", got " ~ to!string(D.length+T.length-arity)~".");
+            static assert(false, "withDefaultValues: bad number of arguments. Need between "
+                                ~ to!string(arity - D.length) ~ " and " ~ to!string(arity) ~ " arguments, got " ~ to!string(T.length)~".");
     }
 }
 
-/**
-To Be Documented.
+version(unittest)
+{
+    int foo3(int i, int j, double k) { return i+j+to!int(k);}
+}
 
+unittest
+{
+    auto dfoo = withDefaultValues!(foo3)(2,1.5); // two default values provided -> for j and for k
+                                                // so dfoo can accept 1, 2 or 3 arguments.
+
+    assert(dfoo(1)         == foo3(1, 2, 1.5)); // 1 arg given -> dfoo use two defaults
+    assert(dfoo(1, 1)      == foo3(1, 1, 1.5)); // 2 args -> one default
+    assert(dfoo(1, 1, 0.5) == foo3(1, 1, 0.5)); // 3 args -> no default
+}
+
+/**
+Transforms a function accepting (T, T, T, ...) into a function accepting (T[]). The new function
+will consume as many arguments as needed, but won't throw if there are more.
+
+Example:
+----
+int foo(int i, int j, int k) { return i+j+k;}
+
+alias arrayify!foo afoo;
+assert(afoo([1,2,3]) == 1+2+3);
+----
 */
 template arrayify(alias fun) if (isFunction!fun && is(CommonType!(ParameterTypeTuple!fun)))
 {
@@ -736,8 +1070,7 @@ template arrayify(alias fun) if (isFunction!fun && is(CommonType!(ParameterTypeT
 }
 
 /**
-To Be Documented.
-
+Transforms a function accepting a (T,T,T,...) into a function accepting a range of Ts.
 */
 template rangify(alias fun) if (isFunction!fun && is(CommonType!(ParameterTypeTuple!fun)))
 {
@@ -751,8 +1084,7 @@ template rangify(alias fun) if (isFunction!fun && is(CommonType!(ParameterTypeTu
 }
 
 /**
-To Be Documented.
-
+A simple adaptor for fun, making it accept supplementary arguments of type (T...).
 */
 template addArgs(alias fun, T...)
 {
@@ -1319,10 +1651,35 @@ template PrepareImpl(alias fun, T...)
 }
 
 /**
-To Be Documented.
+Accept a class or struct name as template argument and creates a factory function that creates
+the corresponding class/struct. It allows one to map a constructor on a range, to create a
+range of classes. It's not possible normally.
 
+Example:
+----
+class C {
+    int i;
+    this(int _i) { i = _i;}
+}
+
+auto arr = [0,1,2,3];
+
+// auto m = map!C(arr); // does not work.
+alias construct!C CC;
+auto m = map!CC(arr); // works;
+// m is like [new C(0), new C(1), new C(2), new C(3)])
+----
+
+What's fun is when you use it on many-args constructors or structs:
+----
+struct S { int i; double d;}
+
+alias construct!S CS;
+
+auto s = tmap!CS([0,1,2,3], [-1.1,-2.2,3.3,4.]); // Yeah, tmap
+assert(equal(s, [S(0,-1.1), S(1, -2.2), S(2, 3.3), S(3, 4.0)]));
+----
 */
-// example: construct a range of structs or classes with tmap!C(r1, r2) or tmap!S(r1, r2)
 template construct(Struct) if (is(Struct == struct))
 {
     Struct construct(T...)(T t)
@@ -1337,4 +1694,29 @@ template construct(Class) if (is(Class == class))
     {
         return new Class(t);
     }
+}
+
+version(unittest)
+{
+    class C {
+        int i;
+        this(int _i) { i = _i;}
+    }
+}
+
+unittest
+{
+
+    auto arr = [0,1,2,3];
+
+    // auto m = map!C(arr); // does not work.
+    alias construct!C CC;
+    auto m = map!CC(arr); // works;
+
+    struct S { int i; double d;}
+
+    alias construct!S CS;
+
+    auto s = tmap!CS([0,1,2,3], [-1.1,-2.2,3.3,4.]); // Yeah, tmap
+    assert(equal(s, [S(0,-1.1), S(1, -2.2), S(2, 3.3), S(3, 4.0)]));
 }
