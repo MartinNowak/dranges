@@ -838,7 +838,7 @@ alias MkRepeat.From!(Cycle!(int[])) R; // takes a Cycle!(Range), extracts Range,
 assert(is(R == Repeat!(int[]))); // R is a Repeat!(int[])
 ----
 
-Note: so, $(M TransferParamsTo) can be seen as a 'function' from a domain of types to another domain. It's a functor,
+Note: so, $(M _TransferParamsTo) can be seen as a 'function' from a domain of types to another domain. It's a functor,
 in a mathematical/Haskell sense (which has nothing to do with a C++ functor).
 */
 template TransferParamsTo(alias templ)
@@ -849,6 +849,29 @@ template TransferParamsTo(alias templ)
     }
 }
 
+/**
+The same, but with arguments inverted.
+Usage:
+----
+TransferParamsFrom!(someTemplatedType).To!(someTemplate)
+----
+
+See_Also: TransferParamsTo
+*/
+template TransferParamsFrom(alias templ)
+{
+    template To(T)
+    {
+        alias TransferParamsTo!T.From!templ To;
+    }
+}
+
+unittest
+{
+    alias TransferParamsTo!Repeat MkRepeat;
+    alias MkRepeat.From!(Cycle!(int[])) R; // takes a Cycle!(Range), extracts Range, makes a Repeat from it.
+    assert(is(R == Repeat!(int[]))); // R is a Repeat!(int[])
+}
 
 /**
 An small switch-like template to produce different code depending on the type of value. The Default class

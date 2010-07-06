@@ -20,7 +20,7 @@ reversing, rotating, extracting, filtering, unfolding, etc, all on typetuples.
 <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 <br><br>
 <b>Authors:</b><br>
-Philippe Sigaud and Simen Kjaeraas
+Philippe Sigaud and Simen Kj&aelig;r&aring;s.
 <br><br>
 
 Distributed under the Boost Software License, Version 1.0.
@@ -59,7 +59,12 @@ inside a template, you cannot do (T.init), DMD does not accept it. Use
 <dd>Compares tuples that might contain a mixture of types and values.
 <br><br>
 <b>Author:</b><br>
-Simen Kjaeraas.
+Simen Kj&aelig;r&aring;s.
+
+<br><br>
+<b>Usage:</b><br>
+<pre class="d_code"><u>SameTuple</u>!(FirstTuple).As!(SecondTuple);
+</pre>
 
 <br><br>
 <b>Example:</b><br>
@@ -83,7 +88,12 @@ Simen Kjaeraas.
 <dd>Checks if one tuple contains another.
 <br><br>
 <b>Author:</b><br>
-Simen Kjaeraas.
+Simen Kj&aelig;r&aring;s.
+
+<br><br>
+<b>Usage:</b><br>
+<pre class="d_code"><u>Contained</u>!(SmallTuple).In!(BigTuple);
+</pre>
 
 <br><br>
 <b>Example:</b><br>
@@ -107,7 +117,7 @@ Simen Kjaeraas.
 <dd>Evaluates to <b><font color=blue>F!(T[0..tupleLength]) &amp;&amp; F!(T[tupleLength..2*tupleLength]) &amp;&amp; ... &amp;&amp; F[T[$-tupleLength..$]]</font></b>.
 <br><br>
 <b>Author:</b><br>
-Simen Kjaeraas.
+Simen Kj&aelig;r&aring;s.
 
 <br><br>
 <b>Example:</b><br>
@@ -120,8 +130,8 @@ Simen Kjaeraas.
 
 <script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">template 
-<span class="currsymbol">Repeat</span>
-<script>explorer.outline.addDecl('Repeat');</script>
+<span class="currsymbol">RepeatTuple</span>
+<script>explorer.outline.addDecl('RepeatTuple');</script>
 
 (uint num,T...)</span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
@@ -130,14 +140,14 @@ Simen Kjaeraas.
 <dd>Repeats a type or typetuple <b><font color=blue>num</font></b> times.
 <br><br>
 <b>Author:</b><br>
-Simen Kjaeraas.
+Simen Kj&aelig;r&aring;s.
 
 <br><br>
 <b>Example:</b><br>
-<pre class="d_code"><font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>Repeat</u>!(4, <font color=blue>int</font>)).As!(<font color=blue>int</font>, <font color=blue>int</font>, <font color=blue>int</font>, <font color=blue>int</font>));
-<font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>Repeat</u>!(4, <font color=red>"foo"</font>)).As!(<font color=red>"foo"</font>, <font color=red>"foo"</font>, <font color=red>"foo"</font>, <font color=red>"foo"</font>));
-<font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>Repeat</u>!(2, <font color=blue>int</font>, <font color=red>"foo"</font>)).As!(<font color=blue>int</font>, <font color=red>"foo"</font>, <font color=blue>int</font>, <font color=red>"foo"</font>));
-<font color=blue>static</font> <font color=blue>assert</font>(!SameTuple!(<u>Repeat</u>!(2, <font color=blue>int</font>)).As!());
+<pre class="d_code"><font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>RepeatTuple</u>!(4, <font color=blue>int</font>)).As!(<font color=blue>int</font>, <font color=blue>int</font>, <font color=blue>int</font>, <font color=blue>int</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>RepeatTuple</u>!(4, <font color=red>"foo"</font>)).As!(<font color=red>"foo"</font>, <font color=red>"foo"</font>, <font color=red>"foo"</font>, <font color=red>"foo"</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(SameTuple!(<u>RepeatTuple</u>!(2, <font color=blue>int</font>, <font color=red>"foo"</font>)).As!(<font color=blue>int</font>, <font color=red>"foo"</font>, <font color=blue>int</font>, <font color=red>"foo"</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(!SameTuple!(<u>RepeatTuple</u>!(2, <font color=blue>int</font>)).As!());
 </pre>
 <br><br>
 
@@ -170,6 +180,15 @@ than R.
 <font color=blue>assert</font>(<font color=blue>is</font>(E4 == TypeTuple!(<font color=blue>double</font>,<font color=blue>int</font>,string,string,<font color=blue>int</font>)));
 </pre>
 <br><br>
+<b>Note:</b><br>
+why a static array instead of free parameters like this: <b><code>
+<span class="currsymbol">ExtractType</span>
+<script>explorer.outline.addDecl('ExtractType');</script>
+
+!(0,2,3,1, TT)</code></b>? Because the type tuple and the
+index list are both of variable length, and the tuple can contain any template parameter, including ints. A simplified version
+working only on pure types tuples could use <b><code>StaticTakeWhile</code></b> to get the parameters that are of integral type and then deduce
+the rest is the type tuple.<br><br>
 
 </dd>
 
@@ -281,7 +300,16 @@ To Be Documented: curried version: alias
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Cut a typetuple into segments of length n. The segments are <b><code>std.typecons.Tuple</code></b>s, not type tuples,
+to avoid auto-flattening. It will not compile if n == 0 or if n do not cut the typetuple in equal parts.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>alias</font> TypeTuple!(<font color=blue>int</font>, <font color=blue>double</font>, string, <font color=blue>int</font> <font color=blue>delegate</font>()) Types;
+<font color=blue>alias</font> <u>SegmentTypes</u>!(2, Types) Segments;
+<font color=blue>assert</font>(<font color=blue>is</font>(Segment == TypeTuple!(Tuple!(<font color=blue>int</font>,<font color=blue>double</font>), Tuple!(string, <font color=blue>int</font> <font color=blue>delegate</font>())) ));
+</pre>
+<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -293,7 +321,8 @@ To Be Documented: curried version: alias
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Is <b>true</b> iff all elements of the variadic list are equal (as tested by ==).<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -305,7 +334,8 @@ To Be Documented: curried version: alias
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Is <b>true</b> iff all types in the typetuple are equal.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -358,7 +388,8 @@ int[1] gives TypeTuple!(int), which is not of type int.<br><br>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Get rid of all Tuples in a TypeTuple, even deeply nested.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -433,7 +464,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>alias itself to the type of alias a.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -445,7 +477,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Maps the <b><code>Mapper</code></b> template on the alias list.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -457,7 +490,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Same as <b><code>StaticReduce</code></b>, but on an alias list.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -469,7 +503,9 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Folds (reduces) the T list, given a reducing template F and an initial accumulator value.
+F must be a binary template and accumulator a value accepted by F as first parameter.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -481,7 +517,12 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Gives the TypeTuple resulting from the sucessive applications of F to reduce
+the T list.
+<br><br>
+<b>See Also:</b><br>
+<b><code>dranges.algorithm2.scan</code></b>.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -489,11 +530,12 @@ does on ranges.
 <span class="currsymbol">StaticIterate</span>
 <script>explorer.outline.addDecl('StaticIterate');</script>
 
-(size_t times,alias F,T)</span></dt>
+(size_t times,alias F,T...)</span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Gives the typetuple (T, F!(T), F!(F!(T)), F!(F!(F!(T))), ...), up to times applications of F.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -505,7 +547,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>The same, but on an alias list. Useful for iterating on values: 0,1,2,3...<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -517,7 +560,13 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Given a template F and a state State, unfolds F times times.
+Applying F on a type must give a typetuple whose first element is the result and the rest
+the next state.
+<br><br>
+<b>See Also:</b><br>
+<b><code>dranges.algorithm2.unfold</code></b>, to get some grip on this.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -529,19 +578,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
-</dd>
+<dd>Given a typetuple T, gives (T[0], T[step], T[2*step], T[3*step],...)<br><br>
 
-<script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">template 
-<span class="currsymbol">StaticGroup</span>
-<script>explorer.outline.addDecl('StaticGroup');</script>
-
-(alias size,T...)</span></dt>
-<script>explorer.outline.writeEnabled = false;</script>
-
-
-<dd><br><br>
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -553,7 +591,16 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Takes elements in a typetuple as long as the predicate template <b><code>pred</code></b> is <b>true</b>
+for the current element.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>alias</font> TypeTuple!(<font color=blue>int</font>, <font color=blue>short</font>, <font color=blue>byte</font>, <font color=blue>double</font>, <font color=blue>int</font>, <font color=blue>long</font>) Types;
+<font color=blue>alias</font> <u>StaticTakeWhile</u>!(isIntegral, Types) FirstIntegrals;
+asser(<font color=blue>is</font>( FirstIntegrals == TypeTuple!(<font color=blue>int</font>,<font color=blue>short</font>,<font color=blue>byte</font>))); <font color=green>// stopped when double was encountered
+</font></pre>
+<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -565,7 +612,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>The cousin of <b><code>StaticTakeWhile</code></b>. Drops types from a typetuple as long as the predicate is <b>true</b>.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -577,7 +625,10 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>Rotates a typetuple as long as the predicate template <b><code>pred</code></b> is <b>true</b> for the first element.
+If a complete rotation is done (<b><code>pred</code></b> gives <b>true</b> for all elements of T), <b><code>StaticRotateWhile</code></b> recognizes this and aliases itself to Types
+instead of cycling forever...<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -589,7 +640,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>The TypeTuple (0,1,2, ..., to) (to is included)<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -601,7 +653,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>The TypeTuple (from, from+1, ..., to) (to is included)<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -613,7 +666,8 @@ does on ranges.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd><br><br>
+<dd>The TypeTuple (from, from+step, from+2*step, ... to). to is not necessarily included if step 'jumps' above it.<br><br>
+
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
@@ -718,7 +772,7 @@ while composing templates.<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Mon Jun 14 14:57:36 2010
+			on Wed Jul  7 00:10:58 2010
 
 		</td></tr>
 	</table>

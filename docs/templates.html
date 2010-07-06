@@ -20,7 +20,7 @@ transforming other templates, currying them, flipping their arguments, etc.
 <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 <br><br>
 <b>Authors:</b><br>
-Philippe Sigaud and Simen Kjaeraas
+Philippe Sigaud and Simen Kj&aelig;r&aring;s
 <br><br>
 
 Distributed under the Boost Software License, Version 1.0.
@@ -62,7 +62,7 @@ see TemplateParametersTypeTuple.
 <dd>Switches between template instantiations depending on the parameters passed.
 <br><br>
 <b>Author:</b><br>
-Simen Kjaeraas.
+Simen Kj&aelig;r&aring;s.
 
 <br><br>
 <b>Example:</b><br>
@@ -718,12 +718,29 @@ It will extract the template parameters from <b><code>someTemplatedType</code></
 
 <br><br>
 <b>Note:</b><br>
-so, <b><code>
-<span class="currsymbol">TransferParamsTo</span>
-<script>explorer.outline.addDecl('TransferParamsTo');</script>
-
-</code></b> can be seen as a 'function' from a domain of types to another domain. It's a functor,
+so, <b><code>TransferParamsTo</code></b> can be seen as a 'function' from a domain of types to another domain. It's a functor,
 in a mathematical/Haskell sense (which has nothing to do with a C++ functor).<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">TransferParamsFrom</span>
+<script>explorer.outline.addDecl('TransferParamsFrom');</script>
+
+(alias templ)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>The same, but with arguments inverted.
+<br><br>
+<b>Usage:</b><br>
+<pre class="d_code"><u>TransferParamsFrom</u>!(someTemplatedType).To!(someTemplate)
+</pre>
+
+<br><br>
+<b>See Also:</b><br>
+TransferParamsTo<br><br>
 
 </dd>
 
@@ -784,7 +801,7 @@ based on a directing type.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Mon Jun 14 14:57:36 2010
+			on Wed Jul  7 00:10:58 2010
 
 		</td></tr>
 	</table>
