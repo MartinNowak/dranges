@@ -192,7 +192,23 @@ Stamp (can popFront one range independently of the others)
 Revolve/Cylinder on a RoR (method rotate/revolve to present a new subrange for iteration)
 	(popFront advance every subrange)
 
+
 ** Graph/Tree **
+Floyd-Warshall
+A*
+B*
+Johnson's algorithm (uses Bellam-Ford and Dijkstra)
+Prim's algorithm
+sameShape
+graph transitive closure
+multiple edges are not allowed. Should they be?
+edge contraction, then eliminate multiple edges
+vertex contraction
+DAG as a subtype of Graph
+Tree as a subtype of Graph
+bidirectional graphs (ancestors are known), -> isSource
+insert a node between two nodes
+smooth bivalent nodes
 subtrees: replace each node with the current subtree
 paths: the same, but upward
 toRoot: a thin tree from the node up to the global root.
@@ -203,7 +219,7 @@ removeLoops
 dependency list
 stratification list?
 self-recursive sets?
-Floyd-Warshall
+
 parsing XML?
 cartesian product of graphs and trees (and recursive ranges?)
 general fold: whatNext, lateralAggregation, backAggregation
