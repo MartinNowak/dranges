@@ -57,7 +57,7 @@ struct Set(T) {
     }
 }
 
-///
+/// merge two sets together
 Set!(T) fusion(T)(Set!(T) s1, Set!(T) s2) {
     auto result = s1;
     foreach(t; s2.array) result.put(t);

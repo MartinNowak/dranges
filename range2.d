@@ -389,11 +389,11 @@ struct TakeWhile(alias pred, R) if (isForwardRange!R && arity!pred > 0)
         _sr = segment!(arity!pred)(range);
     }
 
-    bool empty() {
+    bool empty() @property {
         return _sr.empty || !predicate(_sr.front);
     }
 
-    ElementType!R front() {
+    ElementType!R front() @property {
         return _range.front;
     }
 

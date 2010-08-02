@@ -374,7 +374,7 @@ unittest
     assert(is(staticMap!(Signed, Test) == TypeTuple!(int,int,long,double,short)));
 }
 
-///
+/// Is true iff the type T is an instance of template templ (that is, T is a templ!(U) for some U)
 template isInstanceOfTemplate(T, alias templ)
 {
     static if (T.stringof.length >= __traits(identifier, templ).length && T.stringof[0..__traits(identifier, templ).length] == __traits(identifier, templ))
@@ -383,9 +383,9 @@ template isInstanceOfTemplate(T, alias templ)
         enum bool isInstanceOfTemplate = false;
 }
 
-///
+/// is true iff T is a std.typecons.Tuple
 template isTuple(T)
 {
-    enum bool isTuple = isInstanceOf!(T.init, Tuple);
+    enum bool isTuple = isInstanceOfTemplate!(T, Tuple);//__traits(compiles, T.Types) && isInstanceOfTemplate!(T)
 }
 
