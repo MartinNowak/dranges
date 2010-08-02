@@ -4,7 +4,7 @@
 Some algorithms on graphs: extracting the meta-graph, finding path
 in the graph and such.
 
-All the algorithms in this module come from their descriptions in
+The most complicated algorithms in this module come from their descriptions in
 <a href = "http://www.cs.berkeley.edu/~vazirani/algorithms.html">this book</a>.
 
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
@@ -29,9 +29,9 @@ import dranges.graphrange;
 
 /**
 Returns: the complement graph of g: same nodes, but complementary edges:
-for each pair (u,v) in nodes(g), if (u,v) is in g, then it's not in the complement.
-On the contrary, if (u,v) is not in g, then it's an edge in the complement.
-See_Also: inverse.
+for each pair (u,v) in g.nodes, if (u,v) is in g, then it's not in the complement.
+Conversely, if (u,v) is not in g, then it's an edge in the complement.
+See_Also: $(M reversedGraph).
 
 TODO: conserve the edge properties
 */
@@ -181,7 +181,7 @@ Tuple!(Label!N[], int[Label!N], int[Label!N]) clock(N,E)(Graph!(N,E) g)
 
 /**
 Returns:
-The list of strongly connected components og g. That is, the nodes of sub-graphs
+The list of strongly connected components of g. That is, the nodes of sub-graphs
 where all nodes can be reached from one another.
 */
 Label!N[][] stronglyConnectedComponents(N,E)(Graph!(N,E) g)
@@ -239,7 +239,8 @@ Graph!(N,E)[] subGraphs(N,E)(Graph!(N,E) g)
 Returns:
 The meta-graph associated to g. That's the graph whose nodes are the subgraphs of g
 and the edges the edges between these subgraphs. The meta-graph nodes labels are the concatenation
-of each subgraphs nodes labels (cast to strings). The subgraphs are stored as the nodes values.
+of each subgraphs nodes labels (cast to strings). The subgraphs are stored as the nodes values. This operation
+is also sometimes called the compaction, reduction or shrinking of a graph.
 
 Note:
 It could be coded more efficiently: all these successsive functions ($(M reversedGraph) - $(M clock)
@@ -247,6 +248,10 @@ It could be coded more efficiently: all these successsive functions ($(M reverse
 work is duplicated: while we extract the scc, we could create the metanodes and their names, and
 get the outgoing edge without having to painfully find them afterwards as is done there.
 But I'm aiming at making it work first. For my graphs, it takes a fraction of second to find the MG.
+
+Note:
+I could also ask for a $(M labelize) function that'd creates the metagraph nodes labels from
+the original labels, instead of casting them to string and concatenating them.
 */
 Graph!(Node!(string, Graph!(N,E)), Edge!string) metaGraph(N,E)(Graph!(N,E) g) {
     auto subgraphs = subGraphs(g);
@@ -415,18 +420,18 @@ It takes for input a Graph g which edges must have a positive "length" property
 which must be numerical (castable to $(D double)) and a beginning label. It's a $(D O(n+e)) algorithm, where
 $(M n) is number of nodes in g and $(M e) its number of edges.
 
-An optional parameter, checkForNegativeLength (default to $(D false), no check) forces
+An optional parameter, checkForNegativeLength (defaults to $(D false), no check) forces
 the function to verify that each encountered edge length is not negative. It will
 throw an Exception if such an edge is found.
 
 Returns:
 As the other 'shortest path' algorithms in this module,
-$(M dijkstra) returns a tuple which has for first field an array containing
+$(M _dijkstra) returns a tuple which has for first field an array containing
 the shortest distance from begin to the other nodes (a $(D double[node]) associative array).
-If a node cannot be reached, the distance is ($D double.infinity).
+If a node cannot be reached, the distance is $(D double.infinity).
 The second field contains the predecessor of each node in their path to begin: a Label!N[Label!N] array.
 
-TODO: see to this index problem.
+TODO: see to this internal index problem.
 */
 Tuple!(double[Label!L], Label!N[Label!N]) dijkstra(N,E,L)(Graph!(N,E) g, L begin, bool checkForNegativeLength = false)
     if (   is(Label!N == L)
@@ -479,19 +484,19 @@ $(M n) is the number of nodes, and $(M e) is the number of edges. As such,it cou
 be slower than $(M dijkstra) or $(M dagShortestPath) (my own timings on small
 graphs show on the contrary Bellman-Ford to be the quickest of the three).
 
-The only condition on the graph is that there must be not negative cycle
-(cycles whose total length is negative), but it's a general condition on shortest path algorithms:
+The only condition on the graph is that there must be no negative cycle
+(cycles with a negative total length), but it's a general condition on shortest path algorithms:
 if there is a negative cycle, you can take it many times in your path,
 each time decreasing the path total length, without limit. An optional argument
 checkForNegativeCycle (default value: $(D false)) will provoke such a test (it's done at the end
 of the computation, so it does not change the global speed of bellmanFord).
 
 Obviously, the graph edges must have a $(M .length) member. This length will be cast to $(D double),
-two nodes not connected having a distance of (D double.infinity).
+two nodes not connected having a distance of $(D double.infinity).
 
 As with other 'shortest path' algorithm ($(M dijkstra) and $(M dagShortestPath)), it takes for input
 a $(M Graph) and the label of a node, and returns a tuple of distances from the node (a $(D double[Label])
-associative array) and a previous node tree, on the form of a $(D Label[Label]) array.
+associative array) and a previous node tree, in the form of a $(D Label[Label]) array.
 */
 Tuple!(double[Label!N], Label!N[Label!N])
 bellmanFord(N,E,L)(Graph!(N,E) g, L begin, bool checkForNegativeCycle = false)
@@ -547,7 +552,7 @@ on g's acyclicity. In case a cycle is found, an Exception is throw.
 
 As with other 'shortest path' algorithm ($(D dijkstra) and $(D bellmanFord)), it takes for input
 a $(D Graph) and a label inside the graph and returns a tuple of distances from the node (a $(D double[Label!N])
-associative array) and a previous node tree, on the form of a $(D Node[Node]) array.
+associative array) and a previous node tree, in the form of a $(D Node[Node]) array.
 */
 Tuple!(double[Label!N], Label!N[Label!N]) dagShortestPath(N,E,L)(Graph!(N,E) g, L begin, bool checkForAcyclicity = false)
     if (   is(Label!N == L)
@@ -741,13 +746,13 @@ string toGraphviz(N,E)(Graph!(N,E) g, string name = "graph")
 Given a module name, $(M _dependencyGraph) will explore its code, extract the import statements and recursively visit the corresponding modules.
 If you don't want it to visit the $(D std.*) or $(D core.*) part, juste use:
 ----
-auto ig = dependencyGraph("myModule");
+auto dg = dependencyGraph("myModule");
 ----
 If you want it to explore the std.* and core.* modules, you must give it the directory where $(D DMD) is installed. It will then calculate the dependency
 graph of $(D Phobos) and the runtime along your own project's graph. Use like this:
 ----
-auto ig = dependencyGraph("myModule", r"C:\dmd\");
-toGraphviz(ig, "imports");
+auto dg = dependencyGraph("myModule", r"C:\dmd\");
+toGraphviz(dg, "imports");
 // then, in a command line: >> dot imports.dot -o imports.pdf
 ----
 Returns: a $(M Graph), with nodes the modules names and edges pointing to imported modules.

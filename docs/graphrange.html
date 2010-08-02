@@ -29,66 +29,6 @@ Distributed under the Boost Software License, Version 1.0.
 <script>explorer.outline.incSymbolLevel();</script>
 <dl>
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Node[] 
-<span class="currsymbol">nodes</span>
-<script>explorer.outline.addDecl('nodes');</script>
-
-(Graph <span class="funcparam">g</span>);
-</span></dt>
-<script>explorer.outline.writeEnabled = false;</script>
-
-
-<dd>Basic function returning <span class="funcparam">g</span>'s 
-<span class="currsymbol">nodes</span>
-<script>explorer.outline.addDecl('nodes');</script>
-
-, as they were entered at creation. It's a 'greedy'
-range, as it returns the entire array in one time (which is an O(1) operation, so no big deal).
-<br><br>
-<b>Example:</b><br>
-<pre class="d_code">Graph <i>g</i>;
-<font color=blue>foreach</font>(node; <u>nodes</u>(<i>g</i>)) {
-    <font color=green>//... do stuff
-</font>}
-</pre>
-<br><br>
-
-</dd>
-
-<script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Concat!(Edge[][]) 
-<span class="currsymbol">edges</span>
-<script>explorer.outline.addDecl('edges');</script>
-
-(Graph <span class="funcparam">g</span>);
-</span></dt>
-<script>explorer.outline.writeEnabled = false;</script>
-
-
-<dd>Another simple function returning <span class="funcparam">g</span>'s 
-<span class="currsymbol">edges</span>
-<script>explorer.outline.addDecl('edges');</script>
-
- as a lazy range. You can modify the
-
-<span class="currsymbol">edges</span>
-<script>explorer.outline.addDecl('edges');</script>
-
- in the graph in this way.
-<br><br>
-<b>Example:</b><br>
-<pre class="d_code">Graph <i>g</i>;
-<font color=green>// constructing g, with different edges' lengths.
-</font><font color=blue>foreach</font>(edge; <u>edges</u>(g3)) {
-    edge.changeProperty(<font color=red>"length"</font>, 1.0);
-}
-<font color=green>// Now, all edges have the same unit length
-</font></pre>
-<br><br>
-
-</dd>
-
-<script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">enum 
 <span class="currsymbol">TraversalMode</span>
 <script>explorer.outline.addDecl('TraversalMode');</script>
@@ -106,33 +46,72 @@ range, as it returns the entire array in one time (which is an O(1) operation, s
 <span class="currsymbol">GraphTraversal</span>
 <script>explorer.outline.addDecl('GraphTraversal');</script>
 
-(TraversalMode travmode);
+(N,E,TraversalMode travmode) if (isNode!(N) &amp;&amp; isEdge!(E));
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd>A lazy range struct that traverses a graph in a depth-first or breadth-first manner,
-as specified at creation with the TraversalMode enum.<br><br>
+as specified at creation with the TraversalMode enum. It produces labels, not the nodes or their values.
+<br><br>
+<b>See Also:</b><br>
+traversal, valueTraversal.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">GraphTraversal!(cast(TraversalMode)0) 
-<span class="currsymbol">depthFirst</span>
-<script>explorer.outline.addDecl('depthFirst');</script>
+<dt><span class="decl">GraphTraversal!(N,E,trav) 
+<span class="currsymbol">traversal</span>
+<script>explorer.outline.addDecl('traversal');</script>
 
-(Graph <span class="funcparam">g</span>);
-<br>GraphTraversal!(cast(TraversalMode)1) 
-<span class="currsymbol">breadthFirst</span>
-<script>explorer.outline.addDecl('breadthFirst');</script>
-
-(Graph <span class="funcparam">g</span>);
+(TraversalMode trav, N, E, L)(Graph!(N,E) <span class="funcparam">graph</span>, L <span class="funcparam">label</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>Helper function to create a Traversal struct.
-I have problems with default template values.<br><br>
+<dd>Generic function to create a Traversal struct. Prefer the use of depthFirst or breadthFirst.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">GraphTraversal!(N,E,TraversalMode.DepthFirst) 
+<span class="currsymbol">depthFirst</span>
+<script>explorer.outline.addDecl('depthFirst');</script>
+
+(N, E, L)(Graph!(N,E) <span class="funcparam">graph</span>, L <span class="funcparam">label</span>);
+<br>GraphTraversal!(N,E,TraversalMode.BreadthFirst) 
+<span class="currsymbol">breadthFirst</span>
+<script>explorer.outline.addDecl('breadthFirst');</script>
+
+(N, E, L)(Graph!(N,E) <span class="funcparam">graph</span>, L <span class="funcparam">label</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Returns a range that traverses the graph in a depth-first or breadth-first way, from the node labeled label. The graph returns labels, not nodes.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">TMapType!("a[b].value",Repeat!(Graph!(N,E)),GraphTraversal!(N,E,TraversalMode.DepthFirst)) 
+<span class="currsymbol">depthFirstValues</span>
+<script>explorer.outline.addDecl('depthFirstValues');</script>
+
+(N, E, L)(Graph!(N,E) <span class="funcparam">graph</span>, L <span class="funcparam">label</span>);
+<br>TMapType!("a[b].value",Repeat!(Graph!(N,E)),GraphTraversal!(N,E,TraversalMode.BreadthFirst)) 
+<span class="currsymbol">breadthFirstValues</span>
+<script>explorer.outline.addDecl('breadthFirstValues');</script>
+
+(N, E, L)(Graph!(N,E) <span class="funcparam">graph</span>, L <span class="funcparam">label</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Returns a range that traverses the graph in a depth-first or breadth-first way, from node label, and returns
+the nodes value.
+<br><br>
+<b>Note:</b><br>
+first try, probably horribly inefficient.<br><br>
 
 </dd>
 </dl>
@@ -143,7 +122,7 @@ I have problems with default template values.<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Mon Jun 14 14:51:16 2010
+			on Tue Aug  3 00:04:03 2010
 
 		</td></tr>
 	</table>

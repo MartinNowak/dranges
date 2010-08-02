@@ -16,7 +16,7 @@
 Some algorithms on graphs: extracting the meta-graph, finding path
 in the graph and such.
 <br><br>
-All the algorithms in this module come from their descriptions in
+The most complicated algorithms in this module come from their descriptions in
 <a href = "http://www.cs.berkeley.edu/~vazirani/algorithms.html">this book</a>.
 
 <br><br>
@@ -34,65 +34,58 @@ Distributed under the Boost Software License, Version 1.0.
 <script>explorer.outline.incSymbolLevel();</script>
 <dl>
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Node[] 
-<span class="currsymbol">explore</span>
-<script>explorer.outline.addDecl('explore');</script>
+<dt><span class="decl">Graph!(N,E) 
+<span class="currsymbol">complementGraph</span>
+<script>explorer.outline.addDecl('complementGraph');</script>
 
-(Graph <span class="funcparam">g</span>, Node <span class="funcparam">n</span>, bool[Node] <span class="funcparam">visited</span> = (AssociativeArray!(Node,bool)).init);
-</span></dt>
-<script>explorer.outline.writeEnabled = false;</script>
-
-
-<dd>Explore a graph <span class="funcparam">g</span> from the node <span class="funcparam">n</span>. The use of recursion makes it similar to depth-first
-traversal.
-Returns :
-An array of nodes, which are the nodes reachable from node <span class="funcparam">n</span>.<br><br>
-
-</dd>
-
-<script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Node[][] 
-<span class="currsymbol">connectedComponents</span>
-<script>explorer.outline.addDecl('connectedComponents');</script>
-
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd><b>Returns:</b><br>
-The graph connected components: sub-graphs that are connected.<br><br>
+the complement graph of g: same nodes, but complementary edges:
+for each pair (u,v) in g.nodes, if (u,v) is in g, then it's not in the complement.
+Conversely, if (u,v) is not in g, then it's an edge in the complement.
+<br><br>
+<b>See Also:</b><br>
+<b><code>reversedGraph</code></b>.
+
+<br><br>
+<b>TODO:</b><br>
+conserve the edge properties<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Tuple!(Node[],int[Node],int[Node]) 
-<span class="currsymbol">clock</span>
-<script>explorer.outline.addDecl('clock');</script>
+<dt><span class="decl">Graph!(N,E) 
+<span class="currsymbol">completedGraph</span>
+<script>explorer.outline.addDecl('completedGraph');</script>
 
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd><b>Returns:</b><br>
-In a tuple, the nodes sorted by decreasing post number and the pre and post-visit timings of <span class="funcparam">g</span> nodes, in associative arrays pre and post.<br><br>
+the complete graph with the same nodes as g. A complete graph has all possible edges.
+(also, its density is 1.0).<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Graph 
+<dt><span class="decl">Graph!(N,E) 
 <span class="currsymbol">reversedGraph</span>
 <script>explorer.outline.addDecl('reversedGraph');</script>
 
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd><b>Returns:</b><br>
-The reverse graph of <span class="funcparam">g</span>: same nodes, vertices inverted
-(ie: an edge going from A to B becomes an edge from B to A, with the same properties).
+The reverse graph of g: same nodes, edges inverted
+(ie: an edge going from A to B becomes an edge from B to A).
 This graph is useful in certain algorithms, like decomposing
 a graph into its strongly connected components and creating its metagraph.
 <br><br>
@@ -101,73 +94,133 @@ it's not smart enough to reverse the edges' classification, if any (that would
 need distinguishing between forward and tree edges).
 <br><br>
 <b>See Also:</b><br>
-isAcyclic(Graph <span class="funcparam">g</span>).<br><br>
+isAcyclic(Graph g).
+<br><br>
+<b>BUG:</b><br>
+refactoring, the egdes properties such as their length/weight are not properly propagated right now.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Node[][] 
+<dt><span class="decl">Label!(N)[] 
+<span class="currsymbol">explore</span>
+<script>explorer.outline.addDecl('explore');</script>
+
+(N, E, L)(Graph!(N,E) <span class="funcparam">g</span>, L <span class="funcparam">l</span>, bool[L] <span class="funcparam">visited</span> = (bool[L]).init);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Explore a graph g from the node labeled l. The use of recursion makes it similar to depth-first
+traversal.
+Returns :
+An array of labels, which are the nodes reachable from node l.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Label!(N)[][] 
+<span class="currsymbol">connectedComponents</span>
+<script>explorer.outline.addDecl('connectedComponents');</script>
+
+(N, E)(UndirectedGraph!(N,E) <span class="funcparam">g</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd><b>Returns:</b><br>
+As a list of list of labels, the undirected graph connected components: the groups of nodes that are connected together.
+<br><br>
+
+For example:
+<pre class="d_code">[[<font color=red>"A"</font>,<font color=red>"B"</font>], [<font color=red>"C"</font>], [<font color=red>"D"</font>, <font color=red>"E"</font>, <font color=red>"F"</font>]]
+</pre>
+means that A and B have a common edge, that C is alone and that D, E and F can be reached from one another.
+
+<br><br>
+<b>BUG:</b><br>
+UndirectedGraph is being redesigned.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Tuple!(Label!(N)[],int[Label!(N)],int[Label!(N)]) 
+<span class="currsymbol">clock</span>
+<script>explorer.outline.addDecl('clock');</script>
+
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd><b>Returns:</b><br>
+In a tuple, the nodes sorted by decreasing post number and the pre and post-visit timings of g nodes, in associative arrays pre and post.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Label!(N)[][] 
 <span class="currsymbol">stronglyConnectedComponents</span>
 <script>explorer.outline.addDecl('stronglyConnectedComponents');</script>
 
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd><b>Returns:</b><br>
-The list of strongly connected components (the nodes of sub-graphs
-where all nodes can be reached from one another).<br><br>
+The list of strongly connected components of g. That is, the nodes of sub-graphs
+where all nodes can be reached from one another.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Graph[] 
+<dt><span class="decl">Graph!(N,E)[] 
 <span class="currsymbol">subGraphs</span>
 <script>explorer.outline.addDecl('subGraphs');</script>
 
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd><b>Returns:</b><br>
-The subgraphs created by the strongly connected components.<br><br>
+The subgraphs created by the strongly connected components of a graph.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Tuple!(Graph,Graph[]) 
+<dt><span class="decl">Graph!(Node!(string,Graph!(N,E)),Edge!(string)) 
 <span class="currsymbol">metaGraph</span>
 <script>explorer.outline.addDecl('metaGraph');</script>
 
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd><b>Returns:</b><br>
-The meta-graph associated to <span class="funcparam">g</span>. That's the graph whose nodes are the subgraphs of <span class="funcparam">g</span>
-and the edges the edges between these subgraphs. The meta-graph nodes names are the concatenation
-of each subgraphs nodes names.
-<br><br>
-
-As is internally calls subGraphs, it returns the resulting subgraphs in a tuple
-with the meta-graph proper (the two are mostly used together). The scc list can be obtained
-as the subgraphs' nodes.
+The meta-graph associated to g. That's the graph whose nodes are the subgraphs of g
+and the edges the edges between these subgraphs. The meta-graph nodes labels are the concatenation
+of each subgraphs nodes labels (cast to strings). The subgraphs are stored as the nodes values. This operation
+is also sometimes called the compaction, reduction or shrinking of a graph.
 
 <br><br>
 <b>Note:</b><br>
-It could be coded more efficiently: all these successsive functions (reversedGraph - clock
-- stronglyConnectedComponents - subGraphs - 
+It could be coded more efficiently: all these successsive functions (<b><code>reversedGraph</code></b> - <b><code>clock</code></b>
+- <b><code>stronglyConnectedComponents</code></b> - <b><code>subGraphs</code></b> - <b><code>
 <span class="currsymbol">metaGraph</span>
 <script>explorer.outline.addDecl('metaGraph');</script>
 
-) could be integrated into one metagraph function: some
+</code></b>) could be integrated into one metagraph function: some
 work is duplicated: while we extract the scc, we could create the metanodes and their names, and
 get the outgoing edge without having to painfully find them afterwards as is done there.
-But, who cares: for my graphs, it takes a fraction of second to find the MG: there is no need right now to spend 2 days to
-shave off some ms.<br><br>
+But I'm aiming at making it work first. For my graphs, it takes a fraction of second to find the MG.
+
+<br><br>
+<b>Note:</b><br>
+I could also ask for a <b><code>labelize</code></b> function that'd creates the metagraph nodes labels from
+the original labels, instead of casting them to string and concatenating them.<br><br>
 
 </dd>
 
@@ -185,17 +238,17 @@ shave off some ms.<br><br>
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">void 
+<dt><span class="decl">EdgeClassification[E] 
 <span class="currsymbol">classifyEdges</span>
 <script>explorer.outline.addDecl('classifyEdges');</script>
 
-(ref Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd>Classify edges between Tree&Forward edges, back edges and cross edges, without distinguishing
-between Tree and Forward. It will modify the graph, adding properties to the edges.<br><br>
+between Tree and Forward. It returns this property map as an associative array.<br><br>
 
 </dd>
 
@@ -204,7 +257,7 @@ between Tree and Forward. It will modify the graph, adding properties to the edg
 <span class="currsymbol">isAcyclic</span>
 <script>explorer.outline.addDecl('isAcyclic');</script>
 
-(ref Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
@@ -215,95 +268,123 @@ True if the graph is acyclic, <b>false</b> otherwise.<br><br>
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Graph 
+<dt><span class="decl">Graph!(N,E) 
 <span class="currsymbol">linearize</span>
 <script>explorer.outline.addDecl('linearize');</script>
 
-(Graph <span class="funcparam">g</span>, bool <span class="funcparam">testForAcyclic</span> = false);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>, bool <span class="funcparam">testForAcyclic</span> = false);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd><b>Returns:</b><br>
-The linearized version of a Directed Acyclic Graph (DAG).<br><br>
+The linearized version of a Directed Acyclic Graph (DAG). As there is no static way
+to know if a Graph is a DAG, you can use the flag testForAcyclic to decide if
+you want to test or not.
+<br><br>
+<b>TODO:</b><br>
+either a DAG struct, or an AssumeAcyclic!Graph template.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">uint[Node] 
+<dt><span class="decl">int[Label!(N)] 
 <span class="currsymbol">numNodesFrom</span>
 <script>explorer.outline.addDecl('numNodesFrom');</script>
 
-(Graph <span class="funcparam">g</span>, Node <span class="funcparam">from</span>);
+(N, E, L)(Graph!(N,E) <span class="funcparam">g</span>, L <span class="funcparam">from</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd><b>Returns:</b><br>
-The distance (in number of nodes) between node n and all other nodes, as an associative array.
-dist(n,n) = 0.
-if node B is not reachable <span class="funcparam">from</span> node A, distanceFrom(<span class="funcparam">g</span>, A)[B] = size_t.max;
+The distance (in number of nodes) between node from and all other nodes, as an associative array.
+The distance from from to from is 0.
+if node B is not reachable from node A, distanceFrom(g, A)[B] = int.max. Why not -1? Because
+it's not correctly ordered with other distance and some functions here (like the radius or diameter
+or a graph) sort node-distances.
 <br><br>
 <b>Remark:</b><br>
-another solution would be not to include B as a key in the associative array. Why not?<br><br>
+another solution would be not to include B as a key in the associative array, maybe.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Tuple!(double[Node],Node[Node]) 
+<dt><span class="decl">int[Label!(N)][Label!(N)] 
+<span class="currsymbol">distanceMatrix</span>
+<script>explorer.outline.addDecl('distanceMatrix');</script>
+
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd><b>Returns:</b><br>
+the distance matrix for g: the distance (in number of nodes)
+from node a to node b, far all nodes in the graph. It returns it as
+a double associative array. result[label1][label2] is the distance from 1
+to 2. If there is not path, the distance is <b><font color=blue>int.max</font></b>.
+<br><br>
+<b>TODO:</b><br>
+make it more efficient. <b><code>numNodesFrom</code></b> already makes a big part of the job.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Tuple!(double[Label!(L)],Label!(N)[Label!(N)]) 
 <span class="currsymbol">dijkstra</span>
 <script>explorer.outline.addDecl('dijkstra');</script>
 
-(Graph <span class="funcparam">g</span>, Node <span class="funcparam">begin</span>, bool <span class="funcparam">checkForNegativeLength</span> = false);
+(N, E, L)(Graph!(N,E) <span class="funcparam">g</span>, L <span class="funcparam">begin</span>, bool <span class="funcparam">checkForNegativeLength</span> = false);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd>Implements Dijkstra's shortest path algorithm.
-It takes for input a Graph <span class="funcparam">g</span> whose edges must have a positive "length" property (the
-algorithm expect a length stored as a double). It's a O(N+E) algorithm, where
-N is <span class="funcparam">g</span>'s number of nodes and E its number of edges.
+It takes for input a Graph g which edges must have a positive "length" property
+which must be numerical (castable to <b><font color=blue>double</font></b>) and a beginning label. It's a <b><font color=blue>O(n+e)</font></b> algorithm, where
+<b><code>n</code></b> is number of nodes in g and <b><code>e</code></b> its number of edges.
 <br><br>
-A optional parameter, <span class="funcparam">checkForNegativeLength</span> (default to <b>false</b>, no check) forces
+An optional parameter, checkForNegativeLength (defaults to <b><font color=blue><b>false</b></font></b>, no check) forces
 the function to verify that each encountered edge length is not negative. It will
 throw an Exception if such an edge is found.
 
 <br><br>
 <b>Returns:</b><br>
-As the other 'shortest path' algortihm in this module,
+As the other 'shortest path' algorithms in this module,
+<b><code>dijkstra</code></b> returns a tuple which has for first field an array containing
+the shortest distance from begin to the other nodes (a <b><font color=blue>double[node]</font></b> associative array).
+If a node cannot be reached, the distance is <b><font color=blue>double.infinity</font></b>.
+The second field contains the predecessor of each node in their path to begin: a Label!N[Label!N] array.
 
-<span class="currsymbol">dijkstra</span>
-<script>explorer.outline.addDecl('dijkstra');</script>
-
- returns a tuple which has for first field an array containing
-the shortest distance from <span class="funcparam">begin</span> to the other nodes (a <b><font color=blue>double[node]</font></b> associative array).
-If a node cannot be reached, the distance is ($D double.max).
-The second field contains the predecessor of each node in their path to <span class="funcparam">begin</span>: a Node[Node] array.<br><br>
+<br><br>
+<b>TODO:</b><br>
+see to this internal index problem.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Tuple!(double[Node],Node[Node]) 
+<dt><span class="decl">Tuple!(double[Label!(N)],Label!(N)[Label!(N)]) 
 <span class="currsymbol">bellmanFord</span>
 <script>explorer.outline.addDecl('bellmanFord');</script>
 
-(Graph <span class="funcparam">g</span>, Node <span class="funcparam">begin</span>, bool <span class="funcparam">checkForNegativeCycle</span> = false);
+(N, E, L)(Graph!(N,E) <span class="funcparam">g</span>, L <span class="funcparam">begin</span>, bool <span class="funcparam">checkForNegativeCycle</span> = false);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd>Implements the Bellman-Ford algorithm for finding the shortest path
 in graphs with positive or negative edge length.  It imposes almost
-no condition on the graph, but it's a O(N*E) algorithm, where
-N is the number of nodes, and E is the number of edges. As such,it could
-be slower than dijkstra or dagShortestPath (my own timings on small
+no condition on the graph, but it's a <b><code>O(n*e)</code></b> algorithm, where
+<b><code>n</code></b> is the number of nodes, and <b><code>e</code></b> is the number of edges. As such,it could
+be slower than <b><code>dijkstra</code></b> or <b><code>dagShortestPath</code></b> (my own timings on small
 graphs show on the contrary Bellman-Ford to be the quickest of the three).
 <br><br>
-The only condition on the graph is that there must be not negative cycle
-(cycles whose total length is negative), but it's a general condition on shortest path algorithms:
+The only condition on the graph is that there must be no negative cycle
+(cycles with a negative total length), but it's a general condition on shortest path algorithms:
 if there is a negative cycle, you can take it many times in your path,
 each time decreasing the path total length, without limit. An optional argument
-<span class="funcparam">checkForNegativeCycle</span> (default value: <b>false</b>) will provoke such a test (it's done at the end
+checkForNegativeCycle (default value: <b><font color=blue><b>false</b></font></b>) will provoke such a test (it's done at the end
 of the computation, so it does not change the global speed of 
 <span class="currsymbol">bellmanFord</span>
 <script>explorer.outline.addDecl('bellmanFord');</script>
@@ -311,63 +392,79 @@ of the computation, so it does not change the global speed of
 ).
 <br><br>
 
-As with other 'shortest path' algorithm (dijkstra and dagShortestPath), it takes for input
-a Graph and a Node inside the graph and returns a tuple of distances from the node (a double[Node]
-associative array) and a previous node tree, on the form of a Node[Node] array.<br><br>
+Obviously, the graph edges must have a <b><code>.length</code></b> member. This length will be cast to <b><font color=blue>double</font></b>,
+two nodes not connected having a distance of <b><font color=blue>double.infinity</font></b>.
+<br><br>
+
+As with other 'shortest path' algorithm (<b><code>dijkstra</code></b> and <b><code>dagShortestPath</code></b>), it takes for input
+a <b><code>Graph</code></b> and the label of a node, and returns a tuple of distances from the node (a <b><font color=blue>double[Label]</font></b>
+associative array) and a previous node tree, in the form of a <b><font color=blue>Label[Label]</font></b> array.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Tuple!(double[Node],Node[Node]) 
+<dt><span class="decl">Tuple!(double[Label!(N)],Label!(N)[Label!(N)]) 
 <span class="currsymbol">dagShortestPath</span>
 <script>explorer.outline.addDecl('dagShortestPath');</script>
 
-(Graph <span class="funcparam">g</span>, Node <span class="funcparam">begin</span>, bool <span class="funcparam">checkForAcyclicity</span> = false);
+(N, E, L)(Graph!(N,E) <span class="funcparam">g</span>, L <span class="funcparam">begin</span>, bool <span class="funcparam">checkForAcyclicity</span> = false);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd>Implements a shortest path algorithm for DAG (Directed Acyclic Graphs).
-As these can be linearized (with linearize(Graph <span class="funcparam">g</span>)), there is a simple
+As these can be linearized (with linearize(Graph g)), there is a simple
 O(E) algorithm for them.
 <br><br>
-The optional argument <span class="funcparam">checkForAcyclicity</span> (default: <b>false</b>) forces a check
-on <span class="funcparam">g</span>'s acyclicity. In case a cycle is found, an Exception is throw.
+The optional argument checkForAcyclicity (default: <b>false</b>) forces a check
+on g's acyclicity. In case a cycle is found, an Exception is throw.
 <br><br>
 
-As with other 'shortest path' algorithm (dijkstra and bellmanFord), it takes for input
-a Graph and a Node inside the graph and returns a tuple of distances from the node (a double[Node]
-associative array) and a previous node tree, on the form of a Node[Node] array.<br><br>
+As with other 'shortest path' algorithm (<b><font color=blue>dijkstra</font></b> and <b><font color=blue>bellmanFord</font></b>), it takes for input
+a <b><font color=blue>Graph</font></b> and a label inside the graph and returns a tuple of distances from the node (a <b><font color=blue>double[Label!N]</font></b>
+associative array) and a previous node tree, in the form of a <b><font color=blue>Node[Node]</font></b> array.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Tuple!(Node[],double) 
+<dt><span class="decl">Tuple!(Label!(N)[],double) 
 <span class="currsymbol">shortestPath</span>
 <script>explorer.outline.addDecl('shortestPath');</script>
 
-(alias algo = bellmanFord)(Graph <span class="funcparam">g</span>, Node <span class="funcparam">from</span>, Node <span class="funcparam">to</span>, bool <span class="funcparam">check</span> = false);
+(alias algo = bellmanFord, N, E, L)(Graph!(N,E) <span class="funcparam">g</span>, L <span class="funcparam">from</span>, L <span class="funcparam">to</span>, bool <span class="funcparam">check</span> = false);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd>Gives the shortest path in g between g's nodes from and to. The algorithm
-used is selected by the caller with the template parameter algo. Just pass
-the name of the function (it defaults to bellmanFord, the most generic but also
+used is selected by the caller with the template parameter <b><font color=blue>algo</font></b>. Just pass
+the name of the function (it defaults to <b><font color=blue>bellmanFord</font></b>, the most generic but also
 in theory the slowest algorithm).
 <br><br>
 The optional argument check (default: <b>false</b>), if set to <b>true</b>, uses the 'with checks'
 version of the algorithm.
 
 <br><br>
-<b>Example:</b><br>
-<pre class="d_code">Graph g;
-Node from, begin;
-<font color=blue>auto</font> path = <u>shortestPath</u>!(dijkstra)(g, from, to).
-</pre>
-<br><br>
 <b>Returns:</b><br>
-a tuple of the path (a Node[] array) and the distance (a double).<br><br>
+a tuple of the distance (a <b><font color=blue>double</font></b>) and the path (a <b><font color=blue>Label[]</font></b> array) between from and to.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">size_t 
+<span class="currsymbol">order</span>
+<script>explorer.outline.addDecl('order');</script>
+
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>The 
+<span class="currsymbol">order</span>
+<script>explorer.outline.addDecl('order');</script>
+
+ of a graph is the maximum valency of its nodes.<br><br>
 
 </dd>
 
@@ -376,16 +473,18 @@ a tuple of the path (a Node[] array) and the distance (a double).<br><br>
 <span class="currsymbol">eccentricity</span>
 <script>explorer.outline.addDecl('eccentricity');</script>
 
-(Graph <span class="funcparam">g</span>, Node <span class="funcparam">n</span>);
+(N, E, L)(Graph!(N,E) <span class="funcparam">g</span>, L <span class="funcparam">label</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>the 
+<dd><b>Returns:</b><br>
+the 
 <span class="currsymbol">eccentricity</span>
 <script>explorer.outline.addDecl('eccentricity');</script>
 
- of a graph.<br><br>
+ of a node in a graph. That's
+the longest path (in number of nodes) from this node to any other node in the graph.<br><br>
 
 </dd>
 
@@ -394,7 +493,7 @@ a tuple of the path (a Node[] array) and the distance (a double).<br><br>
 <span class="currsymbol">radius</span>
 <script>explorer.outline.addDecl('radius');</script>
 
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
@@ -403,7 +502,10 @@ a tuple of the path (a Node[] array) and the distance (a double).<br><br>
 <span class="currsymbol">radius</span>
 <script>explorer.outline.addDecl('radius');</script>
 
- of a graph.<br><br>
+ of a graph (the smallest excentricity among all nodes)
+<br><br>
+<b>TODO:</b><br>
+can probably coded in a more efficient way, I'll see.<br><br>
 
 </dd>
 
@@ -412,7 +514,7 @@ a tuple of the path (a Node[] array) and the distance (a double).<br><br>
 <span class="currsymbol">diameter</span>
 <script>explorer.outline.addDecl('diameter');</script>
 
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
@@ -421,30 +523,16 @@ a tuple of the path (a Node[] array) and the distance (a double).<br><br>
 <span class="currsymbol">diameter</span>
 <script>explorer.outline.addDecl('diameter');</script>
 
- of a graph.<br><br>
+ of a graph, ie its highest excentricity among nodes.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">uint[Node][Node] 
-<span class="currsymbol">accessibilityMatrix</span>
-<script>explorer.outline.addDecl('accessibilityMatrix');</script>
-
-(Graph <span class="funcparam">g</span>);
-</span></dt>
-<script>explorer.outline.writeEnabled = false;</script>
-
-
-<dd>the accessibility matrix.<br><br>
-
-</dd>
-
-<script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Graph 
+<dt><span class="decl">Graph!(N,E) 
 <span class="currsymbol">subgraph</span>
 <script>explorer.outline.addDecl('subgraph');</script>
 
-(Graph <span class="funcparam">g</span>, Node[] <span class="funcparam">nodes</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>, L[] <span class="funcparam">labels</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
@@ -453,26 +541,78 @@ a tuple of the path (a Node[] array) and the distance (a double).<br><br>
 <span class="currsymbol">subgraph</span>
 <script>explorer.outline.addDecl('subgraph');</script>
 
- of <span class="funcparam">g</span> corresponding from the <span class="funcparam">nodes</span> array.<br><br>
+ of g corresponding from the nodes array.<br><br>
 
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Graph 
+<dt><span class="decl">Graph!(N,E) 
 <span class="currsymbol">minimumSpanningTree</span>
 <script>explorer.outline.addDecl('minimumSpanningTree');</script>
 
-(Graph <span class="funcparam">g</span>);
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>);
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>Implements Kruskal's minimum spanning tree algorithm. See algorithms.pdf on p. 139.
+<dd>Implements Kruskal's minimum spanning tree algorithm.
 The minimum spanning tree of a graph is a tree that connects all the graph's nodes
-using lowest possible length/weight for all edges.
+using lowest possible length for all edges. The edges must have a <b><code>.length</code></b> member.
 <br><br>
 <b>Returns:</b><br>
-<span class="funcparam">g</span>'s spanning tree, as a Graph.<br><br>
+g's spanning tree, here as a Graph.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">string 
+<span class="currsymbol">toGraphviz</span>
+<script>explorer.outline.addDecl('toGraphviz');</script>
+
+(N, E)(Graph!(N,E) <span class="funcparam">g</span>, string <span class="funcparam">name</span> = "graph");
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd><b>Returns:</b><br>
+a string giving the graph representation using the dot language, from Graphviz.
+<br><br>
+
+Also, writes the file <b><code>name</code></b>.dot to the current directory.
+
+<br><br>
+<b>Caution:</b><br>
+This is just a helper/debugging function to easily visualize the graphs. Use with caution.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">Graph!(Node!(string,string),Edge!(string)) 
+<span class="currsymbol">dependencyGraph</span>
+<script>explorer.outline.addDecl('dependencyGraph');</script>
+
+(string <span class="funcparam">moduleName</span>, string <span class="funcparam">DMDPath</span> = "");
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Given a module name, <b><code>dependencyGraph</code></b> will explore its code, extract the import statements and recursively visit the corresponding modules.
+If you don't want it to visit the <b><font color=blue>std.*</font></b> or <b><font color=blue>core.*</font></b> part, juste use:
+<pre class="d_code"><font color=blue>auto</font> dg = <u>dependencyGraph</u>(<font color=red>"myModule"</font>);
+</pre>
+If you want it to explore the std.* and core.* modules, you must give it the directory where <b><font color=blue>DMD</font></b> is installed. It will then calculate the dependency
+graph of <b><font color=blue>Phobos</font></b> and the runtime along your own project's graph. Use like this:
+<pre class="d_code"><font color=blue>auto</font> dg = <u>dependencyGraph</u>(<font color=red>"myModule"</font>, <font color=red>r"C:\dmd\"</font>);
+toGraphviz(dg, <font color=red>"imports"</font>);
+<font color=green>// then, in a command line: &gt;&gt; dot imports.dot -o imports.pdf
+</font></pre>
+<br><br>
+<b>Returns:</b><br>
+a <b><code>Graph</code></b>, with nodes the modules names and edges pointing to imported modules.
+
+<br><br>
+<b>BUG:</b><br>
+I don't get how <b><font color=blue>core.*</font></b> is organized. For now, it doesn't visit the core modules. It create them in the graph, though.<br><br>
 
 </dd>
 </dl>
@@ -483,7 +623,7 @@ using lowest possible length/weight for all edges.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Mon Jun 14 14:51:16 2010
+			on Tue Aug  3 00:04:03 2010
 
 		</td></tr>
 	</table>
