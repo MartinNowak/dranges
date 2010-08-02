@@ -11,82 +11,54 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.graphrange;
 
+import std.array, std.contracts, std.range;
+
 import dranges.graph, dranges.stack, dranges.queue, dranges.range2;
-
-// TODO : EdgeRange that return 'true' edges (node doublets)
-// TODO : the same, but lazy, so as not to use two O(N+E) operations to iterate on edges.
-
-/**
-Basic function returning g's nodes, as they were entered at creation. It's a 'greedy'
-range, as it returns the entire array in one time (which is an O(1) operation, so no big deal).
-Example:
-----
-Graph g;
-foreach(node; nodes(g)) {
-    //... do stuff
-}
-----
-*/
-Node[] nodes(Graph g) {
-    return g.nodes;
-}
-
-/**
-Another simple function returning g's edges as a lazy range. You can modify the
-edges in the graph in this way.
-Example:
-----
-Graph g;
-// constructing g, with different edges' lengths.
-foreach(edge; edges(g3)) {
-    edge.changeProperty("length", 1.0);
-}
-// Now, all edges have the same unit length
-----
-*/
-Concat!(Edge[][]) edges(Graph g) {
-    return concat(g.edges.values);
-}
-
+import dranges.algorithm2;
 
 ///
 enum TraversalMode {DepthFirst, BreadthFirst};
 
 /**
 A lazy range struct that traverses a graph in a depth-first or breadth-first manner,
-as specified at creation with the TraversalMode enum.
+as specified at creation with the TraversalMode enum. It produces labels, not the nodes or their values.
+See_Also: traversal, valueTraversal.
 */
-struct GraphTraversal(TraversalMode travmode) {
-    bool[Node] visited;
-    Graph graph;
+struct GraphTraversal(N,E,TraversalMode travmode) if (isNode!N && isEdge!E)
+{
+    alias typeof(N.label) Label;
+    bool[Label] visited;
+    Graph!(N,E) graph;
+
     static if (travmode == TraversalMode.DepthFirst)
-        Stack!(Node) toBeVisited;
+        Stack!Label toBeVisited;
     else
-        Queue!(Node) toBeVisited;
+        Queue!Label toBeVisited;
 
-    this(Graph g) {
-        this(g, g.nodes[0]); // No first node given: we begin on g's first node.
+    this(Graph!(N,E) g) {
+        this(g, g.labels.front); // No first node given: we begin on g's "first" node.
     }
 
-    this(Graph g, Node n) {
+    this(Graph!(N,E) g, Label l) {
+        enforce(l in g);
         graph = g;
-        toBeVisited = typeof(toBeVisited)(g.numNodes());
-        toBeVisited.push(n); // The node n is the beginning of the traversal.
+        toBeVisited = typeof(toBeVisited)(g.size);
+        toBeVisited.push(l); // The node n is the beginning of the traversal.
     }
 
-    Node front() {
+    Label front() {
         return toBeVisited.top();
     }
 
-    void pushNodes(Node first) {
+    void pushNodes(Label first) {
         static if (travmode == TraversalMode.DepthFirst) { // depth -> stack -> foreach_reverse
-            foreach_reverse(edge; graph.edges[first]) {
-                if (!(edge.to in visited)) toBeVisited.push(edge.to);
+            foreach_reverse(Label l; graph.neighbors(first)) { // node
+                if (!(l in visited)) toBeVisited.push(l);
             }
         }
         else { // breadth -> queue -> foreach
-            foreach(edge; graph.edges[first]) {
-                if (!(edge.to in visited)) toBeVisited.push(edge.to);
+            foreach(Label l; graph.neighbors(first)) {
+                if (!(l in visited)) toBeVisited.push(l);
             }
         }
     }
@@ -107,14 +79,43 @@ struct GraphTraversal(TraversalMode travmode) {
 }
 
 /**
-Helper function to create a Traversal struct.
-I have problems with default template values.
+Generic function to create a Traversal struct. Prefer the use of depthFirst or breadthFirst.
 */
-GraphTraversal!(TraversalMode.DepthFirst) depthFirst(Graph g) {
-    return GraphTraversal!(TraversalMode.DepthFirst)(g);
-}
-/// ditto
-GraphTraversal!(TraversalMode.BreadthFirst) breadthFirst(Graph g) {
-    return GraphTraversal!(TraversalMode.BreadthFirst)(g);
+GraphTraversal!(N,E,trav)
+traversal(TraversalMode trav, N,E,L)(Graph!(N,E) graph, L label)
+if(is(typeof(N.label) == L))
+{
+    return GraphTraversal!(N,E,trav)(graph, label);
 }
 
+/**
+Returns a range that traverses the graph in a depth-first or breadth-first way, from the node labeled label. The graph returns labels, not nodes.
+*/
+GraphTraversal!(N,E,TraversalMode.DepthFirst) depthFirst(N,E,L)(Graph!(N,E) graph, L label) if(is(typeof(N.label) == L))
+{
+    return GraphTraversal!(N,E,TraversalMode.DepthFirst)(graph, label);
+}
+
+/// ditto
+GraphTraversal!(N,E,TraversalMode.BreadthFirst) breadthFirst(N,E,L)(Graph!(N,E) graph, L label) if(is(typeof(N.label) == L))
+{
+    return GraphTraversal!(N,E,TraversalMode.BreadthFirst)(graph, label);
+}
+
+/**
+Returns a range that traverses the graph in a depth-first or breadth-first way, from node label, and returns
+the nodes value.
+Note: first try, probably horribly inefficient.
+*/
+TMapType!("a[b].value", Repeat!(Graph!(N,E)), GraphTraversal!(N,E,TraversalMode.DepthFirst))
+depthFirstValues(N,E,L)(Graph!(N,E) graph, L label) if(is(typeof(N.label) == L))
+{
+    return tmap!"a[b].value"(repeat(graph), depthFirst(graph,label));
+}
+
+/// ditto
+TMapType!("a[b].value", Repeat!(Graph!(N,E)), GraphTraversal!(N,E,TraversalMode.BreadthFirst))
+breadthFirstValues(N,E,L)(Graph!(N,E) graph, L label) if(is(typeof(N.label) == L))
+{
+    return tmap!"a[b].value"(repeat(graph), breadthFirst(graph,label));
+}
