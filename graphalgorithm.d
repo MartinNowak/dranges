@@ -742,6 +742,25 @@ string toGraphviz(N,E)(Graph!(N,E) g, string name = "graph")
     return gv;
 }
 
+/// ditto
+string toGraphviz(N,E)(UndirectedGraph!(N,E) g, string name = "graph")
+{
+    string gv = "graph G { ratio = 1.0;";
+    bool[Label!N[]] visited;
+    foreach(e; g.edges)
+    {
+
+        if ([e.to, e.from] !in visited)
+        {
+            gv ~= "\"" ~ to!string(e.from) ~ ":" ~ to!string(g[e.from].value) ~ "\" -- \""~ to!string(e.to) ~ ":" ~ to!string(g[e.to].value) ~ "\";";
+            visited[[e.from, e.to]] = true;
+        }
+    }
+    gv ~= "}";
+    std.file.write(name~".dot", gv);
+    return gv;
+}
+
 /**
 Given a module name, $(M _dependencyGraph) will explore its code, extract the import statements and recursively visit the corresponding modules.
 If you don't want it to visit the $(D std.*) or $(D core.*) part, juste use:
@@ -753,7 +772,7 @@ graph of $(D Phobos) and the runtime along your own project's graph. Use like th
 ----
 auto dg = dependencyGraph("myModule", r"C:\dmd\");
 toGraphviz(dg, "imports");
-// then, in a command line: >> dot imports.dot -o imports.pdf
+// then, in a command line: >> dot -Tpdf imports.dot -o imports.pdf
 ----
 Returns: a $(M Graph), with nodes the modules names and edges pointing to imported modules.
 

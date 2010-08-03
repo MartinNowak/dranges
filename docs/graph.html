@@ -33,10 +33,8 @@ Then, for richer structures, nodes and edges can expose other members, typically
  like a double[Edge] AA giving the lengths of edges.)
 <br><br>
 
-As of this writing, I changed <b><code>Graph</code></b> to be a class, to easily derive from <b><code>Graph</code></b> an <b><code>UndirectedGraph</code></b> class and maybe a <b><code>DAG</code></b> class.
-I will see how it goes. Undirected could also just be factory functions build upon a Graph, but having an <b><code>UndirectedGraph</code></b> class allows me
-to restrict some algorithms to the correct input. See <b><code>connectedComponents</code></b> for example, in <b><code>dranges.graphalgorithm</code></b>. On the other hand
-directed acyclic graphs might be modelized by an <b><code>assumeAcyclic</code></b> wrapper, like <b><code>std.algorithm</code></b> does for sorted range. We'll see.
+As of this writing, I changed <b><code>Graph</code></b> back to a struct, and <b><code>UndirectedGraph</code></b> also. On the other hand
+directed acyclic graphs might be modelized by an <b><code>assumeAcyclic</code></b> wrapper, like <b><code>std.algorithm</code></b> does for sorted ranges. We'll see.
 
 <br><br>
 <b>TODO:</b><br>
@@ -47,7 +45,7 @@ module for similar ideas. I get the impression that I can unite recursive ranges
 
 <br><br>
 <b>TODO:</b><br>
-Once this has stabilized some, make <b><code>Graph</code></b> a container by provinding some of <b><code>std.container.TotalContainer</code></b> primitives. Not all make sense for a 
+Once this has stabilized some, make <b><code>Graph</code></b> a container by providing some of <b><code>std.container.TotalContainer</code></b> primitives. Not all make sense for a 
 <span class="currsymbol">graph</span>
 <script>explorer.outline.addDecl('graph');</script>
 
@@ -103,6 +101,19 @@ Distributed under the Boost Software License, Version 1.0.
 
 
 <dd>extracts the label type from a node.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">Value</span>
+<script>explorer.outline.addDecl('Value');</script>
+
+(N) if (isNode!(N))</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>extracts the value (payload) type from a node.<br><br>
 
 </dd>
 
@@ -238,7 +249,7 @@ a non-trivial way.<br><br>
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">class 
+<dt><span class="decl">struct 
 <span class="currsymbol">Graph</span>
 <script>explorer.outline.addDecl('Graph');</script>
 
@@ -282,6 +293,34 @@ the nodes have at least a label (its "name") and a value, and the edges link two
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">alias 
+<span class="currsymbol">LabelType</span>
+<script>explorer.outline.addDecl('LabelType');</script>
+
+;
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>exposed label type.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">alias 
+<span class="currsymbol">ValueType</span>
+<script>explorer.outline.addDecl('ValueType');</script>
+
+;
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>exposed payload type.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">template 
 <span class="currsymbol">opBinary</span>
 <script>explorer.outline.addDecl('opBinary');</script>
@@ -414,7 +453,7 @@ the nodes have at least a label (its "name") and a value, and the edges link two
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">size_t 
+<dt><span class="decl">void 
 <span class="currsymbol">addNode</span>
 <script>explorer.outline.addDecl('addNode');</script>
 
@@ -429,7 +468,7 @@ the nodes have at least a label (its "name") and a value, and the edges link two
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">size_t 
+<dt><span class="decl">void 
 <span class="currsymbol">addEdge</span>
 <script>explorer.outline.addDecl('addEdge');</script>
 
@@ -445,7 +484,7 @@ the nodes have at least a label (its "name") and a value, and the edges link two
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">size_t 
+<dt><span class="decl">void 
 <span class="currsymbol">addEdge</span>
 <script>explorer.outline.addDecl('addEdge');</script>
 
@@ -459,7 +498,7 @@ the nodes have at least a label (its "name") and a value, and the edges link two
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">size_t 
+<dt><span class="decl">void 
 <span class="currsymbol">addNodes</span>
 <script>explorer.outline.addDecl('addNodes');</script>
 
@@ -473,7 +512,7 @@ the nodes have at least a label (its "name") and a value, and the edges link two
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">size_t 
+<dt><span class="decl">void 
 <span class="currsymbol">addEdges</span>
 <script>explorer.outline.addDecl('addEdges');</script>
 
@@ -871,16 +910,92 @@ them to the
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">class 
+<dt><span class="decl">struct 
 <span class="currsymbol">UndirectedGraph</span>
 <script>explorer.outline.addDecl('UndirectedGraph');</script>
 
-(N,E) if (isNode!(N) &amp;&amp; isEdge!(E) &amp;&amp; is(Label!(N) == Label!(E))): Graph!(N,E);
+(N,E) if (isNode!(N) &amp;&amp; isEdge!(E) &amp;&amp; is(Label!(N) == Label!(E)));
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd>Undirected graph, built upon a directed graph. Still experimental.<br><br>
+
+
+<script>explorer.outline.incSymbolLevel();</script>
+<dl>
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">alias 
+<span class="currsymbol">NodeType</span>
+<script>explorer.outline.addDecl('NodeType');</script>
+
+;
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>exposed node type.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">alias 
+<span class="currsymbol">EdgeType</span>
+<script>explorer.outline.addDecl('EdgeType');</script>
+
+;
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>exposed edge type.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">alias 
+<span class="currsymbol">LabelType</span>
+<script>explorer.outline.addDecl('LabelType');</script>
+
+;
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>exposed label type.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">alias 
+<span class="currsymbol">ValueType</span>
+<script>explorer.outline.addDecl('ValueType');</script>
+
+;
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>exposed payload type.<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">string 
+<span class="currsymbol">toString</span>
+<script>explorer.outline.addDecl('toString');</script>
+
+();
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>to print the graph.<br><br>
+
+</dd>
+</dl>
+<script>explorer.outline.decSymbolLevel();</script>
+
 
 </dd>
 
@@ -905,7 +1020,7 @@ them to the
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Tue Aug  3 00:04:03 2010
+			on Tue Aug  3 23:08:47 2010
 
 		</td></tr>
 	</table>

@@ -570,6 +570,11 @@ g's spanning tree, here as a Graph.<br><br>
 <script>explorer.outline.addDecl('toGraphviz');</script>
 
 (N, E)(Graph!(N,E) <span class="funcparam">g</span>, string <span class="funcparam">name</span> = "graph");
+<br>string 
+<span class="currsymbol">toGraphviz</span>
+<script>explorer.outline.addDecl('toGraphviz');</script>
+
+(N, E)(UndirectedGraph!(N,E) <span class="funcparam">g</span>, string <span class="funcparam">name</span> = "graph");
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
@@ -604,7 +609,7 @@ If you want it to explore the std.* and core.* modules, you must give it the dir
 graph of <b><font color=blue>Phobos</font></b> and the runtime along your own project's graph. Use like this:
 <pre class="d_code"><font color=blue>auto</font> dg = <u>dependencyGraph</u>(<font color=red>"myModule"</font>, <font color=red>r"C:\dmd\"</font>);
 toGraphviz(dg, <font color=red>"imports"</font>);
-<font color=green>// then, in a command line: &gt;&gt; dot imports.dot -o imports.pdf
+<font color=green>// then, in a command line: &gt;&gt; dot -Tpdf imports.dot -o imports.pdf
 </font></pre>
 <br><br>
 <b>Returns:</b><br>
@@ -623,7 +628,7 @@ I don't get how <b><font color=blue>core.*</font></b> is organized. For now, it 
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Tue Aug  3 00:04:03 2010
+			on Tue Aug  3 23:08:47 2010
 
 		</td></tr>
 	</table>
