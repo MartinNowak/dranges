@@ -12,32 +12,31 @@ Authors:   Philippe Sigaud
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
-module dranges.functional2;
+module dranges.functional;
 
-import std.algorithm;
-import std.array;
-import std.bigint;
-import std.contracts;
-import std.conv;
-import std.functional;
-import std.math;
-import std.metastrings;
-import std.range;
-import std.stdio;
-import std.string;
-import std.traits;
-import std.typecons;
-import std.typetuple;
+import std.algorithm,
+       std.array,
+       std.bigint,
+       std.contracts,
+       std.conv,
+       std.functional,
+       std.math,
+       std.metastrings,
+       std.range,
+       std.stdio,
+       std.string,
+       std.traits,
+       std.typecons,
+       std.typetuple;
 
-import dranges.traits2;
-import dranges.templates;
-import dranges.typetuple2;
-import dranges.predicate;
-import dranges.tuple2;
-import dranges.range2;
-import dranges.algorithm2;
-import dranges.patternmatch;
-
+import dranges.algorithm,
+       dranges.patternmatch,
+       dranges.predicate,
+       dranges.range,
+       dranges.templates,
+       dranges.traits,
+       dranges.tuple,
+       dranges.typetuple;
 /**
 Gives the _arity of a function: unary, binary, etc. A 0-args function has an _arity of 0.
 
@@ -759,7 +758,7 @@ other types untouched. I learnt the trick from a Haskell article.
 
 Example:
 ----
-import dranges.tuple2;
+import dranges.tuple;
 
 auto t = tuple("bin", 1024, 3.14159,
                "src", 0,    1.0,
@@ -784,7 +783,7 @@ ExtendFun!fun extendFun(alias fun)()
 
 version(unittest)
 {
-    import dranges.tuple2;
+    import dranges.tuple;
     string foo(string s) { return "std/" ~ s;}
 }
 
@@ -825,7 +824,7 @@ an arg that $(M foo) cannot accept. The default value can be of any type.
 
 Example:
 ----
-import dranges.tuple2;
+import dranges.tuple;
 
 auto t = tuple("bin", 1024, 3.14159,
                "src", 0,    1.0,

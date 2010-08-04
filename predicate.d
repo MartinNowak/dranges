@@ -12,17 +12,17 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.predicate;
 
-import std.algorithm;
-import std.functional;
-import std.range;
-import std.traits;
-import std.typetuple;
+import std.algorithm,
+       std.functional,
+       std.range,
+       std.traits,
+       std.typetuple;
 
-import dranges.functional2;
-import dranges.range2 : segment;
-import dranges.templates;
-import dranges.traits2;
-import dranges.typetuple2;
+import dranges.functional,
+       dranges.range,
+       dranges.templates,
+       dranges.traits,
+       dranges.typetuple;
 
 /**
 Is true if some (at least one) element in range verify the predicate pred. False otherwise.

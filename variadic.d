@@ -13,9 +13,9 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.variadic;
 
-import dranges.typetuple2;
-import dranges.templates;
-import dranges.functional2;
+import dranges.functional,
+       dranges.templates,
+       dranges.typetuple;
 
 ///
 CommonType!T max(T...)(T t) if (T.length) { // I should test for a correct type: one that defines min and opCmp

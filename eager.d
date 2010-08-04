@@ -14,7 +14,10 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.eager;
 
-import std.array, std.algorithm, std.range, std.functional;
+import std.algorithm,
+       std.array,
+       std.functional,
+       std.range;
 
 /// An eager version of map.
 template eagerMap(alias fun)

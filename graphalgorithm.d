@@ -15,17 +15,20 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.graphalgorithm;
 
-import std.stdio;
-import std.string;
-import std.conv;
-import std.typecons;
-import std.math: isInfinity;
-import std.contracts;
-import std.algorithm;
-import std.range;
+import std.algorithm,
+       std.contracts,
+       std.conv,
+       std.math,
+       std.range,
+       std.stdio,
+       std.string,
+       std.typecons;
 
-import dranges.graph, dranges.queue, dranges.priorityqueue, dranges.set;
-import dranges.graphrange;
+import dranges.graph,
+       dranges.graphrange,
+       dranges.priorityqueue,
+       dranges.queue,
+       dranges.set;
 
 /**
 Returns: the complement graph of g: same nodes, but complementary edges:

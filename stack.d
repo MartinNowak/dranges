@@ -12,8 +12,6 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.stack;
 
-import std.stdio:writeln;
-
 ///
 struct Stack(T) {
     T[] data;

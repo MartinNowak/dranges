@@ -17,7 +17,7 @@ module dranges.experiments;
 
 import std.range;
 
-import dranges.traits2;
+import dranges.traits;
 
 /**
 Not really a standard range, used to modelize:

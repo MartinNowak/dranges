@@ -12,11 +12,11 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.treerange;
 
-import std.array; // for empty and such on arrays
-import std.metastrings; // for Format
-import std.range;
+import std.array,
+       std.metastrings,
+       std.range;
 
-import dranges.functional2 : naryFun;
+import dranges.functional : naryFun;
 
 /**
 The basic node for a binary tree.

@@ -14,26 +14,25 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.phobos_extension;
 
-import std.c.string;
-import std.algorithm;
-import std.array;
-import std.contracts;
-import std.conv;
-import std.date;
-import std.functional;
-import std.math;
-import std.metastrings;
-import std.range;
-import std.stdio;
-import std.string;
-import std.traits;
-import std.typecons;
-import std.typetuple;
+import std.c.string; // to give the templates access to c.string as template parameters
+import std.algorithm,
+       std.array,
+       std.contracts,
+       std.conv,
+       std.date,
+       std.functional,
+       std.math,
+       std.metastrings,
+       std.range,
+       std.stdio,
+       std.string,
+       std.traits,
+       std.typecons,
+       std.typetuple;
 
-
-import dranges.traits2;
-import dranges.typetuple2;
-import dranges.templates;
+import dranges.templates,
+       dranges.traits,
+       dranges.typetuple;
 
 /+
 /**

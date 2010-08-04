@@ -15,27 +15,25 @@ Authors:   Philippe Sigaud
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
-module dranges.tuple2;
+module dranges.tuple;
 
-import std.algorithm;
-import std.contracts;
-import std.conv;
-import std.functional;
-import std.metastrings;
-import std.range;
-import std.stdio;
-import std.traits;
-import std.typecons;
-import std.typetuple;
+import std.algorithm,
+       std.contracts,
+       std.conv,
+       std.functional,
+       std.metastrings,
+       std.range,
+       std.stdio,
+       std.traits,
+       std.typecons,
+       std.typetuple;
 
-import dranges.traits2;
-import dranges.typetuple2;
-import dranges.templates;
-import dranges.functional2;
-import dranges.predicate;
-import dranges.variadic;
-
-
+import dranges.functional,
+       dranges.predicate,
+       dranges.templates,
+       dranges.traits,
+       dranges.typetuple,
+       dranges.variadic;
 
 /**
 Small helper functions to extract a field from a tuple. Mainly to make some expressions more readable.

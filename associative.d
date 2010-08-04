@@ -11,7 +11,9 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.associative;
 
-import std.algorithm, std.range, std.typecons;
+import std.algorithm,
+       std.range,
+       std.typecons;
 
 
 /**

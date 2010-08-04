@@ -14,15 +14,18 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.morphism;
 
-import std.algorithm, std.array, std.functional,std.range, std.traits;
+import std.algorithm,
+       std.array,
+       std.functional,
+       std.range,
+       std.traits;
 
-import dranges.algorithm2;
-import dranges.functional2;
-import dranges.templates;
-import dranges.traits2;
-import dranges.tuple2;
-import dranges.typetuple2;
-
+import dranges.algorithm,
+       dranges.functional,
+       dranges.templates,
+       dranges.traits,
+       dranges.tuple,
+       dranges.typetuple;
 
 
 /**

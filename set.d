@@ -12,8 +12,8 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.set;
 
-import std.contracts;
-import std.conv;
+import std.contracts,
+       std.conv;
 
 ///
 struct Set(T) {

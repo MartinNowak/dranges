@@ -11,10 +11,15 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.graphrange;
 
-import std.array, std.contracts, std.range;
+import std.array,
+       std.contracts,
+       std.range;
 
-import dranges.graph, dranges.stack, dranges.queue, dranges.range2;
-import dranges.algorithm2;
+import dranges.algorithm,
+       dranges.graph,
+       dranges.queue,
+       dranges.range,
+       dranges.stack;
 
 ///
 enum TraversalMode {DepthFirst, BreadthFirst};

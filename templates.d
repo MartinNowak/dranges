@@ -13,18 +13,16 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.templates;
 
-import std.conv: to;
-import std.functional;
-import std.metastrings;
-import std.typecons;
-import std.typetuple;
-import std.traits;
+import std.conv,
+       std.functional,
+       std.metastrings,
+       std.traits,
+       std.typecons,
+       std.typetuple;
 
-import std.stdio;
-
-import dranges.traits2;
-import dranges.typetuple2;
-import dranges.functional2: arity, Loop;
+import dranges.functional,
+       dranges.traits,
+       dranges.typetuple;
 
 /+
 ///

@@ -10,17 +10,17 @@ Authors:   Philippe Sigaud
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
-module dranges.traits2;
+module dranges.traits;
 
-import std.contracts;
-import std.conv;
-import std.functional;
-import std.metastrings;
-import std.range;
-import std.stdio;
-import std.traits;
-import std.typecons;
-import std.typetuple;
+import std.contracts,
+       std.conv,
+       std.functional,
+       std.metastrings,
+       std.range,
+       std.stdio,
+       std.traits,
+       std.typecons,
+       std.typetuple;
 
 
 /**

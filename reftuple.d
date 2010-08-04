@@ -3,7 +3,7 @@
 /**
 To Be Documented. Lots of warts still.
 
-This module defines a _ function that takes lvalues and assign them, while deconstructing.
+This module defines a $(M _()) function that takes lvalues and assign them, while deconstructing.
 
 ----
 int a, b;
@@ -23,12 +23,11 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.reftuple;
 
-import std.range;
-import std.traits;
-import std.typetuple;
-import std.typecons;
-import std.variant;
-import std.stdio;
+import std.range,
+       std.traits,
+       std.typecons,
+       std.typetuple,
+       std.variant;
 
 template toPointer(T) { alias T* toPointer;}
 

@@ -12,19 +12,18 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.patternmatch;
 
-import std.conv;
-import std.stdio;
-import std.functional;
-import std.range;
-import std.traits;
-import std.typecons;
-import std.typetuple;
-//import std.variant;
+import std.conv,
+       std.functional,
+       std.range,
+       std.stdio,
+       std.traits,
+       std.typecons,
+       std.typetuple;
 
-import dranges.traits2;
-import dranges.typetuple2;
-import dranges.templates;
-import dranges.reftuple;
+import dranges.reftuple,
+       dranges.templates,
+       dranges.traits,
+       dranges.typetuple;
 
 struct Switch(T, R)
 {

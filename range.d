@@ -3,18 +3,17 @@
 /**
 This module defines new ranges or rather, higher-order ranges: ranges acting on ranges
 to transform them or present a new view. As far as possible, all higher-order ranges presented in this module
-and in algorithm2.d are "tight wrappers": they are bidirectional if their input range is bidirectional,
-define opIndex, opIndexAssign, length if it's possible, etc. That way, a good input range (for example, a random-access range)
+and in $(M dranges.algorithm) are "tight wrappers": they are bidirectional if their input range is bidirectional,
+define $(M opIndex), $(M opIndexAssign), $(M length) if it's possible, etc. That way, a good input range (for example, a random-access range)
 will see its properties propagated through a chain of calls.
 $(UL
-  $(LI Some of these are usual in other languages (Haskell, Scala, Clojure, ...) and are quite useful: drop, dropWhile, takeWhile, etc.)
-  $(LI Some are extension of standard functions: delay as a generic way to segment a range.)
-  $(LI Some are there just for fun and served as exercices when I wanted to "grok" ranges (like torus, bounce, emptyRange, once).)
+  $(LI Some of these are usual in other languages (Haskell, Scala, Clojure, ...) and are quite useful: $(M drop), $(M dropWhile), $(M takeWhile), etc.)
+  $(LI Some are extension of standard functions: $(M delay) as a generic way to segment a range.)
+  $(LI Some are there just for fun and served as exercices when I wanted to "grok" ranges (like $(M torus), $(M bounce), $(M emptyRange), $(M once)).)
   )
-Also, once we admit std.typecons.tuples as a common way to return many values, tuple-returning
+Also, once we admit $(M std.typecons.tuples) as a common way to return many values, tuple-returning
 ranges can be acted upon in various ways, splicing/shredding/rotating/stitching them. As many ranges and algorithms
-presented in this package produce tuples (tmap, tfilter, etc), having a rich way to act upon them permits
-all kind of reuse.
+presented in this package produce tuples, having a rich way to act upon them permits all kinds of reuse.
 
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 Authors:   Philippe Sigaud
@@ -22,31 +21,30 @@ Authors:   Philippe Sigaud
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
-module dranges.range2;
+module dranges.range;
 
-import std.algorithm;
-import std.array;
-import std.bigint;
-import std.contracts;
-import std.conv;
-import std.functional;
-import std.math;
-import std.metastrings;
-import std.range;
-import std.stdio;
-import std.string;
-import std.traits;
-import std.typecons;
-import std.typetuple;
+import std.algorithm,
+       std.array,
+       std.bigint,
+       std.contracts,
+       std.conv,
+       std.functional,
+       std.math,
+       std.metastrings,
+       std.range,
+       std.stdio,
+       std.string,
+       std.traits,
+       std.typecons,
+       std.typetuple;
 
-import dranges.traits2;
-import dranges.typetuple2;
-import dranges.templates;
-import dranges.typetuple2;
-import dranges.functional2;
-import dranges.predicate;
-import dranges.tuple2;
-import dranges.algorithm2;
+import dranges.algorithm,
+       dranges.functional,
+       dranges.predicate,
+       dranges.templates,
+       dranges.tuple,
+       dranges.traits,
+       dranges.typetuple;
 
 /**
 Return:

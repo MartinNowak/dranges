@@ -14,13 +14,12 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.binaryheap;
 
-import std.stdio;
-import std.algorithm : swap;
-import std.functional : binaryFun;
-import std.math: sgn;
-import std.typecons;
-import std.contracts;
-import std.conv;
+import std.algorithm,
+       std.contracts,
+       std.conv,
+       std.functional,
+       std.math,
+       std.typecons;
 
 ///
 struct BinaryHeap(alias predicate = "a < b", T) {

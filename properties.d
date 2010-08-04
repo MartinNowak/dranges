@@ -2,9 +2,7 @@
 module dranges.properties;
 
 // TODO: suppressProperty?
-import std.stdio: writeln;
 import std.conv: to;
-
 public import std.variant;
 
 template addProperties() {
