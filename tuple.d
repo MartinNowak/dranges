@@ -1,13 +1,13 @@
 // Written in the D programming language
 
 /**
-This module contains different functions acting on tuples (std.typeconsTuple, not
+This module contains different functions acting on tuples ($(M std.typecons.Tuple), not
 type-tuples): converting to and from arrays, inserting fields, rotating fields,
 inverting them, mapping/reducing/filtering them.
 
-In many ways, it's a way to act on tuples as if they were polymorphic ranges.
+In many ways, it allows you to act on tuples as if they were polymorphic ranges.
 
-The corresponding typetuples templates can be found in typetuple2.d.
+The corresponding typetuples templates can be found in typetuple.d.
 
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 Authors:   Philippe Sigaud
@@ -268,7 +268,7 @@ Creates a new tuple by extracting the components of tup and reassembling them
 according to an indices array. [0,1,2] means 'take the first, second and third component' and so on.
 The indices can be in any order ([1,2,0]), can be repeated or omitted([0,2,2,0]) and the array
 can be as long as you wish.
-See_Also: shred in range2.d
+See_Also: shred in dranges.range
 Examples:
 ----
 auto t = tuple(1, 'a', 3.14);
@@ -635,7 +635,7 @@ StaticScan!(RT2!fun, T)[$-1] reduceTuple(alias fun, T...)(Tuple!T ts)
     return result[$-1];
 }
 
-/// Scan on a tuple. See dranges.algorithm2.scan.
+/// Scan on a tuple. See $(M dranges.algorithm.scan).
 Tuple!(StaticScan!(RT2!fun, T)) scanTuple(alias fun, T...)(Tuple!T ts)
 {
     alias StaticScan!(RT2!fun, T) RTS;

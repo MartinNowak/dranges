@@ -194,6 +194,7 @@ Revolve/Cylinder on a RoR (method rotate/revolve to present a new subrange for i
 
 
 ** Graph/Tree **
+Cartesian product, as opposed to tensor product ofr graphs
 Floyd-Warshall
 A*
 B*

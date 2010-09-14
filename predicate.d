@@ -29,7 +29,7 @@ Is true if some (at least one) element in range verify the predicate pred. False
 Typically, it's used with a unary (1-arg) predicate, but it accepts predicates of any arity.
 If the predicate is a n-args function (n>1), it will be presented with n-elements 'segments'
 of the range, with a step of one: interleaved segments.
-See_Also: range2.d/segment.
+See_Also: dranges.range.segment.
 TODO: add an optional step argument?
 Example:
 ----
@@ -85,7 +85,7 @@ Is true if all elements in range verify the predicate pred. False otherwise. Typ
 it's used with a unary (1-arg) predicate, but it accepts predicates of any arity. If
 the predicate is a n-args function (n>1), it will be presented with n-elements 'segments'
 of the range, with a step of one: interleaved segments.
-See_Also: range2.d/segment.
+See_Also: $(M dranges.range.segment).
 TODO: add an optional step argument?
 ----
 int[] r1 = [0,1,2,3];
@@ -324,10 +324,10 @@ template haveLength(size_t l, R...) if (allSatisfy!(hasLength, R)) {
 
 /**
 Returns true iff element is one of the elements of range.
-Used as a predicate to find a subrange inside another range: dropWhile!(isOneOf!"abc")(r1)
+Used as a predicate to find a subrange inside another range: $(M dropWhile!(isOneOf!"abc")(r1))
 It may never terminate if range is infinite,
-but as an optimization, isOneOf detects Cycle!U and works only on the cycle internal range.
-See_Also: contains, in algorithm2.d. Maybe I could define one with another...
+but as an optimization, $(M isOneOf) detects $(D Cycle!U) and works only on the cycle internal range.
+See_Also: $(M dranges.algorithm.contains). Maybe I could define one with another...
 Example:
 ----
 string s = "01212345";
@@ -443,17 +443,15 @@ bool isOdd(T)(T t) if (isIntegral!T) { return t%2 == 1;}
 bool isEven(T)(T t) if (isIntegral!T) { return t%2 == 0;}
 
 /**
-Takes a predicate and inverts it. It's an attempt to get 'std.functional.not' to work.
+Takes a predicate and inverts it. It's an attempt to get $(M std.functional.not) to work.
 I've had some difficulties to use it in filters.
-See_Also: separate, in algorithm2.d.
+See_Also: $(M dranges.algorithm.separate).
 Example:
 ----
 int[] r = [0,1,2,3,4,5];
 auto f1 = filter!isOdd(r);
 auto f2 = filter!(Not!isEven)(r);
 assert(equal(f1,f2));
-
-
 ----
 */
 template Not(alias fun) {

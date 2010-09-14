@@ -983,7 +983,7 @@ assert(s.empty); // tf stops there because now r1's elements are not less than 2
 StitchType!R stitch(R...)(R ranges) if (allSatisfy!(isTupleRange, R))
 {
     // fun is "tuple(a.expand, b.expand, c.expand)", for example for 3 ranges.
-    enum string fun = "tuple(" ~ Loop!(0, R.length, Stitcher); // Loop is found in functional2.d
+    enum string fun = "tuple(" ~ Loop!(0, R.length, Stitcher); // Loop is found in dranges.functional.d
     return tmap!fun(ranges);
 }
 

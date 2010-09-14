@@ -77,16 +77,6 @@ Switch!(T,R) sswitch(R,T)(T o) {
 
 template toPointer(T) { alias T* toPointer;}
 
-
-template ConvertibleTypeTuples(T...) if (T.length % 2 == 0)
-{
-    static if (T.length == 0)
-        enum bool ConvertibleTypeTuples = true;
-    else
-        enum bool ConvertibleTypeTuples = isImplicitlyConvertible!(T[0], T[T.length/2])
-                                       && ConvertibleTypeTuples!(T[1 .. T.length/2], T[T.length/2+1 .. T.length]);
-}
-
 class NoMatchException : Exception {
     this(string msg) { super(msg);}
 }

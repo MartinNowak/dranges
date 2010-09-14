@@ -538,11 +538,27 @@ Example:
 ----
 assert(is(TemplateParametersTypeTuple!(Cycle!(int[])) == TypeTuple!(int[])));
 ----
-
 */
 template TemplateParametersTypeTuple(T)
 {
     mixin("alias TypeTuple!(" ~ between!('(',')',T.stringof)[1] ~ ") TemplateParametersTypeTuple;");
+}
+
+/**
+If T is a template instantiation, becomes the template name. For a non-templated type,
+it just becomes this type name.
+----
+struct Foo(T...) {}
+alias Foo!(int, double) Foo_id;
+assert(TemplateName!(Foo_id) == "Foo");
+
+assert(TemplateName!(int) == "int");
+----
+Note: almost completly untested!
+*/
+template TemplateName(T)
+{
+    enum string TemplateName = between!('!','(',T.stringof)[0];
 }
 
 string structsList(size_t n)

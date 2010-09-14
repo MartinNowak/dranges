@@ -1191,7 +1191,7 @@ template rangify(alias fun) if (isFunction!fun && is(CommonType!(ParameterTypeTu
 Transforms a function into a tuple-accepting function. Useful to map a standard function
 on a tuple-producing range. A parameterless function (zero args) is left untouched.
 
-See_Also: $(M tmap), $(M tfilter), $(M comp) and $(M pComp) in $(M dranges.algorithm2.d).
+See_Also: $(M tmap), $(M tfilter), $(M comp) and $(M pComp) in $(M dranges.algorithm).
 
 Example:
 ----
@@ -1461,7 +1461,7 @@ alias naryFun!("a+b",3) test3;      // You can create a fun with more args than 
 assert(test3(1,2,100) == 3);        // without the 3, naryFun!"a+b" would create a binary function.
 assert(test3(1.0,2.0,100) == 3.0);
 
-alias naryFun!"sin(a)+cos(b)*c" testsincos; // functional2.d imports a lot of other D modules, to have their functions accessible.
+alias naryFun!"sin(a)+cos(b)*c" testsincos; // functional.d imports a lot of other D modules, to have their functions accessible.
 
 alias naryFun!"tuple(a,a,a)" toTuple;
 assert(toTuple(1) == tuple(1,1,1));
@@ -1558,7 +1558,7 @@ unittest
     assert(test3(1,2,100) == 3);        // without the 3, naryFun!"a+b" would create a binary function.
     assert(test3(1.0,2.0,100) == 3.0);
 
-    alias naryFun!"sin(a)+cos(b)*c" testsincos; // functional2.d imports a lot of other D modules, to have their functions accessible.
+    alias naryFun!"sin(a)+cos(b)*c" testsincos; // functional.d imports a lot of other D modules, to have their functions accessible.
 
     alias naryFun!"tuple(a,a,a)" toTuple;
     assert(toTuple(1) == tuple(1,1,1));
