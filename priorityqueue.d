@@ -12,8 +12,8 @@ Distributed under the Boost Software License, Version 1.0.
 */
 module dranges.priorityqueue;
 
-import std.contracts,
-       std.conv,
+import std.conv,
+       std.exception,
        std.typecons;
 
 import dranges.binaryheap;

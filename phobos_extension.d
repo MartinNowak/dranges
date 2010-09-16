@@ -17,9 +17,9 @@ module dranges.phobos_extension;
 import std.c.string; // to give the templates access to c.string as template parameters
 import std.algorithm,
        std.array,
-       std.contracts,
        std.conv,
        std.date,
+       std.exception,
        std.functional,
        std.math,
        std.metastrings,

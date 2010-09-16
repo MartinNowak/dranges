@@ -16,8 +16,8 @@ Distributed under the Boost Software License, Version 1.0.
 module dranges.graphalgorithm;
 
 import std.algorithm,
-       std.contracts,
        std.conv,
+       std.exception,
        std.math,
        std.range,
        std.stdio,

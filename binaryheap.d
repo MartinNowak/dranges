@@ -15,8 +15,8 @@ Distributed under the Boost Software License, Version 1.0.
 module dranges.binaryheap;
 
 import std.algorithm,
-       std.contracts,
        std.conv,
+       std.exception,
        std.functional,
        std.math,
        std.typecons;
