@@ -781,7 +781,7 @@ Returns: a $(M Graph), with nodes the modules names and edges pointing to import
 
 BUG: I don't get how $(D core.*) is organized. For now, it doesn't visit the core modules. It create them in the graph, though.
 */
-Graph!(Node!(string, string), Edge!string) dependencyGraph(string moduleName, string DMDPath = "")
+/*Graph!(Node!(string, string), Edge!string) dependencyGraph(string moduleName, string DMDPath = "")
 {
     Graph!(Node!(string, string), Edge!string) g;
     auto ig = dependencyGraphImpl(moduleName, DMDPath);
@@ -792,18 +792,19 @@ Graph!(Node!(string, string), Edge!string) dependencyGraph(string moduleName, st
         g.addEdges(n, edgeList);
     }
     return g;
-}
+}*/
 
 enum string[string] dmdPaths = ["core":r"src\druntime\src\",
                                 "std":r"src\phobos\"];
 
+/* A problem with std.algorithm.startsWith in 2.050
 string[][string] dependencyGraphImpl(string moduleName, string DMDPath = "",  string[][string] deps = (string[][string]).init)
 {
     if (moduleName in deps) return deps; // already explored
 
     string path;
     auto withSlashes = replace(moduleName, ".", "\\") ~".d";
-    if (moduleName.startsWith("std."))
+    if (startsWith(moduleName, "std."))
     {
         if (DMDPath == "")
         {
@@ -834,7 +835,7 @@ string[][string] dependencyGraphImpl(string moduleName, string DMDPath = "",  st
         auto sblock = strip(block);
         foreach(it; importTypes)
         {
-            if (sblock.startsWith(it)) // We have an import
+            if (startsWith(sblock, it)) // We have an import
             {
                 sblock = sblock[it.length..$];
                 auto spl = to!(string[])(split(sblock, ","));
@@ -869,4 +870,4 @@ string[][string] dependencyGraphImpl(string moduleName, string DMDPath = "",  st
         }
     }
     return deps;
-}
+}*/
