@@ -393,6 +393,31 @@ It won't work for alias parameters, because they're not imported by this module.
 
 <script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">template 
+<span class="currsymbol">TemplateName</span>
+<script>explorer.outline.addDecl('TemplateName');</script>
+
+(T)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>If T is a template instantiation, becomes the template name. For a non-templated type,
+it just becomes this type name.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>struct</font> Foo(T...) {}
+<font color=blue>alias</font> Foo!(<font color=blue>int</font>, <font color=blue>double</font>) Foo_id;
+<font color=blue>assert</font>(<u>TemplateName</u>!(Foo_id) == <font color=red>"Foo"</font>);
+
+<font color=blue>assert</font>(<u>TemplateName</u>!(<font color=blue>int</font>) == <font color=red>"int"</font>);
+</pre>
+<br><br>
+<b>Note:</b><br>
+almost completly untested!<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
 <span class="currsymbol">TemplateFunctionPTT</span>
 <script>explorer.outline.addDecl('TemplateFunctionPTT');</script>
 
@@ -801,7 +826,7 @@ based on a directing type.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Wed Aug  4 22:32:54 2010
+			on Wed Nov 10 23:47:31 2010
 
 		</td></tr>
 	</table>
@@ -851,6 +876,10 @@ based on a directing type.
 
     explorer.packageExplorer.addModule("dranges.reftuple");
 
+	explorer.packageExplorer.addModule("dranges.set");
+
+	explorer.packageExplorer.addModule("dranges.stack");
+
     explorer.packageExplorer.addModule("dranges.templates");
 
     explorer.packageExplorer.addModule("dranges.traits");
@@ -859,10 +888,15 @@ based on a directing type.
 
     explorer.packageExplorer.addModule("dranges.tuple");
 
+    explorer.packageExplorer.addModule("dranges.tuplepattern");
+
+	explorer.packageExplorer.addModule("dranges.tupletree");
+
+	explorer.packageExplorer.addModule("dranges.typepattern");
+
     explorer.packageExplorer.addModule("dranges.typetuple");
 
     explorer.packageExplorer.addModule("dranges.variadic");
-
 </script>
 </body></html>
 

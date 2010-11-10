@@ -21,11 +21,14 @@ MODULES =
     $(MODULE dranges.rangeofranges)
     $(MODULE dranges.recursive)
     $(MODULE dranges.reftuple)
+	$(MODULE dranges.set)
+	$(MODULE dranges.stack)
     $(MODULE dranges.templates)
     $(MODULE dranges.traits)
     $(MODULE dranges.treerange)
     $(MODULE dranges.tuple)
+    $(MODULE dranges.tuplepattern)
+	$(MODULE dranges.tupletree)
+	$(MODULE dranges.typepattern)
     $(MODULE dranges.typetuple)
     $(MODULE dranges.variadic)
-
-	

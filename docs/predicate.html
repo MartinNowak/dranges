@@ -48,7 +48,7 @@ If the predicate is a n-args function (n&gt;1), it will be presented with n-elem
 of the range, with a step of one: interleaved segments.
 <br><br>
 <b>See Also:</b><br>
-range2.d/segment.
+dranges.range.segment.
 <br><br>
 <b>TODO:</b><br>
 add an optional step argument?
@@ -91,7 +91,7 @@ the predicate is a n-args function (n&gt;1), it will be presented with n-element
 of the range, with a step of one: interleaved segments.
 <br><br>
 <b>See Also:</b><br>
-range2.d/segment.
+<b><code>dranges.range.segment</code></b>.
 <br><br>
 <b>TODO:</b><br>
 add an optional step argument?
@@ -261,20 +261,20 @@ string r2 = <font color=red>"abcde"</font>;
 
 
 <dd>Returns <b>true</b> iff element is one of the elements of range.
-Used as a predicate to find a subrange inside another range: dropWhile!(
+Used as a predicate to find a subrange inside another range: <b><code>dropWhile!(
 <span class="currsymbol">isOneOf</span>
 <script>explorer.outline.addDecl('isOneOf');</script>
 
-!"abc")(r1)
+!"abc")(r1)</code></b>
 It may never terminate if range is infinite,
-but as an optimization, 
+but as an optimization, <b><code>
 <span class="currsymbol">isOneOf</span>
 <script>explorer.outline.addDecl('isOneOf');</script>
 
- detects Cycle!U and works only on the cycle internal range.
+</code></b> detects <b><font color=blue>Cycle!U</font></b> and works only on the cycle internal range.
 <br><br>
 <b>See Also:</b><br>
-contains, in algorithm2.d. Maybe I could define one with another...
+<b><code>dranges.algorithm.contains</code></b>. Maybe I could define one with another...
 <br><br>
 <b>Example:</b><br>
 <pre class="d_code">string s = <font color=red>"01212345"</font>;
@@ -386,19 +386,17 @@ contains, in algorithm2.d. Maybe I could define one with another...
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>Takes a predicate and inverts it. It's an attempt to get 'std.functional.not' to work.
+<dd>Takes a predicate and inverts it. It's an attempt to get <b><code>std.functional.not</code></b> to work.
 I've had some difficulties to use it in filters.
 <br><br>
 <b>See Also:</b><br>
-separate, in algorithm2.d.
+<b><code>dranges.algorithm.separate</code></b>.
 <br><br>
 <b>Example:</b><br>
 <pre class="d_code"><font color=blue>int</font>[] r = [0,1,2,3,4,5];
 <font color=blue>auto</font> f1 = filter!isOdd(r);
 <font color=blue>auto</font> f2 = filter!(<u>Not</u>!isEven)(r);
 <font color=blue>assert</font>(equal(f1,f2));
-
-
 </pre>
 <br><br>
 
@@ -429,7 +427,7 @@ separate, in algorithm2.d.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Wed Aug  4 22:32:54 2010
+			on Wed Nov 10 23:47:30 2010
 
 		</td></tr>
 	</table>
@@ -479,6 +477,10 @@ separate, in algorithm2.d.
 
     explorer.packageExplorer.addModule("dranges.reftuple");
 
+	explorer.packageExplorer.addModule("dranges.set");
+
+	explorer.packageExplorer.addModule("dranges.stack");
+
     explorer.packageExplorer.addModule("dranges.templates");
 
     explorer.packageExplorer.addModule("dranges.traits");
@@ -487,10 +489,15 @@ separate, in algorithm2.d.
 
     explorer.packageExplorer.addModule("dranges.tuple");
 
+    explorer.packageExplorer.addModule("dranges.tuplepattern");
+
+	explorer.packageExplorer.addModule("dranges.tupletree");
+
+	explorer.packageExplorer.addModule("dranges.typepattern");
+
     explorer.packageExplorer.addModule("dranges.typetuple");
 
     explorer.packageExplorer.addModule("dranges.variadic");
-
 </script>
 </body></html>
 

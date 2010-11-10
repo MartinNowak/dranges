@@ -364,6 +364,20 @@ to avoid auto-flattening. It will not compile if n == 0 or if n do not cut the t
 
 <script>explorer.outline.writeEnabled = true;</script>
 <dt><span class="decl">template 
+<span class="currsymbol">TypeNuple</span>
+<script>explorer.outline.addDecl('TypeNuple');</script>
+
+(alias a,size_t n)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>ditto
+ ditto<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
 <span class="currsymbol">Expansion</span>
 <script>explorer.outline.addDecl('Expansion');</script>
 
@@ -476,7 +490,7 @@ containing the types in T that verify the predicate Pred
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>aliases itself to a repeated application of the binary template F on the types of T, like reduce
+<dd>Aliases itself to a repeated application of the binary template F on the types of T, like reduce
 does on ranges.
 <br><br>
 <b>Example:</b><br>
@@ -563,7 +577,7 @@ F must be a binary template and accumulator a value accepted by F as first param
 the T list.
 <br><br>
 <b>See Also:</b><br>
-<b><code>dranges.algorithm2.scan</code></b>.<br><br>
+<b><code>dranges.algorithm.scan</code></b>.<br><br>
 
 </dd>
 
@@ -814,7 +828,7 @@ while composing templates.<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Wed Aug  4 22:32:54 2010
+			on Wed Nov 10 23:47:31 2010
 
 		</td></tr>
 	</table>
@@ -864,6 +878,10 @@ while composing templates.<br><br>
 
     explorer.packageExplorer.addModule("dranges.reftuple");
 
+	explorer.packageExplorer.addModule("dranges.set");
+
+	explorer.packageExplorer.addModule("dranges.stack");
+
     explorer.packageExplorer.addModule("dranges.templates");
 
     explorer.packageExplorer.addModule("dranges.traits");
@@ -872,10 +890,15 @@ while composing templates.<br><br>
 
     explorer.packageExplorer.addModule("dranges.tuple");
 
+    explorer.packageExplorer.addModule("dranges.tuplepattern");
+
+	explorer.packageExplorer.addModule("dranges.tupletree");
+
+	explorer.packageExplorer.addModule("dranges.typepattern");
+
     explorer.packageExplorer.addModule("dranges.typetuple");
 
     explorer.packageExplorer.addModule("dranges.variadic");
-
 </script>
 </body></html>
 

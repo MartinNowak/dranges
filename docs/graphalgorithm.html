@@ -592,22 +592,22 @@ This is just a helper/debugging function to easily visualize the graphs. Use wit
 </dd>
 
 <script>explorer.outline.writeEnabled = true;</script>
-<dt><span class="decl">Graph!(Node!(string,string),Edge!(string)) 
-<span class="currsymbol">dependencyGraph</span>
-<script>explorer.outline.addDecl('dependencyGraph');</script>
+<dt><span class="decl">string[string] 
+<span class="currsymbol">dmdPaths</span>
+<script>explorer.outline.addDecl('dmdPaths');</script>
 
-(string <span class="funcparam">moduleName</span>, string <span class="funcparam">DMDPath</span> = "");
+;
 </span></dt>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
 <dd>Given a module name, <b><code>dependencyGraph</code></b> will explore its code, extract the import statements and recursively visit the corresponding modules.
 If you don't want it to visit the <b><font color=blue>std.*</font></b> or <b><font color=blue>core.*</font></b> part, juste use:
-<pre class="d_code"><font color=blue>auto</font> dg = <u>dependencyGraph</u>(<font color=red>"myModule"</font>);
+<pre class="d_code"><font color=blue>auto</font> dg = dependencyGraph(<font color=red>"myModule"</font>);
 </pre>
 If you want it to explore the std.* and core.* modules, you must give it the directory where <b><font color=blue>DMD</font></b> is installed. It will then calculate the dependency
 graph of <b><font color=blue>Phobos</font></b> and the runtime along your own project's graph. Use like this:
-<pre class="d_code"><font color=blue>auto</font> dg = <u>dependencyGraph</u>(<font color=red>"myModule"</font>, <font color=red>r"C:\dmd\"</font>);
+<pre class="d_code"><font color=blue>auto</font> dg = dependencyGraph(<font color=red>"myModule"</font>, <font color=red>r"C:\dmd\"</font>);
 toGraphviz(dg, <font color=red>"imports"</font>);
 <font color=green>// then, in a command line: &gt;&gt; dot -Tpdf imports.dot -o imports.pdf
 </font></pre>
@@ -628,7 +628,7 @@ I don't get how <b><font color=blue>core.*</font></b> is organized. For now, it 
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Wed Aug  4 22:32:54 2010
+			on Wed Nov 10 23:47:30 2010
 
 		</td></tr>
 	</table>
@@ -678,6 +678,10 @@ I don't get how <b><font color=blue>core.*</font></b> is organized. For now, it 
 
     explorer.packageExplorer.addModule("dranges.reftuple");
 
+	explorer.packageExplorer.addModule("dranges.set");
+
+	explorer.packageExplorer.addModule("dranges.stack");
+
     explorer.packageExplorer.addModule("dranges.templates");
 
     explorer.packageExplorer.addModule("dranges.traits");
@@ -686,10 +690,15 @@ I don't get how <b><font color=blue>core.*</font></b> is organized. For now, it 
 
     explorer.packageExplorer.addModule("dranges.tuple");
 
+    explorer.packageExplorer.addModule("dranges.tuplepattern");
+
+	explorer.packageExplorer.addModule("dranges.tupletree");
+
+	explorer.packageExplorer.addModule("dranges.typepattern");
+
     explorer.packageExplorer.addModule("dranges.typetuple");
 
     explorer.packageExplorer.addModule("dranges.variadic");
-
 </script>
 </body></html>
 
