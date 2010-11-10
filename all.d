@@ -36,6 +36,9 @@ public import dranges.algorithm,
               dranges.traits,
               dranges.treerange,
               dranges.tuple,
+              dranges.tuplepattern,
+              dranges.tupletree,
+              dranges.typepattern,
               dranges.typetuple,
               dranges.variadic;
 
