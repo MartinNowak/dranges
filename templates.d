@@ -547,6 +547,7 @@ template TemplateParametersTypeTuple(T)
 /**
 If T is a template instantiation, becomes the template name. For a non-templated type,
 it just becomes this type name.
+Example:
 ----
 struct Foo(T...) {}
 alias Foo!(int, double) Foo_id;

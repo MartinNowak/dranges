@@ -635,11 +635,11 @@ assert(is(SR2 == Tuple!(int, Tuple!(double, Tuple!(int, long))))); // Non-flatte
 ----
 */
 template StaticReduce(alias F, T...) {
-    static if (T.length == 0, "StaticReduce used on an empty typetuple.") {
-        static assert(false);
-    static if (T.length == 1) {
+    static if (T.length == 0)
+        static assert(false, "StaticReduce used on an empty typetuple.");
+    static if (T.length == 1)
         alias T[0] StaticReduce;
-    static if (T.length > 1) {
+    static if (T.length > 1)
         alias F!(T[0], StaticReduce!(F, T[1..$])) StaticReduce;
 }
 

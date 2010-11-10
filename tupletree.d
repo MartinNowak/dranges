@@ -63,7 +63,7 @@ import dranges.functional,
 A well-formed heterogeneous tree has the form $(M tuple(payload, children...)) where children
 are trees themselves. $(M payload) can be of any type and is always there, except for the empty tree
 (which is a PITA to deal with compared to normal/leaf trees and so may be discarded).
-Here are some h-trees examples:
+Example:
 ----
 auto e  = tuple(); // an (the) empty tree.
 auto l1 = tuple(1); // leaf (payload == 1), no children.

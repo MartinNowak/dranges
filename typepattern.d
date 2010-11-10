@@ -63,7 +63,7 @@ $(UL
   $(LI No named captures either...)
 )
 */
-module typepattern;
+module dranges.typepattern;
 import std.typetuple;
 import std.typecons;
 
