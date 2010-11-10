@@ -383,9 +383,10 @@ template isInstanceOfTemplate(T, alias templ)
         enum bool isInstanceOfTemplate = false;
 }
 
+/* Is in std.typecons as of 2.050
 /// is true iff T is a std.typecons.Tuple
 template isTuple(T)
 {
     enum bool isTuple = isInstanceOfTemplate!(T, Tuple);//__traits(compiles, T.Types) && isInstanceOfTemplate!(T)
-}
+}*/
 

@@ -597,11 +597,11 @@ template TupleLength(T) if (isTuple!T)
 Tuple!(StaticMap!(RT!fun, T)) mapTuple(alias fun, T...)(Tuple!T tup)
 {
     StaticMap!(RT!fun, T) res;
-    foreach(i, Type; T) res[i] = fun(tup.field[i]);
+    foreach(i, Type; T) res[i] = unaryFun!fun(tup.field[i]);
     return tuple(res);
 }
 
-/// Maps n tuples in paralle, using a polymorphing n-args function.
+/// Maps n tuples in parallel, using a polymorphing n-args function.
 Tuple!(RetTypeTuples!(fun, T))
 mapTuples(alias fun, T...)(T tuples)
 if (allSatisfy!(isTuple, T) && allEqual!(StaticMap!(TupleLength, T)))
@@ -616,7 +616,7 @@ if (allSatisfy!(isTuple, T) && allEqual!(StaticMap!(TupleLength, T)))
         {
             nf[j] = tuples[j].field[i];
         }
-        result[i] =fun(nf);
+        result[i] = naryFun!fun(nf);
     }
     return tuple(result);
 }
@@ -644,28 +644,28 @@ Tuple!(StaticScan!(RT2!fun, T)) scanTuple(alias fun, T...)(Tuple!T ts)
         static if (i == 0)
             result[i] = ts.field[0];
         else
-            result[i] = fun(result[i-1], ts.field[i]);
+            result[i] = binaryFun!fun(result[i-1], ts.field[i]);
     }
     return tuple(result);
 }
 
-///
+/// Returns a tuple whith only 1 element in n.
 Tuple!(StaticStride!(n,T)) strideTuple(size_t n, T...)(Tuple!T tup) if (n > 0)
 {
-    return strideVariadic!n(tup.expand);
+    return tuple(strideVariadic!n(tup.expand));
 }
 
-///
-Tuple!(StaticIterate!(times, RT!fun, T)) iterateTuple(size_t times, alias fun, T)(T t)
+/// Returns a tuple which has for elements the successive application (times times) of fun on the seed value.
+Tuple!(StaticIterate!(times, RT!fun, S)) iterateTuple(size_t times, alias fun, S)(S seed)
 {
-    alias StaticIterate!(times, RT!fun, T) SuccessiveTypes;
+    alias StaticIterate!(times, RT!fun, S) SuccessiveTypes;
     SuccessiveTypes st;
 
     foreach(i, Type; SuccessiveTypes) {
         static if (i == 0)
             st[i] = t;
         else
-            st[i] = fun(st[i-1]);
+            st[i] = unaryFun!fun(st[i-1]);
     }
     return tuple(st);
 }
