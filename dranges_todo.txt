@@ -96,13 +96,22 @@ shear (on a range of ranges) : takes successive diagonal 'slices' of the 2D rang
 
 
 ** Tuples **
-enclosing computations in tuples (args, fun, some other fun, more args, etc)
-flattenTuple!(depth)(tup)
 tuple parallel map (on n tuples, creates another tuple)
 tuple filter on types, unique on types
 tuple atType!T -> first occurence of a T
 complementary of ShredTuple
 partitionBy for tuples: putting first the elements satisfying a predicate (see std.algo.partition)
+
+** Tuple Trees ** (aka recursive Tuples)
+extract children
+flatten
+enclosing computations in tuples (args, fun, some other fun, more args, etc)
+flattenTuple!(depth)(tup)
+map (transform values, not structure)
+transform (modify the structure)
+reduce
+match on shape: AnyType, ZeroOrOre, OneOrMore, Repeated!(TypePattern, min, max), Or!(T1, T2), And!(T1, T2)
+    like CT regex or parsers, really.
 
 ** Templates **
 TransformParam is a functor, a function on types. A -> B  A!int is an element of A, etc.
