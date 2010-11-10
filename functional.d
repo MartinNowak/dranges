@@ -735,14 +735,14 @@ unittest
 
 struct ExtendFun(alias fun)
 {
-    typeof(fun(Init!T)) opCall(T...)(T t) if (T.length && is(typeof(fun(t))))
+    auto opCall(T...)(T t)
     {
-        return fun(t);
-    }
-
-    T[0] opCall(T...)(T t) if (T.length && !is(typeof(fun(t))))
-    {
-        return t[0];
+        static if ( isFunction!fun && is(ParameterTypeTuple!fun) && is(ParameterTypeTuple!fun == TypeTuple!T) ) // non-templated function
+            return fun(t);
+//        else static if (is(typeof(fun) == string) && is(typeof( naryFun!fun(t) ))) // templated function
+//            return naryFun!fun(t);
+        else
+            return t[0];
     }
 }
 
@@ -751,7 +751,8 @@ Takes a function $(M foo) and 'extends' it, allowing it to accept any type of ar
 If the arguments types are compatible with $(M foo), returns foo(args) otherwise, it just returns
 the argument.
 
-That may seem a strange template to define, but it's quite useful for mapping a tuple (see $(M dranges.tuple2.mapTuple)).
+That may seem a strange template to define, but it's quite useful for mapping a tuple (see $(M dranges.tuple.mapTuple)
+and $(M dranges.tupletree.mapTree)).
 Suppose you have a tuple and what to change only the strings in it. Define $(M foo) to act on strings, extend it with
 $(M _extendFun!foo) and voila, you can then map $(M _extendFun!foo) on your tuple: the strings will be transformed, leaving the
 other types untouched. I learnt the trick from a Haskell article.
@@ -775,10 +776,22 @@ assert(t2 == tuple("std/bin", 1024, 3.14159,
                    "std/myDirectory/foo", 100, -2.3));
 ----
 */
-ExtendFun!fun extendFun(alias fun)()
+//ExtendFun!fun extendFun(alias fun)()
+//{
+//    ExtendFun!(fun) efun;
+//    return efun;
+//}
+
+template extendFun(alias fun)
 {
-    ExtendFun!(fun) efun;
-    return efun;
+    auto extendFun(T...)(T t)
+    {
+        alias naryFun!fun nfun;
+        static if (is(typeof(nfun(t))))
+            return nfun(t);
+        else
+            return t[0];
+    }
 }
 
 version(unittest)
@@ -864,7 +877,7 @@ unittest
 }
 
 /**
-This is just a wrapper around the $(M match) function found in $(M dranges.pattermatch), here to emphasize
+This is just a wrapper around the $(M match) function found in $(M dranges.patternmatch), here to emphasize
 the way $(M match) is just a many-types-to-many-types 'function'. Explained a bit more clearly, $(M _eitherFun)
 takes any number of functions and keep them near its hot little heart. When passed an argument, it will
 successively test each function and returns the result of the first one that matches. No match means it will
@@ -944,7 +957,7 @@ unittest
 }
 
 /**
-A simple adapter, when you have a complicated function you do not (or cannot) want to touch. It
+A simple adapter, when you have a complicated function you do not want to touch (or cannot) touch. It
 applies the $(M pre) preprocessing to the arguments, calls fun and then postprocess the result. The
 default for post is "a", that is the identity string function. So the two args version of $(M _adaptFun)
 just deals with adapting the arguments.
