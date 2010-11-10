@@ -616,7 +616,7 @@ unittest
 }
 
 /**
-aliases itself to a repeated application of the binary template F on the types of T, like reduce
+Aliases itself to a repeated application of the binary template F on the types of T, like reduce
 does on ranges.
 Example:
 ----
@@ -635,15 +635,12 @@ assert(is(SR2 == Tuple!(int, Tuple!(double, Tuple!(int, long))))); // Non-flatte
 ----
 */
 template StaticReduce(alias F, T...) {
-    static if (T.length == 0) {
+    static if (T.length == 0, "StaticReduce used on an empty typetuple.") {
         static assert(false);
-    }
     static if (T.length == 1) {
         alias T[0] StaticReduce;
-    }
     static if (T.length > 1) {
         alias F!(T[0], StaticReduce!(F, T[1..$])) StaticReduce;
-    }
 }
 
 template CT(T,T2) {
@@ -703,7 +700,7 @@ template StaticReduce0(alias F, alias accumulator, T...) {
 /**
 Gives the TypeTuple resulting from the sucessive applications of F to reduce
 the T list.
-See_Also: $(M dranges.algorithm2.scan).
+See_Also: $(M dranges.algorithm.scan).
 */
 template StaticScan(alias F, T...)
 {
@@ -752,10 +749,12 @@ template StaticUnfold(size_t times, alias F, State...)
 /// Given a typetuple T, gives (T[0], T[step], T[2*step], T[3*step],...)
 template StaticStride(alias step, T...) if (step > 0)
 {
-    static if (T.length <= step)
-        alias TypeTuple!(T[0]) StaticStride;
-    else
-        alias TypeTuple!(T[0], StaticStride!(step, T[step..$])) StaticStride;
+   static if (T.length == 0)
+       alias TypeTuple!() StaticStride;
+   else static if (T.length <= step)
+       alias TypeTuple!(T[0]) StaticStride;
+   else
+       alias TypeTuple!(T[0], StaticStride!(step, T[step..$])) StaticStride;
 }
 
 /+ See SegmentTypes
