@@ -753,7 +753,7 @@ the argument.
 
 That may seem a strange template to define, but it's quite useful for mapping a tuple (see $(M dranges.tuple.mapTuple)
 and $(M dranges.tupletree.mapTree)).
-Suppose you have a tuple and what to change only the strings in it. Define $(M foo) to act on strings, extend it with
+Suppose you have a tuple and want to change only the strings in it. Define $(M foo) to act on strings, extend it with
 $(M _extendFun!foo) and voila, you can then map $(M _extendFun!foo) on your tuple: the strings will be transformed, leaving the
 other types untouched. I learnt the trick from a Haskell article.
 
@@ -888,7 +888,7 @@ How is this different from overloading, will you ask? I'm glad you did:
 $(UL
   $(LI first, you can use it to 'group' many different functions, from different origins and different names.)
   $(LI second (and that may be the most important point), it's a template, so the return
-type of $(M _eitherFun) can be different for each argument type. So you can use it to map a range, but also a tuple, with $(M dranges.tuple2.mapTuple)).
+type of $(M _eitherFun) can be different for each argument type. So you can use it to map a range, but also a tuple, with $(M dranges.tuple.mapTuple).)
   $(LI third, it accepts template functions. In fact, it even accepts 'string' functions, as in "a+b*c-d.expand". See the $(M patternmatch)
 module documentation for more explanations.)
   $(LI fourth, once it's defined, you can pass it around as one entity. Most notably, it can becomes the argument

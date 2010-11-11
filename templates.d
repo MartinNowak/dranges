@@ -278,7 +278,7 @@ template FlipTemplate(alias templ)
 {
     template FlipTemplate(T...)
     {
-        alias templ!(FlipType!T) FlipTemplate; // FlipType is a template defined in dranges.typetuple2
+        alias templ!(FlipType!T) FlipTemplate; // FlipType is a template defined in dranges.typetuple
     }
 }
 
@@ -290,7 +290,7 @@ template.
 Example:
 ----
 template Foo(A) {}; // Foo takes one type as param.
-// First is template defined in dranges.typetuple2 that takes a TypeTuple and alias itself to the first type.
+// First is template defined in dranges.typetuple that takes a TypeTuple and alias itself to the first type.
 alias TransformTemplate!(Foo, First) TFoo; // TFoo is a variadic template. Any T... passed to it is transformed
                                            // by First!T into T[0], before serving as parameter for Foo.
                                            // So, TFoo is now a variadic version of Foo.

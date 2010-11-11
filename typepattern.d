@@ -17,7 +17,7 @@ Usage:
 alias OneOrMore!(int) Ints;
 alias Either!(int, double) IOrD;
 alias _ Any; // Predefined '_' pattern, matching any type.
-alias And!(_,_) Two; // Match any two types in succession. Will fail if passed 0 or 1 type.
+alias And!(_,_) Two; // Matches any two types in succession. Will fail if passed 0 or 1 type.
 
 // A more complicated example:
 alias Successively!(
@@ -136,7 +136,8 @@ alias AllMatches!(Pattern).In!(InputTuple) AM;
 
 Example:
 ----
-alias AllMatches!(And!(_,int)).In!( int,double,int,string,int*,int,int ) Ints; // finds all couples where a type is followed by an int.
+// finds all couples where a type is followed by an int.
+alias AllMatches!(And!(_,int)).In!( int,double,int,string,int*,int,int ) Ints;
 assert(is(AM == TypeTuple!(
                            Tuple!(double,int),
                            Tuple!(int*,int),
@@ -162,7 +163,7 @@ template AllMatches(Pattern)
 }
 
 /**
-Replaces the first instance of $(M Pattern) with (M WithThis) in an input typetuple.
+Replaces the first instance of $(M Pattern) with $(M WithThis) in an input typetuple.
 Example:
 ----
 alias Replace!(And!(_,int), float).In!(double,int, string,string,int) Rep;
@@ -189,7 +190,7 @@ template Replace(Pattern, WithThis)
 }
 
 /**
-Replaces every instance of (M Pattern) with (M WithThis) in an input typetuple.
+Replaces every instance of $(M Pattern) with $(M WithThis) in an input typetuple.
 Example:
 ----
 alias ReplaceAll!(And!(_,int), float).In!(double,int, string,string,int) Rep;
@@ -216,10 +217,11 @@ template ReplaceAll(Pattern, WithThis)
 }
 
 /**
-A cousin of (M Replace): finds the first match of (M Pattern) in an input typetuple and replaces it with (M WithThis!(Match)).
+A cousin of $(M Replace): finds the first match of $(M Pattern) in an input typetuple and replaces it with $(M WithThis!(Match)).
 Example:
 ----
-alias Transform!(If!(isIntegral), Unsigned).In!( int,double,float,byte,ulong,string ) T; // transforms the first integral type with its unsigned equivalent
+// transforms the first integral type with its unsigned equivalent
+alias Transform!(If!(isIntegral), Unsigned).In!( int,double,float,byte,ulong,string ) T;
 assert(is( T == TypeTuple!(uint,double,float,byte,ulong,string)));
 ----
 */
@@ -243,10 +245,11 @@ template Transform(Pattern, alias WithThis)
 }
 
 /**
-A cousin of (M ReplaceAll): finds all successive matches of (M Pattern) in an input typetuple and replaces them with (M WithThis!(Match)).
+A cousin of $(M ReplaceAll): finds all successive matches of $(M Pattern) in an input typetuple and replaces them with (M WithThis!(Match)).
 Example:
 ----
-alias TransformAll!(If!(isIntegral), Unsigned).In!( int,double,float,byte,ulong,string ) T; // transforms all integral types with their unsigned equivalent
+// transforms all integral types with their unsigned equivalent
+alias TransformAll!(If!(isIntegral), Unsigned).In!( int,double,float,byte,ulong,string ) T;
 assert(is( T == TypeTuple!(uint,double,float,ubyte,ulong,string)));
 ----
 */
@@ -724,7 +727,8 @@ patterns will be tested in this way, getting them to match on the same input (mo
 simultaneously will $(M Simultaneously) returns a match: the last pattern's match. Not to be confused with $(M And) or $(M Successively)
 that test for matches while consuming the first patterns matches.
 ----
-alias Simultaneously!(And!(_,_), int) S; // S matches if there are two types in a row and the first one is an int. Returns 'int'.
+// S matches if there are two types in a row and the first one is an int. Returns 'int'.
+alias Simultaneously!(And!(_,_), int) S;
 ----
 Note: I'm not sure this is interesting, as there is frequently a way to express the same pattern in another way.
 I'm just playing along with $(M ReleaseMatch), really.
@@ -736,7 +740,7 @@ template Simultaneously(Patterns...)
 
 /**
 Transforms a pattern so that it'll consume input until it finds a match.
-Only if it reaches the end of the typetuple without matching does it return (M NoMatch).
+Only if it reaches the end of the typetuple without matching does it return $(M NoMatch).
 */
 struct UnAnchored(Pattern)
 {

@@ -5,10 +5,10 @@ This module leverages the pattern-matching nature of templates to provide a basi
 function. The main function here is $(M match), the engine behind ($ dranges.functional.eitherFun).
 See below for more doc.
 
-My goal is to link into a coherent whole all the pattern-matching modules in dranges: this one, $(dranges.typepattern),
-($M dranges.tuplepattern), $(M drange.ctre) and maybe use them to map and transform tuple-trees. A far-away
+My goal is to link into a coherent whole all the pattern-matching modules in dranges: this one, $(M dranges.typepattern),
+$(M dranges.tuplepattern), $(M drange.ctre) and maybe use them to map and transform tuple-trees. A far-away
 but inspirational goal is to get an AST from D code, transform it and recombine it into another AST, reducing it down
-to (a string reprensenting) D code. That is, a sort of macro system for D. It's but a dream, but it's a also a fun journey.
+to a string reprensenting D code. That is, a sort of macro system for D. It's but a dream, but it's a also a fun journey.
 
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 Authors:   Philippe Sigaud
