@@ -31,7 +31,7 @@ template. A match result is a struct exposing three fields:
 </font><font color=blue>alias</font> OneOrMore!(<font color=blue>int</font>) Ints;
 <font color=blue>alias</font> Either!(<font color=blue>int</font>, <font color=blue>double</font>) IOrD;
 <font color=blue>alias</font> _ Any; <font color=green>// Predefined '_' pattern, matching any type.
-</font><font color=blue>alias</font> And!(_,_) Two; <font color=green>// Match any two types in succession. Will fail if passed 0 or 1 type.
+</font><font color=blue>alias</font> And!(_,_) Two; <font color=green>// Matches any two types in succession. Will fail if passed 0 or 1 type.
 </font>
 <font color=green>// A more complicated example:
 </font><font color=blue>alias</font> Successively!(
@@ -110,8 +110,9 @@ template. A match result is a struct exposing three fields:
 
 <br><br>
 <b>Example:</b><br>
-<pre class="d_code"><font color=blue>alias</font> <u>AllMatches</u>!(And!(_,<font color=blue>int</font>)).In!( <font color=blue>int</font>,<font color=blue>double</font>,<font color=blue>int</font>,string,<font color=blue>int</font>*,<font color=blue>int</font>,<font color=blue>int</font> ) Ints; <font color=green>// finds all couples where a type is followed by an int.
-</font><font color=blue>assert</font>(<font color=blue>is</font>(AM == TypeTuple!(
+<pre class="d_code"><font color=green>// finds all couples where a type is followed by an int.
+</font><font color=blue>alias</font> <u>AllMatches</u>!(And!(_,<font color=blue>int</font>)).In!( <font color=blue>int</font>,<font color=blue>double</font>,<font color=blue>int</font>,string,<font color=blue>int</font>*,<font color=blue>int</font>,<font color=blue>int</font> ) Ints;
+<font color=blue>assert</font>(<font color=blue>is</font>(AM == TypeTuple!(
                            Tuple!(<font color=blue>double</font>,<font color=blue>int</font>),
                            Tuple!(<font color=blue>int</font>*,<font color=blue>int</font>),
                            Tuple!(<font color=blue>int</font>,<font color=blue>int</font>)
@@ -130,7 +131,7 @@ template. A match result is a struct exposing three fields:
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>Replaces the first instance of <b><code>Pattern</code></b> with (M WithThis) in an input typetuple.
+<dd>Replaces the first instance of <b><code>Pattern</code></b> with <b><code>WithThis</code></b> in an input typetuple.
 <br><br>
 <b>Example:</b><br>
 <pre class="d_code"><font color=blue>alias</font> <u>Replace</u>!(And!(_,<font color=blue>int</font>), <font color=blue>float</font>).In!(<font color=blue>double</font>,<font color=blue>int</font>, string,string,<font color=blue>int</font>) Rep;
@@ -149,7 +150,7 @@ template. A match result is a struct exposing three fields:
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>Replaces every instance of (M Pattern) with (M WithThis) in an input typetuple.
+<dd>Replaces every instance of <b><code>Pattern</code></b> with <b><code>WithThis</code></b> in an input typetuple.
 <br><br>
 <b>Example:</b><br>
 <pre class="d_code"><font color=blue>alias</font> <u>ReplaceAll</u>!(And!(_,<font color=blue>int</font>), <font color=blue>float</font>).In!(<font color=blue>double</font>,<font color=blue>int</font>, string,string,<font color=blue>int</font>) Rep;
@@ -168,11 +169,12 @@ template. A match result is a struct exposing three fields:
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>A cousin of (M Replace): finds the first match of (M Pattern) in an input typetuple and replaces it with (M WithThis!(Match)).
+<dd>A cousin of <b><code>Replace</code></b>: finds the first match of <b><code>Pattern</code></b> in an input typetuple and replaces it with <b><code>WithThis!(Match)</code></b>.
 <br><br>
 <b>Example:</b><br>
-<pre class="d_code"><font color=blue>alias</font> <u>Transform</u>!(If!(isIntegral), Unsigned).In!( <font color=blue>int</font>,<font color=blue>double</font>,<font color=blue>float</font>,<font color=blue>byte</font>,<font color=blue>ulong</font>,string ) T; <font color=green>// transforms the first integral type with its unsigned equivalent
-</font><font color=blue>assert</font>(<font color=blue>is</font>( T == TypeTuple!(<font color=blue>uint</font>,<font color=blue>double</font>,<font color=blue>float</font>,<font color=blue>byte</font>,<font color=blue>ulong</font>,string)));
+<pre class="d_code"><font color=green>// transforms the first integral type with its unsigned equivalent
+</font><font color=blue>alias</font> <u>Transform</u>!(If!(isIntegral), Unsigned).In!( <font color=blue>int</font>,<font color=blue>double</font>,<font color=blue>float</font>,<font color=blue>byte</font>,<font color=blue>ulong</font>,string ) T;
+<font color=blue>assert</font>(<font color=blue>is</font>( T == TypeTuple!(<font color=blue>uint</font>,<font color=blue>double</font>,<font color=blue>float</font>,<font color=blue>byte</font>,<font color=blue>ulong</font>,string)));
 </pre>
 <br><br>
 
@@ -187,11 +189,12 @@ template. A match result is a struct exposing three fields:
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>A cousin of (M ReplaceAll): finds all successive matches of (M Pattern) in an input typetuple and replaces them with (M WithThis!(Match)).
+<dd>A cousin of <b><code>ReplaceAll</code></b>: finds all successive matches of <b><code>Pattern</code></b> in an input typetuple and replaces them with (M WithThis!(Match)).
 <br><br>
 <b>Example:</b><br>
-<pre class="d_code"><font color=blue>alias</font> <u>TransformAll</u>!(If!(isIntegral), Unsigned).In!( <font color=blue>int</font>,<font color=blue>double</font>,<font color=blue>float</font>,<font color=blue>byte</font>,<font color=blue>ulong</font>,string ) T; <font color=green>// transforms all integral types with their unsigned equivalent
-</font><font color=blue>assert</font>(<font color=blue>is</font>( T == TypeTuple!(<font color=blue>uint</font>,<font color=blue>double</font>,<font color=blue>float</font>,<font color=blue>ubyte</font>,<font color=blue>ulong</font>,string)));
+<pre class="d_code"><font color=green>// transforms all integral types with their unsigned equivalent
+</font><font color=blue>alias</font> <u>TransformAll</u>!(If!(isIntegral), Unsigned).In!( <font color=blue>int</font>,<font color=blue>double</font>,<font color=blue>float</font>,<font color=blue>byte</font>,<font color=blue>ulong</font>,string ) T;
+<font color=blue>assert</font>(<font color=blue>is</font>( T == TypeTuple!(<font color=blue>uint</font>,<font color=blue>double</font>,<font color=blue>float</font>,<font color=blue>ubyte</font>,<font color=blue>ulong</font>,string)));
 </pre>
 <br><br>
 
@@ -672,8 +675,9 @@ simultaneously will <b><code>
 
 </code></b> returns a match: the last pattern's match. Not to be confused with <b><code>And</code></b> or <b><code>Successively</code></b>
 that test for matches while consuming the first patterns matches.
-<pre class="d_code"><font color=blue>alias</font> <u>Simultaneously</u>!(And!(_,_), <font color=blue>int</font>) S; <font color=green>// S matches if there are two types in a row and the first one is an int. Returns 'int'.
-</font></pre>
+<pre class="d_code"><font color=green>// S matches if there are two types in a row and the first one is an int. Returns 'int'.
+</font><font color=blue>alias</font> <u>Simultaneously</u>!(And!(_,_), <font color=blue>int</font>) S;
+</pre>
 <br><br>
 <b>Note:</b><br>
 I'm not sure this is interesting, as there is frequently a way to express the same pattern in another way.
@@ -692,7 +696,7 @@ I'm just playing along with <b><code>ReleaseMatch</code></b>, really.<br><br>
 
 
 <dd>Transforms a pattern so that it'll consume input until it finds a match.
-Only if it reaches the end of the typetuple without matching does it return (M NoMatch).<br><br>
+Only if it reaches the end of the typetuple without matching does it return <b><code>NoMatch</code></b>.<br><br>
 
 </dd>
 </dl>
@@ -703,7 +707,7 @@ Only if it reaches the end of the typetuple without matching does it return (M N
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Wed Nov 10 23:47:31 2010
+			on Thu Nov 11 21:56:13 2010
 
 		</td></tr>
 	</table>

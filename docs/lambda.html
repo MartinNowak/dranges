@@ -77,8 +77,8 @@ It's just an afternoon work really, so be prepared for bugs and such. As of this
     makes the compiler chokes because it cannot implicitly convert the lambda to a boolean. As there is no <b><code>opImplicitCast</code></b> in D, I'm stuck.</li>
   <li>No <b><code>opCast(type)</code></b>. It seems that in <b><code>cast(type)lambda</code></b>, the compiler does not construct the CastExpr I want it too, but try to directly
     cast lambda into a type...</li>
-  <li>No expression with standard functions. That is, no lambda like: <b><code>sin()+cos()</code></b>. That's because <b><code>sin</code></b> and <b><code>cos</code></b> want a <b><code>real</code></b>,
-    not a lambda. A nasty workaround would be to use the method call syntax: <b><code>.sin + .cos</code></b> and play with <b><code>opDispatch</code></b>. But I find the resulting
+  <li>No expression with standard functions. That is, no lambda like: <b><code>sin(_)+cos(_)</code></b>. That's because <b><code>sin</code></b> and <b><code>cos</code></b> want a <b><code>real</code></b>,
+    not a lambda. A nasty workaround would be to use the method call syntax: <b><code>_.sin + _.cos</code></b> and play with <b><code>opDispatch</code></b>. But I find the resulting
     syntax quite ugly.</li>
 </ul><br><br>
 
@@ -86,7 +86,7 @@ It's just an afternoon work really, so be prepared for bugs and such. As of this
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Thu Nov 11 21:50:58 2010
+			on Thu Nov 11 21:56:12 2010
 
 		</td></tr>
 	</table>

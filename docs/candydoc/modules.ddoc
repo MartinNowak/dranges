@@ -10,6 +10,7 @@ MODULES =
     $(MODULE dranges.graph)
     $(MODULE dranges.graphalgorithm)
     $(MODULE dranges.graphrange)
+	$(MODULE dranges.lambda)
     $(MODULE dranges.morphism)
     $(MODULE dranges.patternmatch)
     $(MODULE dranges.phobos_extension)
