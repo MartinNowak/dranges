@@ -48,9 +48,9 @@ The equivalent of reduce, on recursive ranges: it collapses an entire recursive 
 if you will and if the propagated value is complex, recursively builds a value from a tree.
 <br><br>
 
-fun takes as arguments the front value of the recursive range and the range of results coming from
+<b><code>fun</code></b> takes as arguments the front value of the recursive range and the range of results coming from
 applying the catamorphism on the successors. That is, one step in the building is that you already
-applied fun to the successors. From this range of temporary results and the current node's value,
+applied <b><code>fun</code></b> to the successors. From this range of temporary results and the current node's value,
 you build the current result, which you return 'upward', to the preceding level of recursion.
 <br><br>
 
@@ -74,7 +74,7 @@ This version take a standard function. It's the equivalent of reduce(range).<br>
 <dd>Anamorphism.
 <br><br>
 The equivalent of unfold for recursive ranges: creates a entire tree from
-a generative function gen, a seed value, and a predicate (on the current value) as the stopping condition.<br><br>
+a generative function <b><code>gen</code></b>, a seed value, and a predicate (on the current value) as the stopping condition.<br><br>
 
 </dd>
 
@@ -130,7 +130,7 @@ Examples?<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Thu Nov 11 21:56:12 2010
+			on Fri Nov 12 11:55:10 2010
 
 		</td></tr>
 	</table>
@@ -157,6 +157,8 @@ Examples?<br><br>
     explorer.packageExplorer.addModule("dranges.graphalgorithm");
 
     explorer.packageExplorer.addModule("dranges.graphrange");
+
+	explorer.packageExplorer.addModule("dranges.lambda");
 
     explorer.packageExplorer.addModule("dranges.morphism");
 

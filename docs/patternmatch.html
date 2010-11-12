@@ -112,6 +112,47 @@ string threeDiff(T,U,V)(T t, U u, V v) <font color=green>// Any three types.
 .<br><br>
 
 </dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">template 
+<span class="currsymbol">amatch</span>
+<script>explorer.outline.addDecl('amatch');</script>
+
+(Funs...)</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd>Another matching function, this one working on algebraic types from <b><code>std.typecons</code></b>.
+The passed-in functions must be standard, non-templated functions which all return the same type
+and must match the types allowed by the algebraic.
+That is, if you have an <b><code>Algebraic!(int, double, string)</code></b>,
+one function must accept an int, another must accept a double and a third must accept
+a string. Or rather, given this triplet of function <b><code>
+<span class="currsymbol">amatch</span>
+<script>explorer.outline.addDecl('amatch');</script>
+
+!(funs)</code></b> will not accept
+an <b><code>Algebraic</code></b> which does not have <b><code>int</code></b>, <b><code>string</code></b> and <b><code>double</code></b> as allowed types.
+Note that the order is not important, the types are all sorted internally.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code">Algebraic!(<font color=blue>int</font>, string, <font color=blue>double</font>) alg;
+
+string foo(<font color=blue>int</font> i) { <font color=blue>return</font> to!string(i+1);}
+string bar(<font color=blue>double</font> d) { <font color=blue>return</font> to!string(d*d);}
+string baz(string s) { <font color=blue>return</font> <font color=red>""</font>;}
+<font color=blue>alias</font> <u>amatch</u>!(foo,bar,baz) matcher;
+
+alg = 3;
+<font color=blue>assert</font>(matcher(alg) == <font color=red>"4"</font>); <font color=green>// int function activated.
+</font>alg = <font color=red>"abc"</font>;
+<font color=blue>assert</font>(matcher(alg) == <font color=red>""</font>);  <font color=green>// string function activated.
+</font>alg = 3.0;
+<font color=blue>assert</font>(matcher(alg) == <font color=red>"9.0"</font>); <font color=green>// int function activated.
+</font></pre>
+<br><br>
+
+</dd>
 </dl>
 <script>explorer.outline.decSymbolLevel();</script>
 
@@ -120,7 +161,7 @@ string threeDiff(T,U,V)(T t, U u, V v) <font color=green>// Any three types.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Thu Nov 11 21:56:12 2010
+			on Fri Nov 12 11:55:10 2010
 
 		</td></tr>
 	</table>
@@ -147,6 +188,8 @@ string threeDiff(T,U,V)(T t, U u, V v) <font color=green>// Any three types.
     explorer.packageExplorer.addModule("dranges.graphalgorithm");
 
     explorer.packageExplorer.addModule("dranges.graphrange");
+
+	explorer.packageExplorer.addModule("dranges.lambda");
 
     explorer.packageExplorer.addModule("dranges.morphism");
 

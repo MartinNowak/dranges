@@ -407,7 +407,7 @@ int[1] gives TypeTuple!(int), which is not of type int.<br><br>
 
 
 <dd>D's typetuple automatically flatten, which is interesting on certain occasions, but not when you're
-trying to create a deeply nested structure, sich as a tree of types. For those occasions, using std.Typecons.Tuple
+trying to create a deeply nested structure, such as a tree of types. For those occasions, using std.Typecons.Tuple
 is a possibility. This template is for going back: given a typetuple, possibliy containing nested tuples, it flattens
 them all and returns a flat typetuple.
 <br><br>
@@ -416,7 +416,7 @@ them all and returns a flat typetuple.
 <font color=blue>alias</font> TypeTuple!(Tuple!(<font color=blue>int</font>,<font color=blue>double</font>), string, Tuple!Flat, Tuple!(<font color=blue>int</font>, Tuple!<font color=blue>int</font>)) Nested;
 
 <font color=blue>assert</font>(<font color=blue>is</font>(<u>FlattenTuple</u>!Flat == Flat));
-<font color=blue>assert</font>(<font color=blue>is</font>(Flatten!Nested == TypeTuple!(<font color=blue>int</font>,<font color=blue>double</font>,string,<font color=blue>int</font>,<font color=blue>double</font>,string,<font color=blue>int</font>,<font color=blue>int</font>)));
+<font color=blue>assert</font>(<font color=blue>is</font>(<u>FlattenTuple</u>!Nested == TypeTuple!(<font color=blue>int</font>,<font color=blue>double</font>,string,<font color=blue>int</font>,<font color=blue>double</font>,string,<font color=blue>int</font>,<font color=blue>int</font>)));
 </pre>
 <br><br>
 
@@ -735,10 +735,10 @@ instead of cycling forever...<br><br>
 <script>explorer.outline.writeEnabled = false;</script>
 
 
-<dd>Sort types in Types, according to predicate Pred. Pred is a binary template
+<dd>Sort types in <b><code>Types</code></b>, according to predicate <b><code>Pred</code></b>. <b><code>Pred</code></b> is a binary template
 that must alias itself to 0 if types are equal, to -1 if T1 &lt; T2 and +1 if T1 &gt; T2.
 If you do not care for the precise ordering (such as when you just want to verify that two tuples
-are the same), you can use dranges.templates.CompareTypes.<br><br>
+are the same), <b><code>you can use dranges.templates.CompareTypes</code></b> as a predicate.<br><br>
 
 </dd>
 
@@ -828,7 +828,7 @@ while composing templates.<br><br>
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Thu Nov 11 21:56:13 2010
+			on Fri Nov 12 11:55:12 2010
 
 		</td></tr>
 	</table>
@@ -855,6 +855,8 @@ while composing templates.<br><br>
     explorer.packageExplorer.addModule("dranges.graphalgorithm");
 
     explorer.packageExplorer.addModule("dranges.graphrange");
+
+	explorer.packageExplorer.addModule("dranges.lambda");
 
     explorer.packageExplorer.addModule("dranges.morphism");
 

@@ -427,6 +427,40 @@ a new tuple with element as first field and then tup's fields.
 <script>explorer.outline.writeEnabled = false;</script>
 
 
+<dd>Flatten a tuple: any tuples inside the main tuple are opened and their content inserted, recursively.
+<br><br>
+<b>Example:</b><br>
+<pre class="d_code"><font color=blue>auto</font> t = tuple(1, tuple(<font color=red>"a"</font>,3.14), tuple(tuple(0), 100));
+<font color=blue>auto</font> f = <u>flattenTuple</u>(t);
+<font color=blue>assert</font>(f == tuple(1, <font color=red>"a"</font>, 3.14, 0, 100));
+</pre>
+<br><br>
+
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">typeof(fun(ifLeaf(T[0].init))) 
+<span class="currsymbol">tupleReduce</span>
+<script>explorer.outline.addDecl('tupleReduce');</script>
+
+(alias fun, alias ifLeaf, T...)(T <span class="funcparam">tup</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
+<dd><br><br>
+</dd>
+
+<script>explorer.outline.writeEnabled = true;</script>
+<dt><span class="decl">typeof(fun(CommonType!(Flatten!(T)).init)) 
+<span class="currsymbol">tupleReduce0</span>
+<script>explorer.outline.addDecl('tupleReduce0');</script>
+
+(alias fun, alias ifLeaf, T...)(T <span class="funcparam">tup</span>);
+</span></dt>
+<script>explorer.outline.writeEnabled = false;</script>
+
+
 <dd><br><br>
 </dd>
 
@@ -600,7 +634,7 @@ a new tuple with element as first field and then tup's fields.
 		<tr><td id="docfooter">
 			Page was generated with
 			<img src="candydoc/img/candydoc.gif" style="vertical-align:middle; position:relative; top:-1px">
-			on Thu Nov 11 21:56:12 2010
+			on Fri Nov 12 11:55:12 2010
 
 		</td></tr>
 	</table>
@@ -627,6 +661,8 @@ a new tuple with element as first field and then tup's fields.
     explorer.packageExplorer.addModule("dranges.graphalgorithm");
 
     explorer.packageExplorer.addModule("dranges.graphrange");
+
+	explorer.packageExplorer.addModule("dranges.lambda");
 
     explorer.packageExplorer.addModule("dranges.morphism");
 
