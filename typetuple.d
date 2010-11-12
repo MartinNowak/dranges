@@ -479,16 +479,17 @@ unittest {
 
 /**
 D's typetuple automatically flatten, which is interesting on certain occasions, but not when you're
-trying to create a deeply nested structure, sich as a tree of types. For those occasions, using std.Typecons.Tuple
+trying to create a deeply nested structure, such as a tree of types. For those occasions, using std.Typecons.Tuple
 is a possibility. This template is for going back: given a typetuple, possibliy containing nested tuples, it flattens
 them all and returns a flat typetuple.
+
 Example:
 ----
 alias TypeTuple!(int, double, string) Flat;
 alias TypeTuple!(Tuple!(int,double), string, Tuple!Flat, Tuple!(int, Tuple!int)) Nested;
 
 assert(is(FlattenTuple!Flat == Flat));
-assert(is(Flatten!Nested == TypeTuple!(int,double,string,int,double,string,int,int)));
+assert(is(FlattenTuple!Nested == TypeTuple!(int,double,string,int,double,string,int,int)));
 ----
 */
 template FlattenTuple(T...)
@@ -865,10 +866,10 @@ template SortTypesImpl(alias Pred, Types...)
 }
 
 /**
-Sort types in Types, according to predicate Pred. Pred is a binary template
+Sort types in $(M Types), according to predicate $(M Pred). $(M Pred) is a binary template
 that must alias itself to 0 if types are equal, to -1 if T1 < T2 and +1 if T1 > T2.
 If you do not care for the precise ordering (such as when you just want to verify that two tuples
-are the same), you can use dranges.templates.CompareTypes.
+are the same), $(M you can use dranges.templates.CompareTypes) as a predicate.
 */
 template SortTypes(alias Pred, Types...)
 {

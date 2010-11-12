@@ -510,23 +510,47 @@ template SumOfLengths(T...)
     alias StaticScan!(SumOfLength, 0, T) SumOfLengths;
 }
 
-///
+/**
+Flatten a tuple: any tuples inside the main tuple are opened and their content inserted, recursively.
+Example:
+----
+auto t = tuple(1, tuple("a",3.14), tuple(tuple(0), 100));
+auto f = flattenTuple(t);
+assert(f == tuple(1, "a", 3.14, 0, 100));
+----
+*/
 Tuple!(FlattenTuple!T) flattenTuple(T...)(T tup)
 {
     alias SumOfLengths!T lengths;
-    Flatten!T flat;
+    FlattenTuple!T flat;
     foreach(i, Type; T)
-        static if (__traits(compiles, T[i].Types)) {
-            static if (T[i].Types.length > 0) // Only if someone tries to flatten Tuple!() (aka Unit)
-                flat[lengths[i]..lengths[i+1]] = flattenTuple(tup[i].expand).expand;}
+        static if (isTuple!(T[i]) && (T[i].Types.length > 0)) // Only if someone tries to flatten Tuple!() (aka Unit)
+            flat[lengths[i]..lengths[i+1]] = flattenTuple(tup[i].expand).expand;
         else
             flat[lengths[i]] = tup[i];
     return tuple(flat);
 }
 
+unittest
+{
+    auto t0 = tuple(0);
+    auto t1 = tuple("a", 3.14);
+    auto t2 = tuple(t0, 100);
+    auto t3 = tuple(1, t1, t2);
+
+    auto f0 = flattenTuple(t0);
+    assert(f0 == t0);
+    auto f1 = flattenTuple(t1);
+    assert(f1 == t1);
+    auto f2 = flattenTuple(t2);
+    assert(f2 == tuple(0, 100));
+    auto f3 = flattenTuple(t3);
+    assert(f3 == tuple(1, "a", 3.14, 0, 100));
+}
+
 template NoEmptyTuple(alias zero, T)
 {
-    static if (__traits(compiles, T.Types) && T.Types.length == 0)
+    static if (isTuple!T && T.Types.length == 0)
         enum NoEmptyTuple = zero;
     else
         enum NoEmptyTuple = zero + 1;
@@ -537,7 +561,7 @@ template NoEmptyList(T...)
     alias StaticScan!(NoEmptyTuple, 0, T) NoEmptyList;
 }
 
-
+///
 typeof(fun(ifLeaf(T[0].init))) tupleReduce(alias fun, alias ifLeaf, T...)(T tup) if (T.length)
 {
 //    alias SumOfLengths!T lengths;
@@ -552,7 +576,7 @@ typeof(fun(ifLeaf(T[0].init))) tupleReduce(alias fun, alias ifLeaf, T...)(T tup)
     return fun(temp);
 }
 
-
+///
 typeof(fun(CommonType!(Flatten!T).init)) tupleReduce0(alias fun, alias ifLeaf, T...)(T tup)
 {
     TypeNuple!(typeof(fun(ifLeaf(T[0].init))), T.length) temp;

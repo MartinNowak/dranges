@@ -34,9 +34,9 @@ Catamorphism.
 The equivalent of reduce, on recursive ranges: it collapses an entire recursive range into one value. Or,
 if you will and if the propagated value is complex, recursively builds a value from a tree.
 
-fun takes as arguments the front value of the recursive range and the range of results coming from
+$(M fun) takes as arguments the front value of the recursive range and the range of results coming from
 applying the catamorphism on the successors. That is, one step in the building is that you already
-applied fun to the successors. From this range of temporary results and the current node's value,
+applied $(M fun) to the successors. From this range of temporary results and the current node's value,
 you build the current result, which you return 'upward', to the preceding level of recursion.
 
 So, if the node is a sink/leaf (no successors or the only successor is empty), the range of result is also empty.
@@ -70,7 +70,7 @@ int numNodes(int[] numnodes, ...) { return sum(1 ~ numnodes);}
 Anamorphism.
 
 The equivalent of unfold for recursive ranges: creates a entire tree from
-a generative function gen, a seed value, and a predicate (on the current value) as the stopping condition.
+a generative function $(M gen), a seed value, and a predicate (on the current value) as the stopping condition.
 */
 class Ana(alias gen, alias pred, T) {
     T value;
@@ -116,7 +116,7 @@ unittest
     int[] nums = [1,2,3,4,5];
     int[] e;
 
-        auto t = para!(e, "(a ~ b) ~ c")(nums);
+    auto t = para!(e, "(a ~ b) ~ c")(nums);
 //    wr(t);
     auto fact = para!(1, "(a+1)*c")([5,4,3,2,1]);
 //    writeln(fact);

@@ -1,5 +1,5 @@
 /**
-To Be Documented.
+Tentative recursive deep-dupping.
 */
 module dranges.deepdup;
 

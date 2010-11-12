@@ -26,7 +26,8 @@ import std.conv,
        std.typecons,
        std.typetuple;
 
-import dranges.reftuple,
+import dranges.functional,
+//        dranges.reftuple,
        dranges.templates,
        dranges.traits,
        dranges.typetuple;
@@ -202,23 +203,58 @@ ReturnType!F cond(M,P,F,Rest...)(M m, P pred, F fun, Rest rest) {
     }
 }
 
-/+
-Algebraic!(ParameterTypeTuples!Funs) amatch(AType, Funs...)(AType alg)
-if (__traits(compiles, AType.AllowedTypes)
-&& is(ParameterTypeTuples!Funs == AType.AllowedTypes))
+/**
+Another matching function, this one working on algebraic types from $(M std.typecons).
+The passed-in functions must be standard, non-templated functions which all return the same type
+and must match the types allowed by the algebraic.
+That is, if you have an $(M Algebraic!(int, double, string)),
+one function must accept an int, another must accept a double and a third must accept
+a string. Or rather, given this triplet of function $(M amatch!(funs)) will not accept
+an $(M Algebraic) which does not have $(M int), $(M string) and $(M double) as allowed types.
+Note that the order is not important, the types are all sorted internally.
+
+Example:
+----
+Algebraic!(int, string, double) alg;
+
+string foo(int i) { return to!string(i+1);}
+string bar(double d) { return to!string(d*d);}
+string baz(string s) { return "";}
+alias amatch!(foo,bar,baz) matcher;
+
+alg = 3;
+assert(matcher(alg) == "4"); // int function activated.
+alg = "abc";
+assert(matcher(alg) == "");  // string function activated.
+alg = 3.0;
+assert(matcher(alg) == "9.0"); // int function activated.
+----
+*/
+template amatch(Funs...)
 {
-    Algebraic!(ReturnTypeTuples!Funs) result;
-    foreach(fun; Funs)
+    auto amatch(AType)(AType alg)
+        if (__traits(compiles, AType.AllowedTypes)) // AType is an Algebraic!(...)
     {
-        auto p = alg.peek!(ReturnTypeTuple!fun[0]);
-        if (p !is null)
+        static if (is(SortTypes!(CompareTypes, StaticMap!(ParameterTypeTuple, Funs)) == SortTypes!(CompareTypes, AType.AllowedTypes) ))
         {
-            result = fun(*p);
-            break;
+            CommonType!(StaticMap!(ReturnType,Funs)) result;
+            foreach(fun; Funs)
+            {
+                auto p = alg.peek!(ParameterTypeTuple!fun[0]);
+                if (p !is null)
+                {
+                    result = fun(*p);
+                    break;
+                }
+            }
+            return result;
+        }
+        else
+        {
+            static assert(false, "amatch: mismatch between the types accepted by the input functions: "
+                          ~ SortTypes!(CompareTypes, StaticMap!(ParameterTypeTuple, Funs)).stringof
+                          ~ "and the types allowed by the algebraic: "
+                          ~ SortTypes!(CompareTypes, AType.AllowedTypes).stringof);
         }
     }
-    return result;
 }
-+/
-
-
