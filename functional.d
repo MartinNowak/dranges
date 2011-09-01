@@ -29,6 +29,7 @@ import std.algorithm,
        std.typecons,
        std.typetuple;
 
+import core.vararg;
 import dranges.algorithm,
        dranges.patternmatch,
        dranges.predicate,
