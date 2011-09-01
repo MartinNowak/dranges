@@ -1903,7 +1903,7 @@ struct Numbers {
             throw new Exception("Numbers.opSlice: first index out of bound " ~ to!string(index1*_step) ~ " + " ~ to!string(_num) ~ " >= " ~ to!string(_max));
         if ((_step > 0) && (index2*_step + _num > _max) || (_step < 0) && (index2*_step + _num <= _max))
             throw new Exception("Numbers.opSlice: second index out of bound " ~ to!string(index2*_step) ~ " + " ~ to!string(_num) ~ " >= " ~ to!string(_max));
-        return Numbers(index1*_step + _num, index2*_step + _num);
+        return Numbers(to!int(index1*_step + _num), to!int(index2*_step + _num));
     }
 
     @property size_t length() { return (this.empty ? 0 : cast(size_t)((_max-_num)/_step));}
