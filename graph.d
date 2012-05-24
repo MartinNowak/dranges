@@ -133,7 +133,7 @@ construct the reversed edge (going from 'to' to 'from') from an unknown type
 providing the edge interface? The internal structure may be complicated and initialized in
 a non-trivial way.
 */
-struct LenghtyEdge(Label, Length)
+struct LengthyEdge(Label, Length)
 {
     Label from, to;
     Length length;
