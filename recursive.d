@@ -216,7 +216,7 @@ template isInputRecursiveRange(T)
 {
     enum bool isInputRecursiveRange = is(typeof({
                                                T t;
-                                               if (t.hasValue) {};
+                                               if (t.hasValue) {}
                                                auto v = t.value;
                                                auto s = t.successors;
 //                                               bool b = t.isSink;

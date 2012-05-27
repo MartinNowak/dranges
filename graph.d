@@ -502,12 +502,17 @@ template isValidNodeEdgeList(T...)
     static if (allSatisfy!(isNodeOrEdge, T)        // if they are all nodes or edges,
            && (StaticFilter!(isNode,T).length > 0) // if there is at least one node,
            && !is(CommonType!(StaticFilter!(isNode,T)) == void)) // do nodes have a common type?
+    {
            static if (StaticFilter!(isEdge,T).length) // and if there is at least one edge ...
                 enum bool isValidNodeEdgeList = !is(CommonType!(StaticFilter!(isEdge,T)) == void) // ... do these edges have a common type?
                                                  // and are nodes and edges compatible?
                                              &&  is(typeof(CommonType!(StaticFilter!(isNode,T)).label) == typeof(CommonType!(StaticFilter!(isEdge,T)).to));
             else  // No edge in the list
                 enum bool isValidNodeEdgeList = true;
+    }
+    else
+        enum bool isValidNodeEdgeList = false;
+
 }
 
 /**
