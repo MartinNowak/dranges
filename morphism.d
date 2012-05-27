@@ -18,7 +18,8 @@ import std.algorithm,
        std.array,
        std.functional,
        std.range,
-       std.traits;
+       std.traits,
+       core.vararg;
 
 import dranges.algorithm,
        dranges.functional,

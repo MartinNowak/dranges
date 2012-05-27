@@ -18,7 +18,6 @@ import std.c.string; // to give the templates access to c.string as template par
 import std.algorithm,
        std.array,
        std.conv,
-       std.date,
        std.exception,
        std.functional,
        std.math,
