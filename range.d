@@ -1883,8 +1883,8 @@ struct Numbers {
     this(int from, int to) { _num = from; _max = to; _step = 1;}
     this(int from, int to, int step) { _num = from; _max = to; _step = step;}
 
-    bool empty() { return (_step > 0) ? _num >= _max : _num <= _max;}
-    int front() {return _num;}
+    @property bool empty() { return (_step > 0) ? _num >= _max : _num <= _max;}
+    @property int front() {return _num;}
     @property Numbers save() { return this;}
     void popFront() { _num = _num + _step;}
     int back() { return _max-1;}
@@ -2163,7 +2163,7 @@ struct Pi
 {
     BigInt q,r,t,i,u,y;
     enum bool empty = false;
-    int front() { return to!int(y.toInt);}
+    @property int front() { return to!int(y.toInt());}
     @property Pi save() { return this;}
     void popFront()
     {

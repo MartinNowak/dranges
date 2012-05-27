@@ -318,16 +318,16 @@ Arg!i arg(int i)() if (i >= 0)
     return res;
 }
 
-enum Arg!0 _ = arg!0;
+enum Arg!0 _ = arg!0();
 
-enum Arg!0 _0 = arg!0;
-enum Arg!1 _1 = arg!1;
-enum Arg!2 _2 = arg!2;
-enum Arg!3 _3 = arg!3;
-enum Arg!4 _4 = arg!4;
-enum Arg!5 _5 = arg!5;
-enum Arg!6 _6 = arg!6;
-enum Arg!7 _7 = arg!7;
-enum Arg!8 _8 = arg!8;
-enum Arg!9 _9 = arg!9;
+enum Arg!0 _0 = arg!0();
+enum Arg!1 _1 = arg!1();
+enum Arg!2 _2 = arg!2();
+enum Arg!3 _3 = arg!3();
+enum Arg!4 _4 = arg!4();
+enum Arg!5 _5 = arg!5();
+enum Arg!6 _6 = arg!6();
+enum Arg!7 _7 = arg!7();
+enum Arg!8 _8 = arg!8();
+enum Arg!9 _9 = arg!9();
 
