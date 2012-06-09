@@ -18,9 +18,14 @@ struct Stack(T) {
     size_t index;
 
     ///
-    this(int initialLength = 1000) {
-        data.length = initialLength;
-        index = 0;
+    @disable this();
+
+    ///
+    static Stack opCall(int initialLength = 1000) {
+        Stack s = void;
+        s.data = new T[](initialLength);
+        s.index = 0;
+        return s;
     }
 
     ///
